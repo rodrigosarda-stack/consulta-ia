@@ -3,15 +3,57 @@ import { getDeviceId, recoverDeviceId } from './fingerprint'
 
 // ── Usuário ──
 
+// ── Anti-abuso: 3 camadas ──
+
+async function getAntiAbusoConfig() {
+  const { data } = await supabase
+    .from('config')
+    .select('valor')
+    .eq('chave', 'anti_abuso')
+    .single()
+  return data?.valor || { max_contas_por_device: 2, max_contas_por_ip_semana: 3, max_trials_por_device: 1 }
+}
+
+// Camada 1: Device já usou trial?
 async function checkDeviceTrial(deviceId) {
-  // Verifica se esse device já usou trial antes
   const { data } = await supabase
     .from('devices')
     .select('*')
     .eq('device_id', deviceId)
     .single()
+  return data // null = device novo
+}
 
-  return data // null = device novo, nunca usou trial
+// Camada 2: Device criou contas demais?
+async function checkDeviceLimit(deviceId, maxContas) {
+  const { data } = await supabase
+    .from('devices')
+    .select('contas_criadas')
+    .eq('device_id', deviceId)
+    .single()
+  if (!data) return { blocked: false, count: 0 }
+  return { blocked: data.contas_criadas >= maxContas, count: data.contas_criadas }
+}
+
+// Camada 3: IP criou contas demais esta semana?
+async function checkIPLimit(maxPorSemana) {
+  try {
+    // Pega IP público via serviço externo
+    const res = await fetch('https://api.ipify.org?format=json')
+    const { ip } = await res.json()
+
+    const umaSemanaAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { count } = await supabase
+      .from('signup_ips')
+      .select('*', { count: 'exact', head: true })
+      .eq('ip', ip)
+      .gte('created_at', umaSemanaAtras)
+
+    return { blocked: count >= maxPorSemana, ip, count }
+  } catch {
+    // Se falhar pegar IP, não bloqueia (fail open)
+    return { blocked: false, ip: null, count: 0 }
+  }
 }
 
 async function registerDevice(deviceId, isNewTrial) {
@@ -27,6 +69,7 @@ async function registerDevice(deviceId, isNewTrial) {
       .update({
         contas_criadas: existing.contas_criadas + 1,
         ultimo_uso: new Date().toISOString(),
+        trial_usado: existing.trial_usado || isNewTrial,
       })
       .eq('device_id', deviceId)
   } else {
@@ -38,6 +81,13 @@ async function registerDevice(deviceId, isNewTrial) {
         trial_usado: isNewTrial,
       })
   }
+}
+
+async function registerIP(ip, telefone) {
+  if (!ip) return
+  await supabase
+    .from('signup_ips')
+    .insert({ ip, telefone })
 }
 
 export async function getOrCreateUsuario(telefone) {
@@ -59,16 +109,32 @@ export async function getOrCreateUsuario(telefone) {
     return existing
   }
 
-  // Novo usuário — verificar se o device já teve trial
+  // Novo usuário — verificar 3 camadas anti-abuso
   const deviceId = getDeviceId()
+  const config = await getAntiAbusoConfig()
+
+  // Camada 1: Device já usou trial?
   const deviceHistory = await checkDeviceTrial(deviceId)
   const trialJaUsado = deviceHistory?.trial_usado === true
 
+  // Camada 2: Device criou contas demais?
+  const deviceLimit = await checkDeviceLimit(deviceId, config.max_contas_por_device)
+
+  // Camada 3: IP criou contas demais esta semana?
+  const ipLimit = await checkIPLimit(config.max_contas_por_ip_semana)
+
+  // Decisão: dá trial?
+  const bloqueado = trialJaUsado || deviceLimit.blocked || ipLimit.blocked
+  const daTrial = !bloqueado
+  const motivo = trialJaUsado ? 'device_trial_usado'
+    : deviceLimit.blocked ? 'device_limite_contas'
+    : ipLimit.blocked ? 'ip_limite_semanal'
+    : null
+
   const now = new Date()
-  const daTrial = !trialJaUsado
   const trialFim = daTrial
-    ? new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000) // +3 dias
-    : null // sem trial — começa direto no 3/dia
+    ? new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000)
+    : null
 
   const { data, error } = await supabase
     .from('usuarios')
@@ -77,16 +143,28 @@ export async function getOrCreateUsuario(telefone) {
       device_id: deviceId,
       trial_inicio: daTrial ? now.toISOString() : null,
       trial_fim: trialFim ? trialFim.toISOString() : null,
-      trial_bloqueado: trialJaUsado,
-      creditos_hoje: daTrial ? 999 : 3, // ilimitado no trial, 3/dia se bloqueado
+      trial_bloqueado: bloqueado,
+      creditos_hoje: daTrial ? 999 : 3,
     })
     .select()
     .single()
 
   if (error) throw error
 
-  // Registrar device
+  // Registrar device e IP
   await registerDevice(deviceId, daTrial)
+  await registerIP(ipLimit.ip, telefone)
+
+  // Log de bloqueio (pra auditoria)
+  if (bloqueado) {
+    await supabase.from('creditos_log').insert({
+      usuario_tel: telefone,
+      tipo: 'trial',
+      delta: 0,
+      saldo_apos: 3,
+      detalhes: `Trial bloqueado: ${motivo} | device: ${deviceId} | ip: ${ipLimit.ip} | device_contas: ${deviceLimit.count}`,
+    })
+  }
 
   return data
 }
