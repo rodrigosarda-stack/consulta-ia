@@ -1,6 +1,44 @@
 import { supabase } from './supabase'
+import { getDeviceId, recoverDeviceId } from './fingerprint'
 
 // ── Usuário ──
+
+async function checkDeviceTrial(deviceId) {
+  // Verifica se esse device já usou trial antes
+  const { data } = await supabase
+    .from('devices')
+    .select('*')
+    .eq('device_id', deviceId)
+    .single()
+
+  return data // null = device novo, nunca usou trial
+}
+
+async function registerDevice(deviceId, isNewTrial) {
+  const { data: existing } = await supabase
+    .from('devices')
+    .select('*')
+    .eq('device_id', deviceId)
+    .single()
+
+  if (existing) {
+    await supabase
+      .from('devices')
+      .update({
+        contas_criadas: existing.contas_criadas + 1,
+        ultimo_uso: new Date().toISOString(),
+      })
+      .eq('device_id', deviceId)
+  } else {
+    await supabase
+      .from('devices')
+      .insert({
+        device_id: deviceId,
+        contas_criadas: 1,
+        trial_usado: isNewTrial,
+      })
+  }
+}
 
 export async function getOrCreateUsuario(telefone) {
   const { data: existing } = await supabase
@@ -9,23 +47,47 @@ export async function getOrCreateUsuario(telefone) {
     .eq('telefone', telefone)
     .single()
 
-  if (existing) return existing
+  if (existing) {
+    // Atualiza device_id se ainda não tem
+    const deviceId = recoverDeviceId() || getDeviceId()
+    if (!existing.device_id) {
+      await supabase
+        .from('usuarios')
+        .update({ device_id: deviceId })
+        .eq('telefone', telefone)
+    }
+    return existing
+  }
+
+  // Novo usuário — verificar se o device já teve trial
+  const deviceId = getDeviceId()
+  const deviceHistory = await checkDeviceTrial(deviceId)
+  const trialJaUsado = deviceHistory?.trial_usado === true
 
   const now = new Date()
-  const trialFim = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000) // +3 dias
+  const daTrial = !trialJaUsado
+  const trialFim = daTrial
+    ? new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000) // +3 dias
+    : null // sem trial — começa direto no 3/dia
 
   const { data, error } = await supabase
     .from('usuarios')
     .insert({
       telefone,
-      trial_inicio: now.toISOString(),
-      trial_fim: trialFim.toISOString(),
-      creditos_hoje: 999, // ilimitado durante trial
+      device_id: deviceId,
+      trial_inicio: daTrial ? now.toISOString() : null,
+      trial_fim: trialFim ? trialFim.toISOString() : null,
+      trial_bloqueado: trialJaUsado,
+      creditos_hoje: daTrial ? 999 : 3, // ilimitado no trial, 3/dia se bloqueado
     })
     .select()
     .single()
 
   if (error) throw error
+
+  // Registrar device
+  await registerDevice(deviceId, daTrial)
+
   return data
 }
 
