@@ -18,17 +18,32 @@ export default function Login({ onLogin }) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`
   }
 
+  function normalizePhone(raw) {
+    let digits = raw.replace(/\D/g, '')
+    // Remove +55 se digitou
+    if (digits.startsWith('55') && digits.length >= 12) digits = digits.slice(2)
+    // Se tem 10 dígitos (sem 9º), adiciona o 9 após o DDD
+    // Ex: 48 9999-0000 → 48 9 9999-0000
+    if (digits.length === 10) {
+      digits = digits.slice(0, 2) + '9' + digits.slice(2)
+    }
+    return digits
+  }
+
   function toE164(raw) {
-    const digits = raw.replace(/\D/g, '')
-    return `+55${digits}`
+    return `+55${normalizePhone(raw)}`
   }
 
   async function handleSendOTP(e) {
     e.preventDefault()
     setError('')
-    const digits = phone.replace(/\D/g, '')
-    if (digits.length < 10 || digits.length > 11) {
-      setError('Número inválido. Use DDD + número.')
+    const digits = normalizePhone(phone)
+    if (digits.length !== 11) {
+      setError('Número inválido. Use DDD + 9 dígitos.')
+      return
+    }
+    if (digits[2] !== '9') {
+      setError('Número de celular deve começar com 9 após o DDD.')
       return
     }
     setLoading(true)

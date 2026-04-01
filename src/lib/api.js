@@ -1,6 +1,17 @@
 import { supabase } from './supabase'
 import { getDeviceId, recoverDeviceId } from './fingerprint'
 
+// ── Normalização de telefone ──
+// Garante que +5548999990000 e +55489999000 (sem 9º) virem o mesmo número
+export function normalizePhone(phone) {
+  let digits = phone.replace(/\D/g, '')
+  // Remove prefixo 55 se veio completo
+  if (digits.startsWith('55') && digits.length >= 12) digits = digits.slice(2)
+  // Adiciona 9º dígito se faltou (10 dígitos → 11)
+  if (digits.length === 10) digits = digits.slice(0, 2) + '9' + digits.slice(2)
+  return `+55${digits}`
+}
+
 // ── Usuário ──
 
 // ── Anti-abuso: 3 camadas ──
@@ -90,7 +101,9 @@ async function registerIP(ip, telefone) {
     .insert({ ip, telefone })
 }
 
-export async function getOrCreateUsuario(telefone) {
+export async function getOrCreateUsuario(telefoneRaw) {
+  const telefone = normalizePhone(telefoneRaw)
+
   const { data: existing } = await supabase
     .from('usuarios')
     .select('*')
