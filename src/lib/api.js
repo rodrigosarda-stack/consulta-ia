@@ -1,23 +1,24 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
 
-function getToken() {
+// Pega o SESSION token (não o auth token da URL)
+function getSessionToken() {
   const raw = localStorage.getItem('maria_session')
   if (!raw) return null
   try {
-    return JSON.parse(raw).token
+    return JSON.parse(raw).session_token
   } catch {
     return null
   }
 }
 
 async function apiFetch(action, params = {}, options = {}) {
-  const token = getToken()
+  const token = getSessionToken()
   const qs = new URLSearchParams({ action, ...params })
   const res = await fetch(`${API_URL}?${qs}`, {
     ...options,
     headers: {
-      'X-Auth-Token': token || '',
+      'X-Session-Token': token || '',
       ...(options.headers || {}),
     },
   })
@@ -32,7 +33,7 @@ export async function getUsuario() {
 }
 
 export async function uploadAndCreateConsulta(telefone, pacienteNome, blob, duracao) {
-  const token = getToken()
+  const token = getSessionToken()
   const formData = new FormData()
   formData.append('audio', blob, 'audio.webm')
   formData.append('paciente_nome', pacienteNome)
@@ -40,7 +41,7 @@ export async function uploadAndCreateConsulta(telefone, pacienteNome, blob, dura
 
   const res = await fetch(`${API_URL}?action=upload`, {
     method: 'POST',
-    headers: { 'X-Auth-Token': token || '' },
+    headers: { 'X-Session-Token': token || '' },
     body: formData,
   })
   const data = await res.json()

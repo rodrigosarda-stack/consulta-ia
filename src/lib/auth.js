@@ -8,6 +8,7 @@ export async function validateToken(token) {
   if (!res.ok || !data.success) {
     throw new Error(data.error || 'Token inválido')
   }
+  // Retorna session_token (diferente do auth token da URL)
   return data
 }
 

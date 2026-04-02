@@ -25,7 +25,7 @@ export default function App() {
       if (token) {
         try {
           const data = await validateToken(token)
-          data.token = token // Guarda o token pra usar na API
+          // session_token vem do backend (diferente do auth token da URL)
           saveSession(data)
           setSession(data)
           // Limpa token da URL (não fica visível)
