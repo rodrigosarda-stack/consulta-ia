@@ -18,6 +18,22 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const chunksRef = useRef([])
   const timerRef = useRef(null)
   const secsRef = useRef(0)
+  const wakeLockRef = useRef(null)
+
+  // Wake Lock: mantém tela ligada durante gravação
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen')
+      }
+    } catch {}
+  }
+  function releaseWakeLock() {
+    if (wakeLockRef.current) {
+      wakeLockRef.current.release()
+      wakeLockRef.current = null
+    }
+  }
 
   const isTele = mode === 'tele'
   const accent = isTele ? '#a78bfa' : (isRec ? '#f87171' : '#2dd4bf')
@@ -70,6 +86,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       recorder.start(1000)
       recorderRef.current = recorder
       setIsRec(true); startTimer()
+      requestWakeLock()
     } catch (e) {
       setPermErr(e.name === 'NotAllowedError'
         ? 'Permissão negada. Clique no ícone 🔒 na barra de endereço → Permissões → Microfone → Permitir.'
@@ -79,6 +96,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
 
   function stopRec() {
     stopTimer(); setIsRec(false)
+    releaseWakeLock()
     if (recorderRef.current?.state !== 'inactive') recorderRef.current.stop()
   }
 
