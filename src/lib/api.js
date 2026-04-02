@@ -1,7 +1,6 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
-const API_BASE = `${SUPABASE_URL}/functions/v1/api`
+const API_URL = `${SUPABASE_URL}/functions/v1/api`
 
-// Token da sessão (salvo pelo auth.js)
 function getToken() {
   const raw = sessionStorage.getItem('maria_session')
   if (!raw) return null
@@ -12,13 +11,14 @@ function getToken() {
   }
 }
 
-async function apiFetch(path, options = {}) {
+async function apiFetch(action, params = {}, options = {}) {
   const token = getToken()
-  const res = await fetch(`${API_BASE}${path}`, {
+  const qs = new URLSearchParams({ action, ...params })
+  const res = await fetch(`${API_URL}?${qs}`, {
     ...options,
     headers: {
       'X-Auth-Token': token || '',
-      ...options.headers,
+      ...(options.headers || {}),
     },
   })
   const data = await res.json()
@@ -26,51 +26,42 @@ async function apiFetch(path, options = {}) {
   return data
 }
 
-// ── Usuário ──
-
 export async function getUsuario() {
-  const data = await apiFetch('/usuario')
+  const data = await apiFetch('usuario')
   return data.usuario
 }
 
-// ── Upload de áudio (via Edge Function, não direto no storage) ──
-
 export async function uploadAndCreateConsulta(telefone, pacienteNome, blob, duracao) {
+  const token = getToken()
   const formData = new FormData()
   formData.append('audio', blob, 'audio.webm')
   formData.append('paciente_nome', pacienteNome)
   formData.append('duracao', String(duracao))
 
-  const data = await apiFetch('/upload', {
+  const res = await fetch(`${API_URL}?action=upload`, {
     method: 'POST',
+    headers: { 'X-Auth-Token': token || '' },
     body: formData,
-    // Não setar Content-Type — o browser seta com boundary pra FormData
-    headers: {},
   })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || `Upload error ${res.status}`)
   return data.consulta
 }
-
-// ── Consultas ──
 
 export async function getConsulta(id) {
-  const data = await apiFetch(`/consulta?id=${id}`)
+  const data = await apiFetch('consulta', { id })
   return data.consulta
 }
 
-// ── Prontuários ──
-
 export async function getProntuario(consultaId) {
-  const data = await apiFetch(`/prontuario?consulta_id=${consultaId}`)
+  const data = await apiFetch('prontuario', { consulta_id: consultaId })
   return data.prontuario
 }
 
-// ── Créditos (V4: ilimitado pra consultas de saúde) ──
-
-export function isInTrial(usuario) {
-  if (!usuario?.trial_fim) return false
-  return new Date(usuario.trial_fim) > new Date()
+export function canRecord() {
+  return true
 }
 
-export function canRecord() {
-  return true // V4: grátis ilimitado
+export function isInTrial() {
+  return false
 }
