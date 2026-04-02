@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getTokenFromURL, validateToken, getSessionFromStorage, saveSession, clearSession } from './lib/auth'
+import { logoutServer } from './lib/api'
 import Recorder from './components/Recorder'
 import Status from './components/Status'
 
@@ -49,7 +50,8 @@ export default function App() {
     setScreen('recorder')
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    await logoutServer()
     clearSession()
     setSession(null)
     setScreen('recorder')

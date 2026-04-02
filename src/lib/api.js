@@ -1,7 +1,6 @@
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
 
-// Pega o SESSION token (não o auth token da URL)
 function getSessionToken() {
   const raw = localStorage.getItem('maria_session')
   if (!raw) return null
@@ -32,11 +31,12 @@ export async function getUsuario() {
   return data.usuario
 }
 
-export async function uploadAndCreateConsulta(telefone, pacienteNome, blob, duracao) {
+export async function uploadAndCreateConsulta(telefone, pacienteNome, pacienteTel, blob, duracao) {
   const token = getSessionToken()
   const formData = new FormData()
   formData.append('audio', blob, 'audio.webm')
   formData.append('paciente_nome', pacienteNome)
+  formData.append('paciente_tel', pacienteTel || '')
   formData.append('duracao', String(duracao))
 
   const res = await fetch(`${API_URL}?action=upload`, {
@@ -47,6 +47,13 @@ export async function uploadAndCreateConsulta(telefone, pacienteNome, blob, dura
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || `Upload error ${res.status}`)
   return data.consulta
+}
+
+// FIX 4: Logout server-side
+export async function logoutServer() {
+  try {
+    await apiFetch('logout', {}, { method: 'POST' })
+  } catch {}
 }
 
 export async function getConsulta(id) {

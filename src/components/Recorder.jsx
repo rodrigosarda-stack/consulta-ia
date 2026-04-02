@@ -101,7 +101,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const blob = new Blob(chunksRef.current, { type: recorderRef.current?.mimeType || 'audio/webm' })
       const duracao = secsRef.current
       setUploadProgress('Enviando para processamento...')
-      const consulta = await uploadAndCreateConsulta(telefone, patient.trim(), blob, duracao)
+      const consulta = await uploadAndCreateConsulta(telefone, patient.trim(), patientPhone.replace(/\D/g, ''), blob, duracao)
       onConsultaCriada(consulta)
     } catch (e) {
       setUploading(false)
@@ -259,6 +259,15 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
             <textarea rows={2} placeholder="Ex: Paciente com HAS, retorno..." style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#e2eaf6', fontFamily: 'inherit', fontSize: 13, resize: 'none', lineHeight: 1.5 }} />
           </div>
         )}
+
+        {/* Consentimento LGPD */}
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#4a6a8a', lineHeight: 1.6, padding: '0 10px' }}>
+          Ao gravar, voc\u00ea confirma que informou ao paciente sobre o uso de IA para documenta\u00e7\u00e3o cl\u00ednica.
+          <br />
+          <span style={{ cursor: 'pointer', color: accent, opacity: 0.7 }}>Termos de Uso</span>
+          {' \u00b7 '}
+          <span style={{ cursor: 'pointer', color: accent, opacity: 0.7 }}>Privacidade</span>
+        </div>
       </div>
 
       <style>{`
