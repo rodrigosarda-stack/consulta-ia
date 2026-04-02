@@ -2,7 +2,7 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwgg
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
 
 function getToken() {
-  const raw = sessionStorage.getItem('maria_session')
+  const raw = localStorage.getItem('maria_session')
   if (!raw) return null
   try {
     return JSON.parse(raw).token

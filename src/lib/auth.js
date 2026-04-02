@@ -17,12 +17,12 @@ export function getTokenFromURL() {
 }
 
 export function getSessionFromStorage() {
-  const raw = sessionStorage.getItem('maria_session')
+  const raw = localStorage.getItem('maria_session')
   if (!raw) return null
   try {
     const session = JSON.parse(raw)
     if (Date.now() - session.timestamp > 24 * 60 * 60 * 1000) {
-      sessionStorage.removeItem('maria_session')
+      localStorage.removeItem('maria_session')
       return null
     }
     return session
@@ -32,12 +32,12 @@ export function getSessionFromStorage() {
 }
 
 export function saveSession(data) {
-  sessionStorage.setItem('maria_session', JSON.stringify({
+  localStorage.setItem('maria_session', JSON.stringify({
     ...data,
     timestamp: Date.now(),
   }))
 }
 
 export function clearSession() {
-  sessionStorage.removeItem('maria_session')
+  localStorage.removeItem('maria_session')
 }
