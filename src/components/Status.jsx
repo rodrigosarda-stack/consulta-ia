@@ -131,18 +131,14 @@ export default function Status({ consulta, onNova }) {
           <div style={{ position: 'absolute', inset: -4, borderRadius: 30, border: '2px solid transparent', borderTopColor: accent, animation: 'spin 2s linear infinite', opacity: 0.4 }} />
         </div>
 
-        <div style={{ fontFamily: 'Georgia,serif', fontSize: 24, fontWeight: 600, marginBottom: 6, textAlign: 'center', letterSpacing: -0.3 }}>
-          Processando consulta
+        <div style={{ fontFamily: 'Georgia,serif', fontSize: 24, fontWeight: 600, marginBottom: 10, textAlign: 'center', letterSpacing: -0.3 }}>
+          Recebemos sua consulta
         </div>
 
-        {/* Acompanhar — perto do título */}
-        <button
-          onClick={() => setShowDetails(d => !d)}
-          style={{ background: 'none', border: 'none', color: '#4a6a8a', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 12 }}
-        >
-          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 9 }}>▼</span>
-          {showDetails ? 'Ocultar detalhes' : 'Acompanhar'}
-        </button>
+        <div style={{ fontSize: 14, color: '#a8c0d8', textAlign: 'center', lineHeight: 1.6, marginBottom: 16, maxWidth: 340 }}>
+          Fique tranquilo, agora \u00e9 com a gente.
+          <br />O prontu\u00e1rio chegar\u00e1 no seu WhatsApp em instantes.
+        </div>
 
         {/* Steps colapsados — logo abaixo do título */}
         <div style={{
@@ -179,23 +175,18 @@ export default function Status({ consulta, onNova }) {
           👤 {consulta.paciente_nome}
         </div>
 
-        {/* Card principal */}
-        <div style={{ width: '100%', background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 18, padding: '24px 20px', marginBottom: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 15, color: '#e2eaf6', marginBottom: 6, fontWeight: 500 }}>
-            Seu prontuário chegará no WhatsApp
-          </div>
-          <div style={{ fontSize: 14, ...muted, marginBottom: 16 }}>
-            em aproximadamente 2 minutos.
-          </div>
-          <div style={{ fontSize: 13, ...muted, lineHeight: 1.6 }}>
-            Pode fechar esta tela e ir para o próximo paciente.
-            <br />A MarIA avisa quando estiver pronto.
-          </div>
-        </div>
-
         {/* Botão nova consulta */}
-        <button onClick={onNova} style={{ width: '100%', padding: '16px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 14, color: 'white', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 8px 30px rgba(45,212,191,0.15)', marginBottom: 12 }}>
-          🎙️ Gravar próximo paciente
+        <button onClick={onNova} style={{ width: '100%', padding: '16px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 14, color: 'white', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 8px 30px rgba(45,212,191,0.15)', marginBottom: 20 }}>
+          🎙️ Gravar pr\u00f3ximo paciente
+        </button>
+
+        {/* Acompanhar — abaixo do botão, mais visível */}
+        <button
+          onClick={() => setShowDetails(d => !d)}
+          style={{ background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 12, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 8, color: '#6b85a4', width: '100%', justifyContent: 'center', marginBottom: 8 }}
+        >
+          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 10 }}>\u25bc</span>
+          {showDetails ? 'Ocultar detalhes do processamento' : 'Acompanhar o processamento'}
         </button>
 
       </div>
