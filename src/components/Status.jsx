@@ -43,7 +43,9 @@ export default function Status({ consulta, onNova }) {
         setErro(c.erro || 'Erro no processamento')
         clearInterval(interval)
       } else {
-        setCurrentStep(stepFromStatus(c.status))
+        // NUNCA volta pra trás — só avança
+        const newStep = stepFromStatus(c.status)
+        setCurrentStep(prev => Math.max(prev, newStep))
       }
     }, 3000)
 
