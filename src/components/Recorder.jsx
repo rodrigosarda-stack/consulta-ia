@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { uploadAudio, criarConsulta, consumeCredito, canRecord, isInTrial } from '../lib/api'
+import { uploadAudio, criarConsulta, canRecord, isInTrial } from '../lib/api'
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -94,9 +94,6 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
 
       setUploadProgress('Criando consulta...')
       const consulta = await criarConsulta(telefone, patient.trim(), path, size, duracao)
-
-      // Consumir crédito
-      await consumeCredito(telefone, usuario)
 
       onConsultaCriada(consulta)
     } catch (e) {
