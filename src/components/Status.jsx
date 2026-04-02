@@ -131,11 +131,51 @@ export default function Status({ consulta, onNova }) {
           <div style={{ position: 'absolute', inset: -4, borderRadius: 30, border: '2px solid transparent', borderTopColor: accent, animation: 'spin 2s linear infinite', opacity: 0.4 }} />
         </div>
 
-        <div style={{ fontFamily: 'Georgia,serif', fontSize: 24, fontWeight: 600, marginBottom: 8, textAlign: 'center', letterSpacing: -0.3 }}>
+        <div style={{ fontFamily: 'Georgia,serif', fontSize: 24, fontWeight: 600, marginBottom: 6, textAlign: 'center', letterSpacing: -0.3 }}>
           Processando consulta
         </div>
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '5px 12px', borderRadius: 20, background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.12)', color: accent, marginBottom: 20 }}>
+        {/* Acompanhar — perto do título */}
+        <button
+          onClick={() => setShowDetails(d => !d)}
+          style={{ background: 'none', border: 'none', color: '#4a6a8a', fontFamily: 'inherit', fontSize: 12, cursor: 'pointer', padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 12 }}
+        >
+          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 9 }}>▼</span>
+          {showDetails ? 'Ocultar detalhes' : 'Acompanhar'}
+        </button>
+
+        {/* Steps colapsados — logo abaixo do título */}
+        <div style={{
+          width: '100%',
+          maxHeight: showDetails ? 350 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease',
+          opacity: showDetails ? 1 : 0,
+          marginBottom: showDetails ? 16 : 0,
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            {STEPS.map((step, i) => {
+              const st = i < currentStep ? 'done' : i === currentStep ? 'run' : 'wait'
+              return (
+                <div key={step.id} style={{
+                  background: '#0c1622', borderRadius: 10, padding: '10px 12px',
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  opacity: st === 'wait' ? 0.3 : 1,
+                  border: st === 'run' ? '1px solid rgba(45,212,191,0.2)' : st === 'done' ? '1px solid rgba(74,222,128,0.15)' : '1px solid rgba(99,179,237,0.06)',
+                  transition: 'all 0.4s'
+                }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: st === 'run' ? 'rgba(45,212,191,0.12)' : st === 'done' ? 'rgba(74,222,128,0.1)' : '#101e30' }}>{step.icon}</div>
+                  <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{step.name}</div>
+                  <span style={{ fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 14, background: st === 'run' ? 'rgba(45,212,191,0.12)' : st === 'done' ? 'rgba(74,222,128,0.1)' : 'rgba(107,133,164,0.1)', color: st === 'run' ? '#2dd4bf' : st === 'done' ? '#4ade80' : '#6b85a4' }}>
+                    {st === 'wait' ? '...' : st === 'run' ? 'processando' : '✓'}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '5px 12px', borderRadius: 20, background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.12)', color: accent, marginBottom: 16 }}>
           👤 {consulta.paciente_nome}
         </div>
 
@@ -158,60 +198,6 @@ export default function Status({ consulta, onNova }) {
           🎙️ Gravar próximo paciente
         </button>
 
-        {/* Detalhes colapsáveis */}
-        <button
-          onClick={() => setShowDetails(d => !d)}
-          style={{ background: 'none', border: 'none', color: '#4a6a8a', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6, transition: 'color 0.2s' }}
-        >
-          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 10 }}>▼</span>
-          {showDetails ? 'Ocultar detalhes' : 'Acompanhar processamento'}
-        </button>
-
-        {/* Steps colapsados */}
-        <div style={{
-          width: '100%',
-          maxHeight: showDetails ? 400 : 0,
-          overflow: 'hidden',
-          transition: 'max-height 0.4s ease, opacity 0.3s ease',
-          opacity: showDetails ? 1 : 0,
-          marginTop: showDetails ? 8 : 0,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {STEPS.map((step, i) => {
-              const st = i < currentStep ? 'done' : i === currentStep ? 'run' : 'wait'
-              return (
-                <div key={step.id} style={{
-                  background: '#0c1622',
-                  borderRadius: 12,
-                  padding: '12px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 11,
-                  opacity: st === 'wait' ? 0.3 : 1,
-                  border: st === 'run' ? '1px solid rgba(45,212,191,0.2)' : st === 'done' ? '1px solid rgba(74,222,128,0.15)' : '1px solid rgba(99,179,237,0.08)',
-                  transition: 'all 0.4s'
-                }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8, fontSize: 15,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                    background: st === 'run' ? 'rgba(45,212,191,0.12)' : st === 'done' ? 'rgba(74,222,128,0.1)' : '#101e30',
-                    transition: 'background 0.3s'
-                  }}>{step.icon}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>{step.name}</div>
-                  </div>
-                  <span style={{
-                    fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 16, flexShrink: 0,
-                    background: st === 'run' ? 'rgba(45,212,191,0.12)' : st === 'done' ? 'rgba(74,222,128,0.1)' : 'rgba(107,133,164,0.1)',
-                    color: st === 'run' ? '#2dd4bf' : st === 'done' ? '#4ade80' : '#6b85a4'
-                  }}>
-                    {st === 'wait' ? '...' : st === 'run' ? 'processando' : '✓'}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       </div>
 
       <style>{`
