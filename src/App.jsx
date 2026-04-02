@@ -13,27 +13,27 @@ export default function App() {
 
   useEffect(() => {
     async function init() {
-      // 1. Tenta recuperar sessão existente
-      const stored = getSessionFromStorage()
-      if (stored) {
-        setSession(stored)
+      const urlToken = getTokenFromURL()
+
+      // Se tem token na URL, SEMPRE usa ele (prioridade sobre sessão antiga)
+      if (urlToken) {
+        try {
+          const data = await validateToken(urlToken)
+          saveSession(data)
+          setSession(data)
+          window.history.replaceState({}, '', window.location.pathname)
+        } catch (err) {
+          clearSession() // Limpa sessão antiga se token novo falhou
+          setError(err.message || 'Link inválido ou expirado')
+        }
         setLoading(false)
         return
       }
 
-      // 2. Tenta validar token da URL
-      const token = getTokenFromURL()
-      if (token) {
-        try {
-          const data = await validateToken(token)
-          // session_token vem do backend (diferente do auth token da URL)
-          saveSession(data)
-          setSession(data)
-          // Limpa token da URL (não fica visível)
-          window.history.replaceState({}, '', window.location.pathname)
-        } catch (err) {
-          setError(err.message || 'Link inválido ou expirado')
-        }
+      // Sem token na URL — tenta recuperar sessão existente
+      const stored = getSessionFromStorage()
+      if (stored) {
+        setSession(stored)
       }
       setLoading(false)
     }
@@ -58,6 +58,13 @@ export default function App() {
     setConsulta(null)
   }
 
+  // Se a API retornar 401, limpar sessão (chamado pelo Recorder/Status)
+  function handleAuthError() {
+    clearSession()
+    setSession(null)
+    setError('Sessão expirada. Acesse pelo link do WhatsApp.')
+  }
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#060c14', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b85a4', fontFamily: "'Outfit',system-ui,sans-serif" }}>
@@ -66,7 +73,6 @@ export default function App() {
     )
   }
 
-  // Sem sessão e sem token = tela de boas-vindas
   if (!session) {
     return (
       <div style={{ minHeight: '100vh', background: '#060c14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif" }}>
@@ -77,7 +83,6 @@ export default function App() {
         <div style={{ fontSize: 16, color: '#6b85a4', marginBottom: 24, textAlign: 'center' }}>
           Grava a consulta, prontuário sai pronto.
         </div>
-
         {error ? (
           <div style={{ padding: '14px 20px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 12, fontSize: 14, color: '#f87171', textAlign: 'center', maxWidth: 400 }}>
             {error}
