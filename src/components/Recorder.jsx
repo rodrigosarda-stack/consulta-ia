@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { uploadAudio, criarConsulta, canRecord, isInTrial } from '../lib/api'
+import { uploadAndCreateConsulta, canRecord, isInTrial } from '../lib/api'
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -43,10 +43,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       ? 'linear-gradient(145deg,#a78bfa,#60a5fa)'
       : 'linear-gradient(145deg,#2dd4bf,#60a5fa)'
 
-  // Créditos info
-  const inTrial = isInTrial(usuario)
-  const trialDias = inTrial ? Math.ceil((new Date(usuario.trial_fim) - new Date()) / (1000 * 60 * 60 * 24)) : 0
-  const allowed = canRecord(usuario)
+  // V4: grátis ilimitado
+  const allowed = canRecord()
 
   function startTimer() {
     secsRef.current = 0; setSecs(0)
@@ -62,7 +60,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       return
     }
     if (!allowed) {
-      setPermErr('Créditos esgotados. Indique um colega para +3 dias ou assine um plano.')
+      setPermErr('Não foi possível iniciar a gravação.')
       return
     }
     setPermErr('')
@@ -107,11 +105,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const blob = new Blob(chunksRef.current, { type: recorderRef.current?.mimeType || 'audio/webm' })
       const duracao = secsRef.current
 
-      setUploadProgress('Fazendo upload...')
-      const { path, size } = await uploadAudio(telefone, blob, duracao)
-
-      setUploadProgress('Criando consulta...')
-      const consulta = await criarConsulta(telefone, patient.trim(), path, size, duracao)
+      setUploadProgress('Enviando para processamento...')
+      const consulta = await uploadAndCreateConsulta(telefone, patient.trim(), blob, duracao)
 
       onConsultaCriada(consulta)
     } catch (e) {
@@ -153,26 +148,6 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
             {telefone.replace('+55', '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')}
           </button>
-        </div>
-
-        {/* Status bar */}
-        <div style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, padding: '10px 15px' }}>
-          {inTrial ? (
-            <>
-              <span style={{ fontSize: 12, color: '#4ade80' }}>Trial ativo</span>
-              <span style={{ fontSize: 12, ...muted }}>{trialDias} dia{trialDias !== 1 ? 's' : ''} restante{trialDias !== 1 ? 's' : ''} — ilimitado</span>
-            </>
-          ) : usuario.plano === 'free' ? (
-            <>
-              <span style={{ fontSize: 12, color: accent }}>{usuario.creditos_hoje}/3 consultas hoje</span>
-              <span style={{ fontSize: 12, ...muted, cursor: 'pointer', color: accent }}>Indicar colega</span>
-            </>
-          ) : (
-            <>
-              <span style={{ fontSize: 12, color: '#4ade80' }}>Plano {usuario.plano === 'maria' ? 'MarIA' : 'Cérebro'}</span>
-              <span style={{ fontSize: 12, ...muted }}>Ilimitado</span>
-            </>
-          )}
         </div>
 
         {/* Mode selector */}

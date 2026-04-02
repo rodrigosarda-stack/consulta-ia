@@ -25,6 +25,7 @@ export default function App() {
       if (token) {
         try {
           const data = await validateToken(token)
+          data.token = token // Guarda o token pra usar na API
           saveSession(data)
           setSession(data)
           // Limpa token da URL (não fica visível)
