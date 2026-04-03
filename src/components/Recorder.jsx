@@ -61,6 +61,15 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     }
     setPermErr('')
     try {
+      // Áudio de consentimento antes de gravar
+      try {
+        const utterance = new SpeechSynthesisUtterance('Gravação iniciada. Consulta documentada por inteligência artificial.')
+        utterance.lang = 'pt-BR'
+        utterance.rate = 1.1
+        utterance.volume = 0.7
+        speechSynthesis.speak(utterance)
+      } catch {}
+
       let stream
       if (isTele) {
         const scr = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
