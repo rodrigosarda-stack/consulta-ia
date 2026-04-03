@@ -5,7 +5,7 @@ function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
-export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout, onPainel }) {
+export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout, onPainel, onPlanos }) {
   const [mode, setMode] = useState('presencial')
   const [isRec, setIsRec] = useState(false)
   const [secs, setSecs] = useState(0)

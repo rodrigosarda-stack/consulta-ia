@@ -4,6 +4,7 @@ import { logoutServer } from './lib/api'
 import Recorder from './components/Recorder'
 import Status from './components/Status'
 import Painel from './components/Painel'
+import Planos from './components/Planos'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -96,6 +97,10 @@ export default function App() {
     return <Painel onBack={() => setScreen('recorder')} />
   }
 
+  if (screen === 'planos') {
+    return <Planos planoAtual={usuario?.plano || 'free'} onBack={() => setScreen('recorder')} />
+  }
+
   return (
     <Recorder
       usuario={usuario}
@@ -103,6 +108,7 @@ export default function App() {
       onConsultaCriada={handleConsultaCriada}
       onLogout={handleLogout}
       onPainel={() => setScreen('painel')}
+      onPlanos={() => setScreen('planos')}
     />
   )
 }
