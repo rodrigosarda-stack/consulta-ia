@@ -5,7 +5,7 @@ function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
-export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout }) {
+export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout, onPainel }) {
   const [mode, setMode] = useState('presencial')
   const [isRec, setIsRec] = useState(false)
   const [secs, setSecs] = useState(0)
@@ -160,10 +160,13 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
               Consulta<span style={{ color: accent, transition: 'color 0.5s' }}>IA</span>
             </span>
           </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+          {onPainel && <button onClick={onPainel} style={{ fontSize: 11, ...muted, background: '#101e30', border: '1px solid rgba(99,179,237,0.1)', padding: '5px 10px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit' }}>📋 Prontuários</button>}
           <button onClick={onLogout} style={{ fontSize: 11, ...muted, background: '#101e30', border: '1px solid rgba(99,179,237,0.1)', padding: '5px 10px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', fontFamily: 'inherit' }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
             {telefone.replace('+55', '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')}
           </button>
+          </div>
         </div>
 
         {/* PACIENTE — primeiro, acima de tudo */}

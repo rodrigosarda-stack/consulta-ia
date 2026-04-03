@@ -3,19 +3,19 @@ import { getTokenFromURL, validateToken, getSessionFromStorage, saveSession, cle
 import { logoutServer } from './lib/api'
 import Recorder from './components/Recorder'
 import Status from './components/Status'
+import Painel from './components/Painel'
 
 export default function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [screen, setScreen] = useState('recorder')
+  const [screen, setScreen] = useState('recorder') // recorder | status | painel
   const [consulta, setConsulta] = useState(null)
 
   useEffect(() => {
     async function init() {
       const urlToken = getTokenFromURL()
 
-      // Se tem token na URL, SEMPRE usa ele (prioridade sobre sessão antiga)
       if (urlToken) {
         try {
           const data = await validateToken(urlToken)
@@ -23,18 +23,15 @@ export default function App() {
           setSession(data)
           window.history.replaceState({}, '', window.location.pathname)
         } catch (err) {
-          clearSession() // Limpa sessão antiga se token novo falhou
+          clearSession()
           setError(err.message || 'Link inválido ou expirado')
         }
         setLoading(false)
         return
       }
 
-      // Sem token na URL — tenta recuperar sessão existente
       const stored = getSessionFromStorage()
-      if (stored) {
-        setSession(stored)
-      }
+      if (stored) setSession(stored)
       setLoading(false)
     }
     init()
@@ -56,13 +53,6 @@ export default function App() {
     setSession(null)
     setScreen('recorder')
     setConsulta(null)
-  }
-
-  // Se a API retornar 401, limpar sessão (chamado pelo Recorder/Status)
-  function handleAuthError() {
-    clearSession()
-    setSession(null)
-    setError('Sessão expirada. Acesse pelo link do WhatsApp.')
   }
 
   if (loading) {
@@ -102,12 +92,17 @@ export default function App() {
     return <Status consulta={consulta} onNova={handleNova} />
   }
 
+  if (screen === 'painel') {
+    return <Painel onBack={() => setScreen('recorder')} />
+  }
+
   return (
     <Recorder
       usuario={usuario}
       telefone={telefone}
       onConsultaCriada={handleConsultaCriada}
       onLogout={handleLogout}
+      onPainel={() => setScreen('painel')}
     />
   )
 }
