@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getConsulta } from '../lib/api'
+import { track, Events } from '../lib/analytics'
 
 const STEPS = [
   { id: 'upload', icon: '☁️', name: 'Gravação recebida', detail: 'Áudio salvo com segurança' },
@@ -37,9 +38,11 @@ export default function Status({ consulta, onNova }) {
 
         if (c.status === 'done') {
           setCurrentStep(4)
+          track(Events.PRONTUARIO_DONE)
           setTimeout(() => setDone(true), 1200)
           clearInterval(interval)
         } else if (c.status === 'failed') {
+          track(Events.PRONTUARIO_FAILED, { erro: c.erro })
           setFailed(true)
           setErro(c.erro || 'Erro no processamento')
           clearInterval(interval)

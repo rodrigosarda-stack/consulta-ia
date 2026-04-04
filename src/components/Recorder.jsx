@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { uploadAndCreateConsulta, canRecord } from '../lib/api'
+import { track, Events } from '../lib/analytics'
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -90,6 +91,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       recorderRef.current = recorder
       setIsRec(true); startTimer()
       requestWakeLock()
+      track(Events.RECORDING_START, { mode })
     } catch (e) {
       setPermErr(e.name === 'NotAllowedError'
         ? 'Permissão de microfone negada. Toque no ícone de cadeado na barra de endereço e permita o microfone.'
@@ -98,21 +100,26 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   }
 
   function stopRec() {
+    const duracao = secsRef.current
     stopTimer(); setIsRec(false)
     releaseWakeLock()
+    track(Events.RECORDING_STOP, { mode, duracao })
     if (recorderRef.current?.state !== 'inactive') recorderRef.current.stop()
   }
 
   async function handleUpload() {
     setUploading(true)
     setUploadProgress('Enviando gravação...')
+    track(Events.UPLOAD_START)
     try {
       const blob = new Blob(chunksRef.current, { type: recorderRef.current?.mimeType || 'audio/webm' })
       const duracao = secsRef.current
       setUploadProgress('Enviando para processamento...')
       const consulta = await uploadAndCreateConsulta(telefone, patient.trim(), patientPhone.replace(/\D/g, ''), blob, duracao)
+      track(Events.UPLOAD_SUCCESS, { duracao })
       onConsultaCriada(consulta)
     } catch (e) {
+      track(Events.UPLOAD_ERROR, { error: e.message })
       setUploading(false)
       setPermErr('Erro no upload: ' + e.message)
     }

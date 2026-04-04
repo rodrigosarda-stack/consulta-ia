@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { track, Events } from '../lib/analytics'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
@@ -37,7 +38,7 @@ export default function Painel({ onBack }) {
   const muted = { color: '#6b85a4' }
   const card = { background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 14, padding: 15, marginBottom: 10, cursor: 'pointer' }
 
-  useEffect(() => { loadPacientes() }, [])
+  useEffect(() => { track(Events.PANEL_OPEN); loadPacientes() }, [])
 
   async function loadPacientes() {
     setLoading(true)
@@ -69,6 +70,7 @@ export default function Painel({ onBack }) {
   }
 
   function openProntuario(p) {
+    track(Events.PRONTUARIO_VIEW, { paciente: p.paciente_nome })
     setSelected(p)
     setView('prontuario')
   }
@@ -92,14 +94,50 @@ export default function Painel({ onBack }) {
     )
   }
 
+  function exportPDF(prontuario) {
+    const nome = prontuario.paciente_nome || 'Paciente'
+    const data = formatDate(prontuario.created_at)
+    const texto = (prontuario.prontuario_texto || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')
+    track(Events.PRONTUARIO_EXPORT_PDF, { paciente: nome })
+    const w = window.open('', '_blank')
+    if (!w) { alert('Permita popups para exportar o PDF.'); return }
+    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Prontuário - ${nome}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',system-ui,sans-serif;color:#1a1a1a;padding:40px;max-width:800px;margin:0 auto;line-height:1.7}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:8px;padding-bottom:16px;border-bottom:2px solid #2dd4bf}
+.logo{font-family:Georgia,serif;font-size:22px;font-weight:600}
+.logo span{color:#2dd4bf}
+.meta{color:#666;font-size:13px;margin-bottom:24px}
+.paciente{font-family:Georgia,serif;font-size:24px;font-weight:600;margin-bottom:4px}
+.corpo{font-size:14px;line-height:1.8;white-space:pre-wrap;color:#333}
+.rodape{margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:11px;color:#999;text-align:center}
+@media print{body{padding:20px}@page{margin:15mm}}
+</style></head><body>
+<div class="header"><div class="logo">Consulta<span>IA</span></div></div>
+<div class="paciente">${nome}</div>
+<div class="meta">${data}</div>
+<div class="corpo">${texto}</div>
+<div class="rodape">Gerado por ConsultaIA — Prontuário assistido por IA. Documento para uso exclusivo do profissional de saúde.</div>
+<script>setTimeout(()=>{window.print()},400)</script>
+</body></html>`)
+    w.document.close()
+  }
+
   // --- PRONTUARIO DETALHADO ---
   if (view === 'prontuario' && selected) {
     return (
       <div style={{ minHeight: '100vh', background: '#060c14', color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif", padding: '44px 20px 40px' }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <button onClick={() => setView(selectedPaciente ? 'timeline' : 'historico')} style={{ background: 'none', border: 'none', color: accent, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', marginBottom: 16, padding: 0 }}>
-            ← Voltar
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <button onClick={() => setView(selectedPaciente ? 'timeline' : 'historico')} style={{ background: 'none', border: 'none', color: accent, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', padding: 0 }}>
+              ← Voltar
+            </button>
+            <button onClick={() => exportPDF(selected)} style={{ padding: '6px 14px', background: '#0c1622', border: '1px solid rgba(99,179,237,0.15)', borderRadius: 8, color: '#6b85a4', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, display: 'flex', alignItems: 'center', gap: 5 }}>
+              📄 Exportar PDF
+            </button>
+          </div>
 
           <div style={{ fontFamily: 'Georgia,serif', fontSize: 22, fontWeight: 600, marginBottom: 4 }}>
             {selected.paciente_nome || 'Paciente'}

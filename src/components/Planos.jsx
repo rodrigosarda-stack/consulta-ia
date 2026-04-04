@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { track, Events } from '../lib/analytics'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
@@ -66,12 +67,14 @@ const PLANOS = [
 
 export default function Planos({ planoAtual, onBack }) {
   const [loading, setLoading] = useState(null)
+  useEffect(() => { track(Events.PLANS_VIEW, { plano_atual: planoAtual }) }, [])
   const accent = '#2dd4bf'
   const muted = { color: '#6b85a4' }
 
   async function handleAssinar(planoId) {
     if (planoId === 'free' || planoId === planoAtual) return
     setLoading(planoId)
+    track(Events.CHECKOUT_START, { plano: planoId })
 
     try {
       const token = getSessionToken()

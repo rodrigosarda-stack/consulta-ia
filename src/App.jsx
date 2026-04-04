@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getTokenFromURL, validateToken, getSessionFromStorage, saveSession, clearSession } from './lib/auth'
 import { logoutServer } from './lib/api'
+import { initAnalytics, identify, track, resetAnalytics, Events } from './lib/analytics'
 import Recorder from './components/Recorder'
 import Status from './components/Status'
 import Painel from './components/Painel'
@@ -14,6 +15,8 @@ export default function App() {
   const [consulta, setConsulta] = useState(null)
 
   useEffect(() => {
+    initAnalytics()
+
     async function init() {
       const urlToken = getTokenFromURL()
 
@@ -22,6 +25,8 @@ export default function App() {
           const data = await validateToken(urlToken)
           saveSession(data)
           setSession(data)
+          identify(data.telefone, data.usuario)
+          track(Events.LOGIN)
           window.history.replaceState({}, '', window.location.pathname)
         } catch (err) {
           clearSession()
@@ -32,7 +37,10 @@ export default function App() {
       }
 
       const stored = getSessionFromStorage()
-      if (stored) setSession(stored)
+      if (stored) {
+        setSession(stored)
+        identify(stored.telefone, stored.usuario)
+      }
       setLoading(false)
     }
     init()
@@ -49,6 +57,8 @@ export default function App() {
   }
 
   async function handleLogout() {
+    track(Events.LOGOUT)
+    resetAnalytics()
     await logoutServer()
     clearSession()
     setSession(null)
