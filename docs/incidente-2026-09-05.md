@@ -78,10 +78,48 @@ do que eu sabia.
 
 ## Pendências que este incidente deixou
 
-- [ ] Rotacionar a `EVO_API_KEY` (estava hardcoded, agora está no histórico do
-      servidor Supabase)
-- [ ] Cadastrar `EVO_API_KEY` como secret nas Edge Functions antes do próximo
-      deploy — senão elas quebram
+- [x] ~~Cadastrar `EVO_API_KEY` como secret e tirar do código~~ — **feito em
+      05/09.** Ver abaixo.
+- [ ] **Rotacionar a chave GLOBAL do Evolution** — não é da MarIA, é do
+      servidor. Ver abaixo.
 - [ ] Testar o pipeline ponta a ponta (nunca foi feito hoje — o incidente comeu
       a sessão)
 - [ ] Conectar o WhatsApp: chip dedicado + QR do Evolution API
+
+---
+
+## O que foi feito com a chave do Evolution (05/09, mesma sessão)
+
+A `EVO_API_KEY` estava escrita em texto puro no código de duas funções. Ao
+checar o escopo dela, descobriu-se que **era a chave GLOBAL do servidor
+Evolution** — dava acesso a **6 instâncias de WhatsApp**, não só à da MarIA:
+
+```
+Julio · M3a2 - Teste Felipe · Maria
+M3a Principal · Teste Gabriel · MarIA-Bot
+```
+
+Duas delas com número de pessoa real vinculado.
+
+### A correção aplicada
+
+Em vez de rotacionar a chave global — que quebraria consumidores desconhecidos
+na VPS (Hunter, n8n, quem criou as outras 5 instâncias) — a MarIA passou a usar
+o **token da própria instância**, que o Evolution gera por instância:
+
+1. `EVO_API_KEY` cadastrada como secret do projeto, com o token do `MarIA-Bot`
+2. `process-consultation` e `whatsapp-webhook` redeployadas lendo do ambiente
+3. Verificado: a chave nova enxerga **1 instância**; a antiga enxergava 6
+
+Antes do deploy, o código em produção foi baixado e comparado com o do repo. A
+**única diferença funcional era a linha da chave** — o resto era escape unicode
+contra acento literal, equivalente em execução.
+
+### O que continua aberto, e não é da MarIA
+
+**A chave global segue válida e esteve exposta** no histórico de versões das
+Edge Functions. Quem tiver acesso ao painel do Supabase consegue lê-la, e ela
+abre os 6 WhatsApps do servidor.
+
+Rotacionar exige achar todos os consumidores primeiro — provavelmente Hunter,
+n8n e quem opera as outras instâncias. **Isso é tarefa da VPS, não da MarIA.**
