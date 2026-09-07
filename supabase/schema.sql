@@ -565,3 +565,6 @@ alter table gravacao_sessoes add column if not exists bloqueada_em timestamptz;
 alter table gravacao_sessoes add column if not exists bloqueio_motivo text;
 alter table gravacao_sessoes add column if not exists saude_confirmada boolean not null default false; -- "É consulta": nunca mais pergunta
 alter table gravacao_sessoes add column if not exists nao_saude_avisos integer not null default 0;     -- "não" seguidos; tranca no 2º
+alter table gravacao_sessoes add column if not exists modo text not null default 'espera'; -- espera (turbo) | consulta (large-v3 + dica)
+alter table gravacao_sessoes add column if not exists modo_consulta_desde_seq integer;
+alter table gravacao_pedacos add column if not exists modelo text;                           -- qual Whisper transcreveu

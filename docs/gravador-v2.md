@@ -121,6 +121,32 @@ Testado com voz sintética (07/09):
   6 min **trancou**, pedaço seguinte 409.
 - `confirm-saude` na sessão trancada → `finalize` passa.
 
+### Por que dois níveis de transcrição
+
+Rodrigo: *"as pessoas conversam por dezenas de minutos antes da consulta. Uma
+transcrição bem barata e uma análise barata de tempo em tempo; quando perceber
+que é saúde, vai pra análise mais interessante."*
+
+```
+sessão nasce em MODO ESPERA ── whisper-large-v3-turbo ($0,04/h)
+      │  a cada ~1 min o monitor pergunta "é saúde?"
+      ├─ "sim" (free) ou qualquer coisa definida (pagante) ──► MODO CONSULTA
+      │        whisper-large-v3 + dica ($0,11/h); refaz os 2 últimos pedaços
+      │        (é onde a parte clínica começou); nunca mais tranca
+      └─ "nao" 2× depois de 170 s (free) ──► tranca
+```
+
+O turbo erra mais em termo técnico — e não importa, porque o que ele transcreve
+é o papo, que não vai pro prontuário. `gravacao_pedacos.modelo` registra qual
+Whisper transcreveu cada pedaço. "É consulta" na tela também promove.
+
+Na escala planejada (400 médicos × 20 consultas × ~10 min de conversa) a
+diferença entre os dois Whispers é **~R$15 mil/mês**.
+
+Testado (voz sintética): papo → clínico foi promovido no 1º minuto (a
+saudação "doutor / dona Ana" já é contexto de consulta) e os pedaços 0-1 foram
+refeitos com o large-v3; reunião ficou no turbo do início ao fim.
+
 ## Números
 
 | | antes | agora |
@@ -129,7 +155,7 @@ Testado com voz sintética (07/09):
 | teto | 1 h (código) / ~20 min (50 MB) | 2 h |
 | perda se o celular morrer | tudo | ≤ 30 s |
 | tempo Parar → prontuário | ~70 s | ~30 s |
-| custo Whisper por hora | $0,11 | $0,11 (a dica é de graça) |
+| custo Whisper por hora | $0,11 | $0,04 enquanto é papo, $0,11 quando vira consulta |
 | custo detecção de fim | — | ~$0,01/h (Gemini, 60 chamadas curtas) |
 
 ## Armadilhas encontradas (e como não cair de novo)
