@@ -142,3 +142,14 @@ export async function confirmSaude(sessionId) {
   if (!res.ok) throw new Error(data.error || `confirm-saude ${res.status}`)
   return data
 }
+
+// "Descartar": apaga os pedaços no servidor também (áudio de paciente não fica órfão)
+export async function discardSession(sessionId) {
+  const token = getSessionToken()
+  const fd = new FormData()
+  fd.append('session_id', sessionId)
+  const res = await fetch(`${API_URL}?action=discard-session`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `discard ${res.status}`)
+  return data
+}

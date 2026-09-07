@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, canRecord } from '../lib/api'
+import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, discardSession, canRecord } from '../lib/api'
 import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
 
@@ -271,7 +271,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   async function descartarPendente() {
     if (!sessaoPendente) return
     if (!confirm(`Descartar a gravação de ${sessaoPendente.paciente}? Não dá pra desfazer.`)) return
-    await apagarSessao(sessaoPendente.sessao)
+    try { await discardSession(sessaoPendente.sessao) } catch {}   // servidor: apaga os pedaços
+    await apagarSessao(sessaoPendente.sessao)                       // celular: apaga o que sobrou
     setSessaoPendente(null)
   }
 
@@ -383,7 +384,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
             <div style={{ fontSize: 12, ...muted, lineHeight: 1.5 }}>A MarIA grátis documenta só atendimentos clínicos. Se eu errei — era consulta e vocês estavam só conversando — toca abaixo e eu envio o que já gravei.</div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
               <button onClick={eraConsulta} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: accent, color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>Era consulta, sim — enviar</button>
-              <button onClick={async () => { setBloqueio(''); if (sessaoPendente?.bloqueada) { try { await apagarSessao(sessaoPendente.sessao) } catch {} setSessaoPendente(null) } }} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(248,113,113,0.3)', background: 'none', color: '#f87171', fontFamily: 'inherit', cursor: 'pointer' }}>Descartar</button>
+              <button onClick={async () => { setBloqueio(''); if (sessaoPendente?.bloqueada) { try { await discardSession(sessaoPendente.sessao) } catch {} try { await apagarSessao(sessaoPendente.sessao) } catch {} setSessaoPendente(null) } }} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(248,113,113,0.3)', background: 'none', color: '#f87171', fontFamily: 'inherit', cursor: 'pointer' }}>Descartar</button>
             </div>
           </div>
         )}

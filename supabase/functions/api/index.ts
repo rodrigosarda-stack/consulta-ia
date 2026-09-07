@@ -246,6 +246,25 @@ Deno.serve(async (req: Request) => {
       if (error || !data) return json({ error: "Sessao desconhecida" }, 404, req);
       return json({ success: true }, 200, req);
     }
+    // "Descartar": gravação que o médico não quer (não era consulta, abandonou) sai
+    // do servidor também — é áudio de paciente. Antes só o celular esquecia e os
+    // pedaços ficavam no bucket pra sempre. A pasta é {uid}/rec/{sid}/: um usuário
+    // só alcança as próprias.
+    if (action === "discard-session" && req.method === "POST") {
+      const fd = await req.formData();
+      const sid = String(fd.get("session_id") || "");
+      if (!/^[0-9a-f-]{36}$/i.test(sid)) return json({ error: "Sessao invalida" }, 400, req);
+      // se já virou consulta, não apaga por aqui (o áudio pertence ao prontuário)
+      const { data: cons } = await supabase.from("consultas").select("id").eq("sessao_gravacao", sid).limit(1);
+      if (cons && cons.length) return json({ error: "Sessao ja virou consulta" }, 409, req);
+      const pasta = `${uid}/rec/${sid}`;
+      const { data: lista } = await supabase.storage.from("audios").list(pasta, { limit: 10000 });
+      const nomes = (lista || []).map(x => `${pasta}/${x.name}`);
+      let apagados = 0;
+      if (nomes.length) { const { data: rem, error } = await supabase.storage.from("audios").remove(nomes); if (error) console.error("discard remove:", error.message); apagados = rem?.length || 0; }
+      await supabase.from("gravacao_sessoes").delete().eq("sessao", sid).eq("usuario_tel", telefone);   // cascade apaga os pedaços
+      return json({ success: true, apagados }, 200, req);
+    }
     if (action === "finalize" && req.method === "POST") {
       const fd = await req.formData();
       const sid = String(fd.get("session_id") || "");

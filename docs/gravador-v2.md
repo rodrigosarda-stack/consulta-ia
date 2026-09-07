@@ -168,6 +168,11 @@ refeitos com o large-v3; reunião ficou no turbo do início ao fim.
   vinha vazia — falha silenciosa. Use 1-2k e extraia o primeiro `{...}`.
 - **`storage.objects` não aceita DELETE por SQL** (`storage.protect_delete`).
   Limpeza de arquivo é pela API ou pelo painel.
+- **"Descartar" tem que apagar no servidor também.** Até 07/09 só o celular
+  esquecia; os pedaços ficavam no bucket pra sempre — áudio de paciente órfão.
+  `action=discard-session` apaga `{uid}/rec/{sid}/` e a sessão (recusa se já
+  virou consulta). O `supabase storage rm` da CLI (experimental) responde ok e
+  não apaga nada.
 - **O gatilho `tr_enqueue_consulta` só roda no INSERT.** Pra reenfileirar,
   seta `status='queued'` direto (action `retry`, cron `requeue_failed_consultas`).
 
