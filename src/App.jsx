@@ -29,8 +29,18 @@ export default function App() {
           track(Events.LOGIN)
           window.history.replaceState({}, '', window.location.pathname)
         } catch (err) {
-          clearSession()
-          setError(err.message || 'Link inválido ou expirado')
+          // A troca do token falhou (rede, limite, link velho). Se já existe uma
+          // sessão válida neste navegador, USA ELA em vez de apagar e travar o
+          // médico na porta — 07/09: o Rodrigo ficou de fora com sessão boa guardada.
+          const stored = getSessionFromStorage()
+          if (stored) {
+            setSession(stored)
+            identify(stored.telefone, stored.usuario)
+            window.history.replaceState({}, '', window.location.pathname)
+          } else {
+            clearSession()
+            setError((err.message || 'Link inválido ou expirado') + ' — peça um link novo no WhatsApp da MarIA.')
+          }
         }
         setLoading(false)
         return
