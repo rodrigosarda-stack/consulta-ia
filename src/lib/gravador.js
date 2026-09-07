@@ -187,7 +187,11 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 // costura a repetição.
 //   semFala()               → ms desde a última fala (vem do detector)
 //   aoPedaco(blob, seq, duracaoSeg)
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoMs = 2_000, semFala = () => 0, aoPedaco }) {
+// Sobreposição só onde precisa (Rodrigo, 07/09: "pra gente não gastar"): corte na
+// pausa não tem palavra na fronteira → 0,3 s, só pra cobrir a demora do celular em
+// começar a gravar. Corte forçado em maxMs (ninguém parou de falar) → 2 s. O custo
+// da sobreposição cai de ~7% pra <1% do Whisper.
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, semFala = () => 0, aoPedaco }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null
@@ -211,14 +215,14 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, 
     return rec
   }
 
-  function girar() {
+  function girar(forcado) {
     if (parando) return
     const anterior = atual
     atual = novo()                                            // o novo já grava…
-    timerStop = setTimeout(() => {                            // …o antigo ainda grava 1 s (sobreposição)
+    timerStop = setTimeout(() => {                            // …o antigo ainda grava um pouco (sobreposição)
       timerStop = null
       if (anterior && anterior.state !== 'inactive') anterior.stop()
-    }, sobreposicaoMs)
+    }, forcado ? sobreposicaoForcadaMs : sobreposicaoPausaMs)
   }
 
   atual = novo()
@@ -226,7 +230,8 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, 
   const relogio = setInterval(() => {
     if (parando) return
     const dur = Date.now() - inicioAtual
-    if (dur >= maxMs || (dur >= minMs && semFala() >= pausaMs)) girar()
+    if (dur >= maxMs) girar(true)                              // ninguém respirou: corte forçado, sobreposição longa
+    else if (dur >= minMs && semFala() >= pausaMs) girar(false) // pausa: corte limpo, sobreposição mínima
   }, 250)
 
   return {
