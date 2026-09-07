@@ -81,6 +81,28 @@ function dicaWhisper(sess: { paciente_nome?: string | null; nota?: string | null
 // uma edição". Uma chamada no fim, olhando os pedaços numerados. Só os clínicos
 // vão pro prontuário; o papo de família não entra nem pra confundir nem pra
 // custar token. Na dúvida, clínico — errar pra esse lado é barato.
+// Costura: o gravador sobrepõe ~1 s entre pedaços pra não partir palavra na
+// fronteira; aqui a repetição sai. Procura o maior bloco (2..8 palavras) em
+// que o FIM de A == o COMEÇO de B (sem acento, pontuação, caixa) e corta de B.
+const normPal = (w: string) => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+function costurar(pedacos: string[]): string {
+  let out: string[] = [];
+  for (const p of pedacos) {
+    const b = (p || "").trim().split(/\s+/).filter(Boolean);
+    if (!b.length) continue;
+    if (out.length) {
+      const maxK = Math.min(8, b.length, out.length);
+      for (let k = maxK; k >= 2; k--) {
+        let igual = true;
+        for (let i = 0; i < k; i++) if (normPal(out[out.length - k + i]) !== normPal(b[i])) { igual = false; break; }
+        if (igual) { out.splice(out.length - k, k); break; }
+      }
+    }
+    out = out.concat(b);
+  }
+  return out.join(" ");
+}
+
 type Etiqueta = { seq: number; clinico: boolean; tema: string };
 async function etiquetarPedacos(peds: { seq: number; transcricao: string | null }[]): Promise<Etiqueta[]> {
   const lista = peds.map(p => `[${p.seq}] ${(p.transcricao || "").replace(/\s+/g, " ").trim().slice(0, 700)}`).join("\n\n");
@@ -329,12 +351,12 @@ Deno.serve(async (req: Request) => {
           await supabase.from("gravacao_pedacos").update({ transcricao: p.transcricao, erro: null }).eq("sessao", sid).eq("seq", p.seq);
         } catch (e) { console.error("finalize retranscrever", p.seq, String(e)); }
       }
-      const textoCompleto = usados.map(p => p.transcricao || "").join(" ").replace(/\s+/g, " ").trim();
+      const textoCompleto = costurar(usados.map(p => p.transcricao || ""));
       if (!textoCompleto) return json({ error: "Transcricao vazia" }, 409, req);
       // etiqueta cada pedaço; só o clínico vai pro prontuário
       const etiquetas = GOOGLE_AI_API_KEY && usados.length > 1 ? await etiquetarPedacos(usados) : usados.map(p => ({ seq: p.seq, clinico: true, tema: "" }));
       const clinicos = new Set(etiquetas.filter(e => e.clinico).map(e => e.seq));
-      const textoClinico = usados.filter(p => clinicos.has(p.seq)).map(p => p.transcricao || "").join(" ").replace(/\s+/g, " ").trim();
+      const textoClinico = costurar(usados.filter(p => clinicos.has(p.seq)).map(p => p.transcricao || ""));
       const texto = textoClinico || textoCompleto;   // se nada foi marcado clínico, manda tudo — nunca prontuário vazio
       for (const e of etiquetas) await supabase.from("gravacao_pedacos").update({ clinico: e.clinico, tema: e.tema || null }).eq("sessao", sid).eq("seq", e.seq);
       const mapa = usados.map(p => { const e = etiquetas.find(x => x.seq === p.seq)!; return { seq: p.seq, clinico: e.clinico, tema: e.tema, seg: Math.round(Number(p.duracao_seg) || 30) }; });

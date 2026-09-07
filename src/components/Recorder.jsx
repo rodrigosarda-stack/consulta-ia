@@ -6,7 +6,9 @@ import { track, Events } from '../lib/analytics'
 // Gravação em pedaços (07/09/2026): cada PEDACO_MS vai pro servidor assim que
 // sai do microfone. Antes tudo ficava na memória e subia num arquivo só no
 // fim — celular morre, perde a consulta inteira.
-const PEDACO_MS = 30_000
+const PEDACO_MS = 30_000            // só pra estimar duração de gravação retomada
+const PEDACO_MIN_MS = 25_000        // a partir daqui, corta na primeira pausa de fala
+const PEDACO_MAX_MS = 45_000        // se ninguém respirar, corta aqui
 const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x isso)
 const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
 const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
@@ -132,7 +134,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       await salvarSessao(meta)
       filaRef.current = criarFila({ enviar: uploadChunk, aoMudar: n => setPendentes(n), aoResposta: tratarResposta })
       gravRef.current = criarGravadorEmPedacos(stream, {
-        mime, bitrate: BITRATE, pedacoMs: PEDACO_MS,
+        mime, bitrate: BITRATE, minMs: PEDACO_MIN_MS, maxMs: PEDACO_MAX_MS,
+        semFala: () => detectorRef.current ? detectorRef.current.semFalaMs() : 0,   // corta na pausa
         aoPedaco: (blob, seq, dur) => {
           filaRef.current.adicionar(sessao, seq, blob, dur)
           salvarSessao({ ...meta, ultimoSeq: seq }).catch(() => {})

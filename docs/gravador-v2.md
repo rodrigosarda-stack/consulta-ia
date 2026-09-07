@@ -57,6 +57,29 @@ parar, pra não ter buraco.
 Efeito colateral bom: ao apertar Parar, a transcrição já está pronta. O
 prontuário sai em ~30 s em vez de ~70.
 
+### Por que cortar na pausa, e não no relógio
+
+Rodrigo: *"ter tudo picotadinho de 30 em 30 segundos não vai prejudicar a
+transcrição ou a interpretação?"* Três respostas:
+
+- **A transcrição, não.** O Whisper só escuta em janelas de 30 s por
+  arquitetura — um arquivo de 1 h ele mesmo corta em 120. Nossos pedaços são o
+  que ele já faria, e ainda recebem o fim do pedaço anterior como contexto.
+- **A interpretação, não.** A IA do prontuário recebe o texto inteiro colado;
+  as etiquetas só decidem quais pedaços entram.
+- **A palavra na emenda, SIM.** Corte no relógio parte "losar-" | "-tana" e o
+  Whisper perde as duas metades. Numa consulta de 1 h são 120 emendas.
+
+Conserto (`criarGravadorEmPedacos`, commit desta seção):
+1. A partir de **25 s**, corta na **primeira pausa de fala** (≥ 350 ms sem
+   volume — o detector de silêncio já mede 4x/s). Se ninguém respirar, corta em
+   **45 s**. A emenda cai entre palavras, não dentro.
+2. O pedaço novo começa **1 s antes** do antigo parar. A palavra da fronteira
+   sai inteira em pelo menos um dos dois.
+3. O servidor **costura** (`costurar()`): acha o maior bloco de 2 a 8 palavras
+   em que o fim de A == o começo de B (sem acento/pontuação/caixa) e fica com a
+   versão de B, que tem a pontuação que continua a frase. Testado em 5 casos.
+
 ### Por que a fila offline
 
 `criarFila` guarda cada pedaço no IndexedDB **antes** de tentar enviar. Falhou:

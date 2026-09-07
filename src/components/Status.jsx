@@ -99,13 +99,13 @@ export default function Status({ consulta, onNova }) {
           {mapa && mapa.length > 1 && (
             <div style={{ width: '100%', maxWidth: 480, marginBottom: 12 }}>
               <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                {mapa.map(p => (
-                  <div key={p.seq} title={`${Math.floor(p.seq * 30 / 60)}:${String((p.seq * 30) % 60).padStart(2, '0')} · ${p.clinico ? 'consulta' : 'conversa'}${p.tema ? ' · ' + p.tema : ''}`}
+                {mapa.map((p, i) => { const t = mapa.slice(0, i).reduce((a, q) => a + (q.seg || 30), 0); return (
+                  <div key={p.seq} title={`${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')} · ${p.clinico ? 'consulta' : 'conversa'}${p.tema ? ' · ' + p.tema : ''}`}
                     style={{ flex: '1 0 14px', height: 10, borderRadius: 3, background: p.clinico ? '#2dd4bf' : 'rgba(107,133,164,0.35)' }} />
-                ))}
+                ) })}
               </div>
               <div style={{ fontSize: 11, ...muted, marginTop: 6, textAlign: 'left' }}>
-                {mapa.length} pedaços de 30 s · <span style={{ color: '#2dd4bf' }}>■</span> {mapa.filter(p => p.clinico).length} consulta · <span style={{ color: 'rgba(107,133,164,0.7)' }}>■</span> {mapa.filter(p => !p.clinico).length} conversa (não entrou no prontuário)
+                {mapa.length} pedaços · <span style={{ color: '#2dd4bf' }}>■</span> {mapa.filter(p => p.clinico).length} consulta · <span style={{ color: 'rgba(107,133,164,0.7)' }}>■</span> {mapa.filter(p => !p.clinico).length} conversa (não entrou no prontuário)
               </div>
             </div>
           )}

@@ -165,6 +165,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
   }, 250)
 
   return {
+    semFalaMs: () => Date.now() - ultimaFala,   // o gravador usa pra cortar o pedaço numa pausa
     parar() {
       clearInterval(timer)
       try { src.disconnect(); ctx.close() } catch {}
@@ -172,13 +173,23 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
   }
 }
 
-// Gravador em pedaços: reinicia o MediaRecorder a cada pedacoMs, então cada
+// Gravador em pedaços: reinicia o MediaRecorder a cada pedaço, então cada
 // pedaço é um ARQUIVO COMPLETO (com cabeçalho) e pode ser transcrito sozinho,
-// assim que chega. O próximo começa ANTES do anterior parar — sem buraco.
+// assim que chega.
+//
+// ONDE cortar importa (Rodrigo, 07/09: "picotar de 30 em 30 não prejudica?").
+// Cortar no relógio parte palavra ao meio ("losar-" | "-tana") e o Whisper
+// perde as duas metades. Então: a partir de minMs, corta na PRIMEIRA PAUSA de
+// fala (o detector de silêncio já mede o volume 4x/s); se ninguém respirar,
+// corta em maxMs. E o pedaço novo começa sobreposicaoMs ANTES do antigo parar:
+// a palavra da fronteira sai inteira em pelo menos um dos dois — o servidor
+// costura a repetição.
+//   semFala()               → ms desde a última fala (vem do detector)
 //   aoPedaco(blob, seq, duracaoSeg)
-export function criarGravadorEmPedacos(stream, { mime, bitrate, pedacoMs, aoPedaco }) {
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoMs = 1_000, semFala = () => 0, aoPedaco }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
-  let atual = null, seq = 0, parando = false, timer = null
+  const vivos = new Set()
+  let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null
 
   function novo() {
     const rec = new MediaRecorder(stream, opts)
@@ -188,35 +199,46 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, pedacoMs, aoPeda
     rec.terminou = new Promise(res => {
       rec.ondataavailable = e => { if (e.data.size > 0) partes.push(e.data) }
       rec.onstop = () => {
+        vivos.delete(rec)
         const blob = new Blob(partes, { type: rec.mimeType || mime || 'audio/webm' })
         try { aoPedaco(blob, meuSeq, (Date.now() - inicio) / 1000) } finally { res() }
       }
     })
     rec.start()
+    vivos.add(rec)
+    inicioAtual = inicio
     return rec
   }
 
   function girar() {
     if (parando) return
     const anterior = atual
-    atual = novo()                                                   // o novo já grava…
-    if (anterior && anterior.state !== 'inactive') anterior.stop()  // …quando o antigo para
-    timer = setTimeout(girar, pedacoMs)
+    atual = novo()                                            // o novo já grava…
+    timerStop = setTimeout(() => {                            // …o antigo ainda grava 1 s (sobreposição)
+      timerStop = null
+      if (anterior && anterior.state !== 'inactive') anterior.stop()
+    }, sobreposicaoMs)
   }
 
   atual = novo()
-  timer = setTimeout(girar, pedacoMs)
+  // 4x por segundo: já passou do mínimo e há pausa? ou passou do máximo? → gira
+  const relogio = setInterval(() => {
+    if (parando) return
+    const dur = Date.now() - inicioAtual
+    if (dur >= maxMs || (dur >= minMs && semFala() >= pausaMs)) girar()
+  }, 250)
 
   return {
     mimeType: () => atual?.mimeType || mime,
     totalPedacos: () => seq,
-    // resolve quando o ÚLTIMO pedaço já foi entregue a aoPedaco
+    // resolve quando TODOS os pedaços (inclusive o da sobreposição) foram entregues a aoPedaco
     parar() {
       parando = true
-      clearTimeout(timer)
-      if (!atual) return Promise.resolve()
-      if (atual.state !== 'inactive') atual.stop()
-      return atual.terminou
+      clearInterval(relogio)
+      if (timerStop) { clearTimeout(timerStop); timerStop = null }
+      const promessas = []
+      for (const r of vivos) { promessas.push(r.terminou); if (r.state !== 'inactive') r.stop() }
+      return Promise.all(promessas)
     },
   }
 }
