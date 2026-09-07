@@ -163,7 +163,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.00
     const semFalaMs = agora - ultimaFala
     aoTick?.({ rms, semFalaMs })
     if (!disparou && semFalaMs >= limiteMs) { disparou = true; aoSilencio?.(semFalaMs) }
-  }, 250)
+  }, 100)   // 10x/s: quanto mais rápido percebe o som, menos se perde do começo da fala depois de uma pausa
 
   return {
     semFalaMs: () => Date.now() - ultimaFala,   // o gravador usa pra cortar o pedaço numa pausa
@@ -211,16 +211,27 @@ function pausaExigida(durMs) { for (const [ate, pausa] of PAUSA_POR_DURACAO) if 
 // novo começa; nada é enviado. Quando alguém volta a falar, o pedaço aberto tem
 // no máximo 10 s de silêncio antes. seq só conta o que é enviado — a sequência
 // fica contínua pro finalize.
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, aoPedaco, aoSilencioMudo }) {
+// NÃO GRAVAR O SILÊNCIO (Rodrigo, 07/09: "o médico escrevendo, uma criança fala
+// uma bobagem, a mãe fala outra — esses pedaços que não têm nada a ver"). Jogar
+// fora pedaço mudo não bastava: 3 s de criança + 17 s de caneta = 20 s cobrados.
+// Agora o gravador PAUSA depois de pausaGravacaoMs sem som e RETOMA quando o som
+// volta. O arquivo do pedaço só tem o que foi dito; os cortes (mín/máx) contam
+// só o tempo gravado. Criança 3 s + mãe 2 s + médico voltando se juntam num
+// pedaço de 20 s de fala real. Paga-se pelo que foi dito, não pelo relógio.
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, pausaGravacaoMs = 2_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, aoPedaco, aoSilencioMudo }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null, houveSomNoAtual = false, mudoAvisado = false
+  const podePausar = typeof MediaRecorder.prototype.pause === 'function'   // Safari 14.1+, Chrome, Firefox
 
   function novo() {
     const rec = new MediaRecorder(stream, opts)
     const partes = []
     const inicio = Date.now()
     rec.descartar = false
+    rec.gravadoMs = 0            // tempo com o gravador rodando (sem as pausas)
+    rec.ultimoResume = inicio
+    rec.pausado = false
     rec.terminou = new Promise(res => {
       rec.ondataavailable = e => { if (e.data.size > 0) partes.push(e.data) }
       rec.onstop = () => {
@@ -228,7 +239,8 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
         if (rec.descartar) { res(); return }                    // mudo: não vira pedaço, não sobe, não custa
         const blob = new Blob(partes, { type: rec.mimeType || mime || 'audio/webm' })
         const meuSeq = seq++                                     // numera só o que é enviado
-        try { aoPedaco(blob, meuSeq, (Date.now() - inicio) / 1000) } finally { res() }
+        const gravado = rec.gravadoMs + (rec.pausado ? 0 : Date.now() - rec.ultimoResume)
+        try { aoPedaco(blob, meuSeq, gravado / 1000) } finally { res() }
       }
     })
     rec.start()
@@ -258,14 +270,32 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
 
   atual = novo()
   // 4x por segundo: já passou do mínimo e há pausa? ou passou do máximo? → gira
+  // tempo gravado do pedaço atual (o relógio de parede não conta: pausa não é áudio)
+  function gravadoAtual() { return atual ? atual.gravadoMs + (atual.pausado ? 0 : Date.now() - atual.ultimoResume) : 0 }
+
   const relogio = setInterval(() => {
-    if (parando) return
-    const dur = Date.now() - inicioAtual
-    if (semSom() < 250) { if (!houveSomNoAtual) { houveSomNoAtual = true; if (mudoAvisado) { mudoAvisado = false; aoSilencioMudo?.(false) } } }
-    if (!houveSomNoAtual) { if (dur >= silencioRecicloMs) reciclarMudo(); return }   // mudo até agora: recicla a cada 10 s, não corta pra enviar
-    if (dur >= maxMs) girar(true)                                        // ninguém pausou em 60 s: corte forçado, sobreposição longa
+    if (parando || !atual) return
+    const agora = Date.now()
+    const temSom = semSom() < 200
+
+    // pausa/retoma: o silêncio não entra no arquivo
+    if (podePausar && atual.state !== 'inactive') {
+      if (!atual.pausado && !temSom && semSom() >= pausaGravacaoMs && atual.state === 'recording') {
+        atual.gravadoMs += agora - atual.ultimoResume
+        try { atual.pause(); atual.pausado = true; if (!mudoAvisado) { mudoAvisado = true; aoSilencioMudo?.(true) } } catch {}
+      } else if (atual.pausado && temSom && atual.state === 'paused') {
+        try { atual.resume(); atual.pausado = false; atual.ultimoResume = agora; if (mudoAvisado) { mudoAvisado = false; aoSilencioMudo?.(false) } } catch {}
+      }
+    }
+
+    if (temSom && !houveSomNoAtual) houveSomNoAtual = true
+    const durParede = agora - inicioAtual
+    if (!houveSomNoAtual) { if (durParede >= silencioRecicloMs) reciclarMudo(); return }   // nunca teve som: recicla, não envia (rede de segurança)
+
+    const dur = gravadoAtual()   // cortes pelo tempo GRAVADO, não pelo relógio
+    if (dur >= maxMs) girar(true)                                        // 60 s de fala sem pausa: corte forçado, sobreposição longa
     else if (dur >= minMs && semFala() >= pausaExigida(dur)) girar(false) // pausa (2 s → 1 s → 0,35 s conforme o pedaço cresce): corte limpo
-  }, 250)
+  }, 100)
 
   return {
     mimeType: () => atual?.mimeType || mime,

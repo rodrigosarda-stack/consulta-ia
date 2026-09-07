@@ -89,7 +89,20 @@ Rodrigo: *"o médico começa a escrever e fica um minuto, dois, sem falar — e 
 gente vai ser cobrado por isso?"* Sim, e pior: o Whisper cobra por segundo de
 áudio **e alucina em silêncio** ("Obrigado por assistir", frase repetida).
 
-Então o gravador não envia pedaço mudo. O detector de silêncio passou a rastrear
+Rodrigo, em seguida: *"o médico escrevendo, uma criança fala uma bobagem, a mãe
+fala outra — esses pedaços que não têm nada a ver."* Jogar fora pedaço mudo não
+bastava: 3 s de criança + 17 s de caneta = pedaço com som = 20 s cobrados.
+
+**Então o gravador não grava o silêncio.** Depois de 2 s sem som ele **pausa**
+o MediaRecorder; quando o som volta, **retoma**. O arquivo do pedaço só tem o que
+foi dito; os cortes (mín 20 s / máx 60 s) contam o tempo **gravado**, não o
+relógio. Criança 3 s + mãe 2 s + médico voltando se juntam num pedaço de 20 s
+de fala real. Paga-se pelo que foi dito. O que não dá pra evitar: transcrever
+os 3 s da criança — pra saber que é bobagem alguém tem que ouvir; a etiqueta
+depois marca "conversa" e o prontuário não vê. O detector passou a 10x/s pra
+retomar rápido e perder o mínimo do começo da fala.
+
+Como rede de segurança, o gravador ainda não envia pedaço mudo: O detector de silêncio passou a rastrear
 também "qualquer som" (`semSomMs`, limiar 0,005 — bem abaixo do de fala, 0,012,
 pra fala baixa contar como som). Pedaço em que não houve som nenhum é **jogado
 fora a cada 10 s** e um novo começa; nada sobe, nada custa. Quando alguém volta a

@@ -461,7 +461,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           {isRec && (
             <div style={{ fontSize: 11, ...muted, textAlign: 'center', lineHeight: 1.6 }}>
               {pendentes > 0 ? `☁️ ${pendentes} pedaço(s) aguardando envio` : '☁️ salvo no servidor até agora'}
-              {' · '}{mudo ? '🔇 silêncio — não está sendo cobrado' : modo === 'consulta' ? '🩺 consulta detectada' : '👂 ouvindo'}
+              {' · '}{mudo ? '🔇 silêncio — não está sendo gravado nem cobrado' : modo === 'consulta' ? '🩺 consulta detectada' : '👂 ouvindo'}
               {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
             </div>
           )}
