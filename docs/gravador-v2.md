@@ -270,6 +270,18 @@ um pouquinho, só na retomada: detector (50 ms) + a palavra começar baixinha +
 o gravador retomar ≈ **50–100 ms**, menos que um fonema. Mitigações: detector a
 20x/s; **retomar num limiar mais baixo (0,003) do que pausar (0,005)** — pega a
 palavra no começo; pausar só após **3 s** de silêncio (pausa de conversa não
-pausa o gravador; só silêncio de verdade). Zerar de vez exigiria um buffer de
-~500 ms pra trás com áudio cru e compressão própria no celular — reescrita da
-captura, arquivos 5–10x maiores. Não vale hoje.
+pausa o gravador; só silêncio de verdade). Rodrigo: *"o negócio seria o buffer mesmo — ele começa a saber o futuro."*
+Feito, sem áudio cru: **atrasa o áudio, não a decisão** (`criarAtraso`).
+Microfone → `DelayNode` de 0,5 s → `MediaStreamAudioDestinationNode` →
+MediaRecorder. O detector ouve o microfone **sem** atraso; quando percebe som
+e retoma o gravador, o que chega nele é o áudio de meio segundo atrás — o
+começo da palavra entra inteiro. Compressão nativa, arquivo pequeno. Custos:
+0,5 s de silêncio a mais por retomada; ao Parar, espera 0,65 s pra esvaziar a
+linha; a sobreposição entre pedaços nunca é menor que o atraso. Se a cadeia
+não montar no aparelho, cai no stream direto sem quebrar.
+
+Alternativa do Rodrigo, guardada como plano B se o Safari não aceitar a
+cadeia: "passagem de bastão" — dois gravadores defasados 2 s durante o
+silêncio; após 4 s quieto o mais velho é descartado; quando alguém fala, um
+deles já tem o começo. Funciona; custa dois compressores e 2–4 s de silêncio
+por retomada em vez de 0,5.

@@ -224,7 +224,7 @@ function pausaExigida(durMs) { for (const [ate, pausa] of PAUSA_POR_DURACAO) if 
 // volta. O arquivo do pedaço só tem o que foi dito; os cortes (mín/máx) contam
 // só o tempo gravado. Criança 3 s + mãe 2 s + médico voltando se juntam num
 // pedaço de 20 s de fala real. Paga-se pelo que foi dito, não pelo relógio.
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, pausaGravacaoMs = 3_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, semSomFraco = () => 0, aoPedaco, aoSilencioMudo }) {
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, pausaGravacaoMs = 3_000, silencioRecicloMs = 10_000, atrasoMs = 0, semFala = () => 0, semSom = () => 0, semSomFraco = () => 0, aoPedaco, aoSilencioMudo }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null, houveSomNoAtual = false, mudoAvisado = false
@@ -263,7 +263,7 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
     timerStop = setTimeout(() => {                            // …o antigo ainda grava um pouco (sobreposição)
       timerStop = null
       if (anterior && anterior.state !== 'inactive') anterior.stop()
-    }, forcado ? sobreposicaoForcadaMs : sobreposicaoPausaMs)
+    }, Math.max(forcado ? sobreposicaoForcadaMs : sobreposicaoPausaMs, atrasoMs + 100))   // nunca menor que o atraso: senão a fronteira vira buraco
   }
   // pedaço mudo: joga fora e recomeça, sem sobreposição — não há nada pra emendar
   function reciclarMudo() {
@@ -308,14 +308,51 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
     mimeType: () => atual?.mimeType || mime,
     totalPedacos: () => seq,
     // resolve quando TODOS os pedaços (inclusive o da sobreposição) foram entregues a aoPedaco
-    parar() {
+    async parar() {
       parando = true
       clearInterval(relogio)
       if (timerStop) { clearTimeout(timerStop); timerStop = null }
       if (atual && !houveSomNoAtual) atual.descartar = true   // terminou em silêncio: o último pedaço não sobe
+      // as últimas palavras ainda estão na linha de atraso: retoma se pausado e espera esvaziar
+      if (atrasoMs > 0) {
+        if (atual && atual.pausado && atual.state === 'paused') { try { atual.resume(); atual.pausado = false; atual.ultimoResume = Date.now() } catch {} }
+        await new Promise(r => setTimeout(r, atrasoMs + 150))
+      }
       const promessas = []
       for (const r of vivos) { promessas.push(r.terminou); if (r.state !== 'inactive') r.stop() }
       return Promise.all(promessas)
     },
+  }
+}
+
+// PRÉ-ROLL (Rodrigo, 07/09: "o negócio seria o buffer mesmo — ele começa a saber
+// o futuro"). Em vez de guardar áudio cru e comprimir por conta própria, ATRASA O
+// ÁUDIO e não a decisão: microfone → linha de atraso de atrasoMs → gravador. O
+// detector ouve o microfone SEM atraso; quando percebe som e retoma o gravador,
+// o que chega nele é o áudio de meio segundo atrás — o começo da palavra entra
+// inteiro. Compressão continua nativa, arquivo continua pequeno.
+// Devolve o stream atrasado (só áudio) e um parar(). Se o navegador não montar a
+// cadeia, devolve o stream original — cai no comportamento anterior sem quebrar.
+export function criarAtraso(stream, atrasoMs = 500) {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext
+    if (!Ctx || !stream.getAudioTracks().length) return { stream, atrasoMs: 0, parar() {} }
+    const ctx = new Ctx()
+    ctx.resume?.().catch?.(() => {})
+    const src = ctx.createMediaStreamSource(stream)
+    const delay = ctx.createDelay(Math.max(1, atrasoMs / 1000))
+    delay.delayTime.value = atrasoMs / 1000
+    const dest = ctx.createMediaStreamDestination()
+    src.connect(delay)
+    delay.connect(dest)
+    if (!dest.stream.getAudioTracks().length) throw new Error('sem faixa de áudio no destino')
+    return {
+      stream: dest.stream,
+      atrasoMs,
+      parar() { try { src.disconnect(); delay.disconnect(); ctx.close() } catch {} },
+    }
+  } catch (e) {
+    console.warn('pré-roll indisponível, gravando direto:', e?.message)
+    return { stream, atrasoMs: 0, parar() {} }
   }
 }

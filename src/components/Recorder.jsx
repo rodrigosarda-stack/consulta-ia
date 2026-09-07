@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, discardSession, canRecord } from '../lib/api'
-import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
+import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, criarAtraso, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
 
 // Gravação em pedaços (07/09/2026): cada PEDACO_MS vai pro servidor assim que
@@ -12,6 +12,7 @@ const PEDACO_MAX_MS = 60_000        // se ninguém pausar, corta aqui (é o máx
 const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x isso)
 const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
 const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
+const PRE_ROLL_MS = 500           // o gravador recebe o áudio meio segundo atrasado: ao retomar, o começo da palavra entra
 const AVISOS_FIM_PARA_PARAR = 2   // IA disse "terminou" 2 vezes seguidas (~2 min) sem resposta → para
 
 function fmt(s) {
@@ -41,6 +42,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
 
   const gravRef = useRef(null)       // gravador em pedaços
   const streamRef = useRef(null)
+  const atrasoRef = useRef(null)     // linha de atraso (pré-roll)
   const notaRef = useRef(null)
   const avisosFimRef = useRef(0)
   const ignorarFimAteRef = useRef(-1) // médico disse "continuar": ignora a IA por uns pedaços
@@ -134,8 +136,10 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       await sessionStart({ sessionId: sessao, pacienteNome: meta.paciente, pacienteTel: meta.pacienteTel, nota, mime })
       await salvarSessao(meta)
       filaRef.current = criarFila({ enviar: uploadChunk, aoMudar: n => setPendentes(n), aoResposta: tratarResposta })
-      gravRef.current = criarGravadorEmPedacos(stream, {
-        mime, bitrate: BITRATE, minMs: PEDACO_MIN_MS, maxMs: PEDACO_MAX_MS,
+      // detector ouve o microfone AGORA; o gravador recebe o áudio com PRE_ROLL_MS de atraso
+      atrasoRef.current = criarAtraso(stream, PRE_ROLL_MS)
+      gravRef.current = criarGravadorEmPedacos(atrasoRef.current.stream, {
+        mime, bitrate: BITRATE, minMs: PEDACO_MIN_MS, maxMs: PEDACO_MAX_MS, atrasoMs: atrasoRef.current.atrasoMs,
         semFala: () => detectorRef.current ? detectorRef.current.semFalaMs() : 0,   // corta na pausa
         semSom: () => detectorRef.current ? detectorRef.current.semSomMs() : 0,     // está quieto? → pausa
         semSomFraco: () => detectorRef.current ? detectorRef.current.semSomFracoMs() : 0,   // começou algo? → retoma
@@ -170,6 +174,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     const g = gravRef.current
     if (!g) return
     g.parar().then(async () => {
+      atrasoRef.current?.parar(); atrasoRef.current = null
       streamRef.current?.getTracks().forEach(t => t.stop())
       if (motivoRef.current === 'nao_saude') {
         // não é consulta: nada vira prontuário. Mas fica guardado — se a IA errou
