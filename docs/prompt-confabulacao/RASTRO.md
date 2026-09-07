@@ -86,3 +86,62 @@ node medir-rastro.mjs
 Precisa de uma Edge Function que exponha o Gemini (modelo em
 `lab-transcricao.ts`; a usada aqui foi apagada). A lista `CONSERTOS` no topo é
 o ground truth — trocar junto se trocar a fixture.
+
+---
+
+# Anexo — troca da cascata de modelos (06/09/2026)
+
+A MarIA usava `gemini-2.5-flash` com fallback pra `gemini-2.0-flash-001` e
+`gemini-1.5-flash`. **Os dois fallbacks já tinham sumido da API** — a chave não
+os lista mais. E o principal tem desligamento marcado pra **16/10/2026**, com
+relatos de 404 antes da data. Quando morresse, a MarIA pararia de gerar
+prontuário.
+
+## Como a nova cascata foi escolhida
+
+Cada candidato rodou contra a mesma transcrição humana. 5 rodadas para a
+triagem, 6 para o desempate.
+
+| modelo | losartana | dipirona | travamento | inventou remédio | inventou idade | tempo |
+|---|---|---|---|---|---|---|
+| gemini-2.5-flash *(atual)* | 5/5 | 5/5 | 5/5 | 0/5 | **1/5** | 10,8 s |
+| **gemini-3.7-flash** | 5/5 | 5/5 | 5/5 | 0/5 | 0/5 | **4,3 s** |
+| gemini-3.8-flash | 5/5 | 5/5 | 5/5 | 0/5 | 0/5 | 5,0 s |
+| gemini-3.6-flash | 5/5 | 5/5 | **4/5** | 0/5 | 0/5 | 9,9 s |
+| gemini-3.5-flash | 5/5 | 5/5 | 5/5 | 0/5 | 0/5 | 10,9 s |
+| gemini-3.5-flash-lite | 5/5 | 5/5 | 5/5 | 0/5 | 0/5 | **2,1 s** |
+
+**Cascata escolhida:** `gemini-3.7-flash` → `gemini-3.8-flash` → `gemini-3.5-flash`
+
+O `flash-lite` foi descartado no desempate: escreveu "ergonômica" no lugar de
+"ergométrica" em **4 de 6** rodadas. Rápido, mas desleixado com termo técnico.
+
+## O achado do desempate
+
+| modelo | escreve "ergo**métrica**" | preserva "sem carga" |
+|---|---|---|
+| gemini-2.5-flash | 5/6 | **3/6** |
+| gemini-3.7-flash | **6/6** | 0/6 |
+| gemini-3.8-flash | **6/6** | 0/6 |
+| gemini-3.5-flash-lite | 2/6 | 3/6 |
+
+Os modelos novos são **mais literais**: consertam a palavra claramente errada
+("ergonômica" → ergométrica) e **não preenchem o que simplesmente não está lá**.
+
+A expressão "sem carga" **não existe na transcrição** — o Whisper comeu a
+palavra e sobrou "sem que". O 2.5 adivinhava "sem resistência" em metade das
+vezes; o 3.7 nunca adivinha.
+
+**Isso não é regressão da troca — é a perda da transcrição aparecendo.** O
+modelo antigo estava encobrindo o buraco com um palpite que por acaso acertava.
+
+E reforça a recomendação do rastro: com a variante C, "sem que" apareceria como
+trecho não resolvido, e o médico veria que ali faltou alguma coisa. Hoje, ou
+some em silêncio (3.7) ou é preenchido por adivinhação (2.5). Nenhum dos dois
+avisa.
+
+## Verificado ponta a ponta
+
+Áudio humano real → upload → fila → Whisper → gemini-3.7-flash → prontuário,
+em **30 segundos**. Losartana, Dipirona, travamento, condropatia: todos
+corretos. Nenhuma invenção de remédio ou idade.

@@ -79,7 +79,22 @@ async function transcribeAudio(audioBlob: Blob): Promise<string> {
 }
 
 async function generateWithGemini(prompt: string): Promise<string> {
-  const models = ["gemini-2.5-flash", "gemini-2.0-flash-001", "gemini-1.5-flash"];
+  // Trocada em 06/09/2026. A cascata anterior era ["gemini-2.5-flash",
+  // "gemini-2.0-flash-001", "gemini-1.5-flash"] — os DOIS fallbacks já tinham
+  // sumido da API (a chave não os lista mais), então na prática não havia
+  // fallback nenhum; e o 2.5-flash tem desligamento marcado pra 16/10/2026,
+  // com relatos de 404 antes da data. Quando ele morresse, a MarIA pararia de
+  // gerar prontuário — não degradaria, pararia.
+  //
+  // Os três abaixo foram medidos contra a mesma transcrição (5 rodadas cada,
+  // ver docs/prompt-confabulacao/): todos 5/5 em losartana, dipirona e
+  // travamento, 0/5 de invenção, e nenhum inventou idade (o 2.5 inventava
+  // 1/5). Ordem: maduro → mais novo → geração anterior, pra que uma falha
+  // sistêmica num não derrube os três.
+  //
+  // O flash-lite foi testado e DESCARTADO: escreveu 'ergonômica' em vez de
+  // 'ergométrica' em 4 de 6 rodadas. Rápido, mas desleixado com termo técnico.
+  const models = ["gemini-3.7-flash", "gemini-3.8-flash", "gemini-3.5-flash"];
   for (const model of models) {
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 4096 } }) });
