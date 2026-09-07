@@ -59,9 +59,9 @@ export async function apagarSessao(sessao) {
   await tx(db, SESSOES, 'readwrite', s => s.delete(sessao))
 }
 
-async function guardarPedaco(sessao, seq, blob) {
+async function guardarPedaco(sessao, seq, blob, dur) {
   const db = await abrir()
-  await tx(db, PEDACOS, 'readwrite', s => s.put({ chave: chaveDe(sessao, seq), sessao, seq, blob, criado: Date.now() }))
+  await tx(db, PEDACOS, 'readwrite', s => s.put({ chave: chaveDe(sessao, seq), sessao, seq, blob, dur, criado: Date.now() }))
 }
 
 async function apagarPedaco(chave) {
@@ -71,9 +71,10 @@ async function apagarPedaco(chave) {
 
 // Fila de envio: um pedaço por vez, em ordem. Falhou → espera e tenta de novo
 // (2 s, 4 s, 8 s… até 30 s). Quando a rede volta, tenta na hora.
-//   enviar(sessao, seq, blob) — faz o POST; deve lançar se falhar
-//   aoMudar(pendentes, erro)  — pra UI mostrar quantos faltam
-export function criarFila({ enviar, aoMudar }) {
+//   enviar(sessao, seq, blob, dur) — faz o POST; deve lançar se falhar
+//   aoMudar(pendentes, erro)       — pra UI mostrar quantos faltam
+//   aoResposta(seq, resposta)      — o servidor responde se a consulta parece ter terminado
+export function criarFila({ enviar, aoMudar, aoResposta }) {
   const pendentes = new Map()
   let rodando = false, espera = 2000, parado = false
 
@@ -83,11 +84,12 @@ export function criarFila({ enviar, aoMudar }) {
     while (!parado && pendentes.size) {
       const [chave, p] = [...pendentes.entries()].sort((a, b) => a[1].seq - b[1].seq)[0]
       try {
-        await enviar(p.sessao, p.seq, p.blob)
+        const resposta = await enviar(p.sessao, p.seq, p.blob, p.dur)
         pendentes.delete(chave)
         await apagarPedaco(chave)
         espera = 2000
         aoMudar?.(pendentes.size, null)
+        aoResposta?.(p.seq, resposta)
       } catch (e) {
         aoMudar?.(pendentes.size, e)
         await new Promise(r => setTimeout(r, espera))
@@ -102,9 +104,9 @@ export function criarFila({ enviar, aoMudar }) {
 
   return {
     // guarda no IndexedDB ANTES de tentar enviar — se a aba morrer, está lá
-    async adicionar(sessao, seq, blob) {
-      await guardarPedaco(sessao, seq, blob)
-      pendentes.set(chaveDe(sessao, seq), { sessao, seq, blob })
+    async adicionar(sessao, seq, blob, dur) {
+      await guardarPedaco(sessao, seq, blob, dur)
+      pendentes.set(chaveDe(sessao, seq), { sessao, seq, blob, dur })
       aoMudar?.(pendentes.size, null)
       ciclo()
     },
@@ -159,6 +161,55 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
     parar() {
       clearInterval(timer)
       try { src.disconnect(); ctx.close() } catch {}
+    },
+  }
+}
+
+// Gravador em pedaços: reinicia o MediaRecorder a cada pedacoMs, então cada
+// pedaço é um ARQUIVO COMPLETO (com cabeçalho) e pode ser transcrito sozinho,
+// assim que chega. O próximo começa ANTES do anterior parar — sem buraco.
+//   aoPedaco(blob, seq, duracaoSeg)
+export function criarGravadorEmPedacos(stream, { mime, bitrate, pedacoMs, aoPedaco }) {
+  const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
+  let atual = null, seq = 0, parando = false, timer = null
+
+  function novo() {
+    const rec = new MediaRecorder(stream, opts)
+    const partes = []
+    const meuSeq = seq++
+    const inicio = Date.now()
+    rec.terminou = new Promise(res => {
+      rec.ondataavailable = e => { if (e.data.size > 0) partes.push(e.data) }
+      rec.onstop = () => {
+        const blob = new Blob(partes, { type: rec.mimeType || mime || 'audio/webm' })
+        try { aoPedaco(blob, meuSeq, (Date.now() - inicio) / 1000) } finally { res() }
+      }
+    })
+    rec.start()
+    return rec
+  }
+
+  function girar() {
+    if (parando) return
+    const anterior = atual
+    atual = novo()                                                   // o novo já grava…
+    if (anterior && anterior.state !== 'inactive') anterior.stop()  // …quando o antigo para
+    timer = setTimeout(girar, pedacoMs)
+  }
+
+  atual = novo()
+  timer = setTimeout(girar, pedacoMs)
+
+  return {
+    mimeType: () => atual?.mimeType || mime,
+    totalPedacos: () => seq,
+    // resolve quando o ÚLTIMO pedaço já foi entregue a aoPedaco
+    parar() {
+      parando = true
+      clearTimeout(timer)
+      if (!atual) return Promise.resolve()
+      if (atual.state !== 'inactive') atual.stop()
+      return atual.terminou
     },
   }
 }

@@ -511,3 +511,39 @@ insert into config (chave, valor) values
   ('evolution_api',    '{"server_url": "https://evo.metodo3amedico.com.br", "instance_name": "MarIA-Bot", "apikey": "<REDACTED>"}'),
   ('cron_secret',      '"<REDACTED>"')
 on conflict (chave) do nothing;
+
+-- ---------------------------------------------------------------------
+-- 12. GRAVAÇÃO EM PEDAÇOS COM TRANSCRIÇÃO PROGRESSIVA (07/09/2026)
+--     Aplicado em produção via execute_sql em 07/09/2026.
+--     O celular manda pedaços de ~30 s (arquivos completos); cada um é
+--     transcrito ao chegar. 'finalize' junta os textos e cria a consulta
+--     com transcricao_pronta — o process-consultation pula o Whisper.
+-- ---------------------------------------------------------------------
+create table if not exists gravacao_sessoes (
+  sessao uuid primary key,
+  usuario_tel text not null references usuarios(telefone),
+  paciente_nome text,
+  paciente_tel text,
+  nota text,                                  -- "Nota rápida" do médico: vira dica pro Whisper
+  mime text,
+  criado timestamptz not null default now(),
+  ultimo_pedaco_em timestamptz,
+  fim_sugerido_em timestamptz,                -- IA achou que a consulta terminou
+  fim_sugerido_seq integer,
+  encerrada boolean not null default false
+);
+create table if not exists gravacao_pedacos (
+  sessao uuid not null references gravacao_sessoes(sessao) on delete cascade,
+  seq integer not null,
+  audio_path text not null,
+  bytes bigint not null default 0,
+  duracao_seg real,
+  transcricao text,
+  erro text,
+  criado timestamptz not null default now(),
+  primary key (sessao, seq)
+);
+alter table consultas add column if not exists transcricao_pronta text;   -- já transcrita: pula o Whisper
+alter table consultas add column if not exists sessao_gravacao uuid;
+alter table gravacao_sessoes enable row level security;
+alter table gravacao_pedacos enable row level security;

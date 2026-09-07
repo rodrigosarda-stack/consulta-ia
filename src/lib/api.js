@@ -76,11 +76,28 @@ export function isInTrial() {
 
 // ── Gravação em pedaços (07/09/2026) ──
 // Cada pedaço sobe assim que sai do microfone; 'finalize' junta no servidor.
-export async function uploadChunk(sessionId, seq, blob) {
+// Abre a sessão no servidor antes do primeiro pedaço (nome, nota → dica pro Whisper)
+export async function sessionStart({ sessionId, pacienteNome, pacienteTel, nota, mime }) {
+  const token = getSessionToken()
+  const fd = new FormData()
+  fd.append('session_id', sessionId)
+  fd.append('paciente_nome', pacienteNome)
+  fd.append('paciente_tel', pacienteTel || '')
+  fd.append('nota', nota || '')
+  fd.append('mime', mime || '')
+  const res = await fetch(`${API_URL}?action=session-start`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `session-start ${res.status}`)
+  return data
+}
+
+// Resposta traz { transcrito, terminou: true|false|null, motivo } — null = IA não avaliou neste pedaço
+export async function uploadChunk(sessionId, seq, blob, duracao) {
   const token = getSessionToken()
   const fd = new FormData()
   fd.append('session_id', sessionId)
   fd.append('seq', String(seq))
+  if (duracao) fd.append('duracao', String(duracao))
   fd.append('audio', blob, 'pedaco.bin')
   const res = await fetch(`${API_URL}?action=chunk`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
   const data = await res.json().catch(() => ({}))

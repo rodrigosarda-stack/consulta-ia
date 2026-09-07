@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { uploadChunk, finalizeRecording, canRecord } from '../lib/api'
-import { criarFila, criarDetectorSilencio, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
+import { uploadChunk, finalizeRecording, sessionStart, canRecord } from '../lib/api'
+import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
 
 // Gravação em pedaços (07/09/2026): cada PEDACO_MS vai pro servidor assim que
@@ -9,7 +9,8 @@ import { track, Events } from '../lib/analytics'
 const PEDACO_MS = 30_000
 const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x isso)
 const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
-const SILENCIO_MS = 5 * 60_000    // sem fala por 5 min: para sozinho
+const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
+const AVISOS_FIM_PARA_PARAR = 2   // IA disse "terminou" 2 vezes seguidas (~2 min) sem resposta → para
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -29,14 +30,18 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [semFalaSeg, setSemFalaSeg] = useState(0)
   const [sessaoPendente, setSessaoPendente] = useState(null) // gravação antiga sem enviar
   const [motivoParada, setMotivoParada] = useState('')
+  const [fimSugerido, setFimSugerido] = useState('')          // IA achou que a consulta terminou (motivo)
 
-  const recorderRef = useRef(null)
+  const gravRef = useRef(null)       // gravador em pedaços
+  const streamRef = useRef(null)
+  const notaRef = useRef(null)
+  const avisosFimRef = useRef(0)
+  const ignorarFimAteRef = useRef(-1) // médico disse "continuar": ignora a IA por uns pedaços
   const timerRef = useRef(null)
   const secsRef = useRef(0)
   const wakeLockRef = useRef(null)
   const patientRef = useRef(null)
   const sessaoRef = useRef(null)
-  const seqRef = useRef(0)
   const filaRef = useRef(null)
   const detectorRef = useRef(null)
   const mimeRef = useRef('')
@@ -108,30 +113,32 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
         .find(t => MediaRecorder.isTypeSupported(t)) || ''
       mimeRef.current = mime
-      const recorder = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: BITRATE })
+      streamRef.current = stream
 
       // sessão desta gravação: os pedaços vão pra {uid}/rec/{sessao}/ no servidor
       const sessao = crypto.randomUUID()
-      const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, inicio: Date.now(), ultimoSeq: -1 }
-      sessaoRef.current = sessao; seqRef.current = 0
-      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0)
+      const nota = notaRef.current?.value?.trim() || ''
+      const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, nota, inicio: Date.now(), ultimoSeq: -1 }
+      sessaoRef.current = sessao
+      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido('')
+      avisosFimRef.current = 0; ignorarFimAteRef.current = -1
+      // o servidor precisa conhecer a sessão antes do 1º pedaço (nome + nota viram dica pro Whisper)
+      await sessionStart({ sessionId: sessao, pacienteNome: meta.paciente, pacienteTel: meta.pacienteTel, nota, mime })
       await salvarSessao(meta)
-      filaRef.current = criarFila({ enviar: uploadChunk, aoMudar: n => setPendentes(n) })
-      recorder.ondataavailable = e => {
-        if (e.data.size === 0) return
-        const seq = seqRef.current++
-        filaRef.current.adicionar(sessao, seq, e.data)
-        salvarSessao({ ...meta, ultimoSeq: seq }).catch(() => {})
-      }
-      recorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); handleFinalizar() }
-      recorder.start(PEDACO_MS)
+      filaRef.current = criarFila({ enviar: uploadChunk, aoMudar: n => setPendentes(n), aoResposta: tratarResposta })
+      gravRef.current = criarGravadorEmPedacos(stream, {
+        mime, bitrate: BITRATE, pedacoMs: PEDACO_MS,
+        aoPedaco: (blob, seq, dur) => {
+          filaRef.current.adicionar(sessao, seq, blob, dur)
+          salvarSessao({ ...meta, ultimoSeq: seq }).catch(() => {})
+        },
+      })
 
       detectorRef.current = criarDetectorSilencio(stream, {
         limiteMs: SILENCIO_MS,
         aoTick: ({ semFalaMs }) => setSemFalaSeg(Math.floor(semFalaMs / 1000)),
         aoSilencio: () => { motivoRef.current = 'silencio'; setMotivoParada('silencio'); stopRec() },
       })
-      recorderRef.current = recorder
       setIsRec(true); startTimer()
       requestWakeLock()
       track(Events.RECORDING_START, { mode })
@@ -148,7 +155,32 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     releaseWakeLock()
     detectorRef.current?.parar(); detectorRef.current = null
     track(Events.RECORDING_STOP, { mode, duracao, motivo: motivoRef.current || 'manual' })
-    if (recorderRef.current?.state !== 'inactive') recorderRef.current.stop()
+    const g = gravRef.current
+    if (!g) return
+    g.parar().then(() => {
+      streamRef.current?.getTracks().forEach(t => t.stop())
+      handleFinalizar()
+    })
+  }
+
+  // O servidor, a cada ~1 min, diz se a consulta parece ter terminado.
+  // 1ª vez: avisa na tela e pergunta. 2ª vez seguida sem resposta: para.
+  function tratarResposta(seq, r) {
+    if (!r || r.terminou == null) return               // não avaliou neste pedaço
+    if (seq <= ignorarFimAteRef.current) return        // médico pediu pra continuar
+    if (r.terminou) {
+      avisosFimRef.current++
+      setFimSugerido(r.motivo || 'a conversa parece ter acabado')
+      if (avisosFimRef.current >= AVISOS_FIM_PARA_PARAR) { motivoRef.current = 'conteudo'; setMotivoParada('conteudo'); stopRec() }
+    } else {
+      avisosFimRef.current = 0
+      setFimSugerido('')
+    }
+  }
+  function continuarGravando() {
+    ignorarFimAteRef.current = (gravRef.current?.totalPedacos() || 0) + 4   // ~2 min sem perguntar de novo
+    avisosFimRef.current = 0
+    setFimSugerido('')
   }
 
   // Fim da gravação: espera os últimos pedaços subirem e pede pro servidor juntar.
@@ -164,7 +196,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const subiu = await fila.esperarVazia(120_000, n => setUploadProgress(`Enviando… ${n} pedaço(s)`))
       if (!subiu) throw new Error('sem-rede')
       setUploadProgress('Juntando a gravação…')
-      const consulta = await finalizeRecording({ sessionId: sessao, pacienteNome: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), duracao, totalChunks: seqRef.current, mime: mimeRef.current })
+      const consulta = await finalizeRecording({ sessionId: sessao, pacienteNome: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), duracao, totalChunks: gravRef.current?.totalPedacos() ?? null, mime: mimeRef.current })
       fila.parar()
       await apagarSessao(sessao)
       track(Events.UPLOAD_SUCCESS, { duracao })
@@ -173,7 +205,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       track(Events.UPLOAD_ERROR, { error: e.message })
       setUploading(false)
       // a gravação NÃO se perdeu: os pedaços estão no IndexedDB e/ou no servidor
-      setSessaoPendente({ sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime: mimeRef.current, inicio: Date.now() - duracao * 1000, ultimoSeq: seqRef.current - 1 })
+      setSessaoPendente({ sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime: mimeRef.current, inicio: Date.now() - duracao * 1000, ultimoSeq: (gravRef.current?.totalPedacos() || 0) - 1 })
       setPermErr(e.message === 'sem-rede'
         ? 'Sem internet. A gravação está guardada no celular — toque em "Enviar agora" quando a rede voltar.'
         : 'Não consegui finalizar: ' + e.message + '. A gravação está guardada.')
@@ -229,7 +261,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           <div style={{ position: 'absolute', inset: -3, borderRadius: 19, border: '2px solid transparent', borderTopColor: '#2dd4bf', animation: 'spin 1.5s linear infinite' }} />
         </div>
         <div style={{ fontFamily: 'Georgia,serif', fontSize: 20, marginBottom: 8 }}>{uploadProgress}</div>
-        {motivoParada === 'silencio' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>🔇 Parei sozinho: 5 minutos sem ninguém falar.</div>}
+        {motivoParada === 'silencio' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>🔇 Parei sozinho: 3 minutos sem ninguém falar.</div>}
+        {motivoParada === 'conteudo' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>🤖 Parei sozinho: pela conversa, a consulta tinha terminado.</div>}
         {motivoParada === 'limite' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>⏱ Parei sozinho: limite de 2 horas.</div>}
         <div style={{ fontSize: 14, ...muted }}>Não feche esta tela.</div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -372,13 +405,23 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
               {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
             </div>
           )}
+          {isRec && fimSugerido && (
+            <div style={{ ...card, width: '100%', border: '1px solid rgba(251,191,36,0.4)', background: 'rgba(251,191,36,0.06)' }}>
+              <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 8 }}>🤖 Parece que a consulta terminou — <i>{fimSugerido}</i></div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => { motivoRef.current = 'conteudo'; setMotivoParada('conteudo'); stopRec() }} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: '#fbbf24', color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>Parar agora</button>
+                <button onClick={continuarGravando} style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid rgba(99,179,237,0.2)', background: 'none', color: '#a8c0d8', fontFamily: 'inherit', cursor: 'pointer' }}>Continuar gravando</button>
+              </div>
+              <div style={{ fontSize: 11, ...muted, marginTop: 6 }}>Se ninguém responder, paro sozinho em ~1 min.</div>
+            </div>
+          )}
         </div>
 
-        {/* Nota rápida */}
+        {/* Nota rápida — vai pro servidor como dica pro transcritor (nomes de remédio, contexto) */}
         {!isRec && (
           <div style={{ ...card, marginTop: 4 }}>
             <div style={{ fontSize: 10, ...muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Nota rápida (opcional)</div>
-            <textarea rows={2} placeholder="Ex: Paciente com HAS, retorno..." style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#e2eaf6', fontFamily: 'inherit', fontSize: 13, resize: 'none', lineHeight: 1.5 }} />
+            <textarea ref={notaRef} rows={2} placeholder="Ex: Paciente com HAS, retorno..." style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#e2eaf6', fontFamily: 'inherit', fontSize: 13, resize: 'none', lineHeight: 1.5 }} />
           </div>
         )}
 

@@ -165,12 +165,20 @@ async function processOne(): Promise<boolean> {
     const { data: usuario } = await supabase.from("usuarios").select("plano").eq("telefone", consulta.usuario_tel).single();
     const plano = usuario?.plano || "free";
     await supabase.from("consultas").update({ status: "processing" }).eq("id", consulta.id);
-    const { data: audioData, error: downloadErr } = await supabase.storage.from("audios").download(consulta.audio_path);
-    if (downloadErr || !audioData) throw new Error("Download failed");
-
-    console.log("Transcribing...");
-    const transcricao = await transcribeAudio(audioData);
-    console.log(`Transcription: ${transcricao.length} chars`);
+    // Gravação em pedaços (07/09/2026): a transcrição já foi feita durante a
+    // gravação, pedaço a pedaço. Aqui só usa. O caminho antigo (arquivo único)
+    // continua valendo pra quem ainda sobe de uma vez.
+    let transcricao: string;
+    if (consulta.transcricao_pronta) {
+      transcricao = consulta.transcricao_pronta;
+      console.log(`Transcription ready (progressive): ${transcricao.length} chars`);
+    } else {
+      const { data: audioData, error: downloadErr } = await supabase.storage.from("audios").download(consulta.audio_path);
+      if (downloadErr || !audioData) throw new Error("Download failed");
+      console.log("Transcribing...");
+      transcricao = await transcribeAudio(audioData);
+      console.log(`Transcription: ${transcricao.length} chars`);
+    }
 
     console.log(`Generating (${plano})...`);
     const { texto, json, classificacao } = await generateProntuario(transcricao, consulta.paciente_nome || "Nao identificado", plano);
