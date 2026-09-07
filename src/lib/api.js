@@ -101,7 +101,12 @@ export async function uploadChunk(sessionId, seq, blob, duracao) {
   fd.append('audio', blob, 'pedaco.bin')
   const res = await fetch(`${API_URL}?action=chunk`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data.error || `chunk ${res.status}`)
+  if (!res.ok) {
+    const e = new Error(data.error || `chunk ${res.status}`)
+    e.permanente = res.status === 409 || res.status === 404   // sessão trancada/inexistente: não adianta tentar de novo
+    e.motivo = data.motivo || ''
+    throw e
+  }
   return data
 }
 

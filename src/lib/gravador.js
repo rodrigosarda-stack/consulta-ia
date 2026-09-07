@@ -91,6 +91,13 @@ export function criarFila({ enviar, aoMudar, aoResposta }) {
         aoMudar?.(pendentes.size, null)
         aoResposta?.(p.seq, resposta)
       } catch (e) {
+        if (e?.permanente) {
+          // servidor disse que essa sessão não aceita mais pedaços (ex.: não é saúde) — descarta tudo dela
+          for (const [k, q] of [...pendentes.entries()]) if (q.sessao === p.sessao) { pendentes.delete(k); apagarPedaco(k).catch(() => {}) }
+          aoMudar?.(pendentes.size, e)
+          aoResposta?.(p.seq, { nao_saude: e.message === 'nao_saude', nao_saude_motivo: e.motivo || '', terminou: null })
+          continue
+        }
         aoMudar?.(pendentes.size, e)
         await new Promise(r => setTimeout(r, espera))
         espera = Math.min(espera * 2, 30000)

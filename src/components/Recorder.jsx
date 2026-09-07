@@ -31,6 +31,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [sessaoPendente, setSessaoPendente] = useState(null) // gravação antiga sem enviar
   const [motivoParada, setMotivoParada] = useState('')
   const [fimSugerido, setFimSugerido] = useState('')          // IA achou que a consulta terminou (motivo)
+  const [bloqueio, setBloqueio] = useState('')                // IA disse que não é saúde: parou, nada salvo
 
   const gravRef = useRef(null)       // gravador em pedaços
   const streamRef = useRef(null)
@@ -120,7 +121,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const nota = notaRef.current?.value?.trim() || ''
       const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, nota, inicio: Date.now(), ultimoSeq: -1 }
       sessaoRef.current = sessao
-      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido('')
+      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio('')
       avisosFimRef.current = 0; ignorarFimAteRef.current = -1
       // o servidor precisa conhecer a sessão antes do 1º pedaço (nome + nota viram dica pro Whisper)
       await sessionStart({ sessionId: sessao, pacienteNome: meta.paciente, pacienteTel: meta.pacienteTel, nota, mime })
@@ -157,8 +158,14 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     track(Events.RECORDING_STOP, { mode, duracao, motivo: motivoRef.current || 'manual' })
     const g = gravRef.current
     if (!g) return
-    g.parar().then(() => {
+    g.parar().then(async () => {
       streamRef.current?.getTracks().forEach(t => t.stop())
+      if (motivoRef.current === 'nao_saude') {
+        // não é consulta: nada vira prontuário. Pedaços que ainda não subiram são descartados.
+        filaRef.current?.parar()
+        try { await apagarSessao(sessaoRef.current) } catch {}
+        return
+      }
       handleFinalizar()
     })
   }
@@ -166,6 +173,14 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   // O servidor, a cada ~1 min, diz se a consulta parece ter terminado.
   // 1ª vez: avisa na tela e pergunta. 2ª vez seguida sem resposta: para.
   function tratarResposta(seq, r) {
+    if (r?.nao_saude && motivoRef.current !== 'nao_saude') {
+      // Rodrigo: "se ficar claro que não é consulta, para imediatamente" — não gasta mais nada
+      motivoRef.current = 'nao_saude'; setMotivoParada('nao_saude')
+      setBloqueio(r.nao_saude_motivo || 'a conversa não parece ser um atendimento de saúde')
+      setFimSugerido('')
+      stopRec()
+      return
+    }
     if (!r || r.terminou == null) return               // não avaliou neste pedaço
     if (seq <= ignorarFimAteRef.current) return        // médico pediu pra continuar
     if (r.terminou) {
@@ -339,6 +354,15 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
         {permErr && (
           <div style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#f87171', marginBottom: 6, textAlign: 'center' }}>
             {permErr}
+          </div>
+        )}
+
+        {bloqueio && !isRec && (
+          <div style={{ ...card, marginBottom: 6, border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.06)' }}>
+            <div style={{ fontSize: 14, color: '#f87171', fontWeight: 600, marginBottom: 4 }}>⛔ Parei: isso não parece uma consulta de saúde</div>
+            <div style={{ fontSize: 13, color: '#e2b4b4', marginBottom: 6 }}><i>{bloqueio}</i></div>
+            <div style={{ fontSize: 12, ...muted, lineHeight: 1.5 }}>A MarIA grátis documenta só atendimentos clínicos. Nada foi salvo. Pra gravar reuniões, aulas e outros conteúdos, veja os planos.</div>
+            <button onClick={() => setBloqueio('')} style={{ marginTop: 10, background: 'none', border: '1px solid rgba(99,179,237,0.2)', color: '#a8c0d8', fontFamily: 'inherit', fontSize: 13, padding: '8px 14px', borderRadius: 10, cursor: 'pointer' }}>Entendi</button>
           </div>
         )}
 
