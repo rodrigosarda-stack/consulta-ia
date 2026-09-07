@@ -74,7 +74,7 @@ Conserto (`criarGravadorEmPedacos`, commit desta seção):
 1. A partir de **25 s**, corta na **primeira pausa de fala** (≥ 350 ms sem
    volume — o detector de silêncio já mede 4x/s). Se ninguém respirar, corta em
    **45 s**. A emenda cai entre palavras, não dentro.
-2. O pedaço novo começa **1 s antes** do antigo parar. A palavra da fronteira
+2. O pedaço novo começa **2 s antes** do antigo parar (ideia do Rodrigo). A palavra da fronteira
    sai inteira em pelo menos um dos dois.
 3. O servidor **costura** (`costurar()`): acha o maior bloco de 2 a 8 palavras
    em que o fim de A == o começo de B (sem acento/pontuação/caixa) e fica com a
