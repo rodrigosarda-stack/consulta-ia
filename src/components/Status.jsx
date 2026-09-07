@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getConsulta } from '../lib/api'
+import { getConsulta, getProntuario } from '../lib/api'
 import { track, Events } from '../lib/analytics'
 
 const STEPS = [
@@ -7,7 +7,7 @@ const STEPS = [
   { id: 'queue', icon: '📋', name: 'Na fila de processamento', detail: 'Aguardando sua vez' },
   { id: 'transcribe', icon: '🎙️', name: 'Transcrição com Whisper', detail: 'Português médico (PT-BR)' },
   { id: 'analyze', icon: '🧠', name: 'Gerando prontuário com IA', detail: 'Estruturando consulta' },
-  { id: 'deliver', icon: '📲', name: 'Enviando para WhatsApp', detail: 'Prontuário formatado' },
+  { id: 'deliver', icon: '📋', name: 'Prontuário pronto', detail: 'Aparece aqui na tela' },
 ]
 
 function stepFromStatus(status) {
@@ -25,6 +25,7 @@ export default function Status({ consulta, onNova }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [done, setDone] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [prontuario, setProntuario] = useState(null)
   const [erro, setErro] = useState('')
   const [showDetails, setShowDetails] = useState(false)
 
@@ -39,8 +40,10 @@ export default function Status({ consulta, onNova }) {
         if (c.status === 'done') {
           setCurrentStep(4)
           track(Events.PRONTUARIO_DONE)
-          setTimeout(() => setDone(true), 1200)
           clearInterval(interval)
+          // MVP sem bot: o prontuário aparece aqui, não no WhatsApp
+          try { setProntuario(await getProntuario(consulta.id)) } catch {}
+          setTimeout(() => setDone(true), 600)
         } else if (c.status === 'failed') {
           track(Events.PRONTUARIO_FAILED, { erro: c.erro })
           setFailed(true)
@@ -71,7 +74,7 @@ export default function Status({ consulta, onNova }) {
   // ── TELA: SUCESSO ──
   if (done) {
     return (
-      <div style={{ minHeight: '100vh', background: '#060c14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif", position: 'relative', overflow: 'hidden' }}>
+      <div style={{ minHeight: '100vh', background: '#060c14', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '44px 20px 40px', color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif", position: 'relative' }}>
         {/* Glow de sucesso */}
         <div style={{ position: 'fixed', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 0, width: 400, height: 400, top: '30%', left: '50%', transform: 'translate(-50%, -50%)', background: 'radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%)' }} />
 
@@ -81,15 +84,16 @@ export default function Status({ consulta, onNova }) {
           </div>
 
           <div style={{ fontFamily: 'Georgia,serif', fontSize: 26, fontWeight: 600, marginBottom: 8, textAlign: 'center', letterSpacing: -0.3 }}>
-            Prontuário a caminho!
+            Prontuário pronto
           </div>
 
-          <div style={{ fontSize: 15, ...muted, marginBottom: 6, textAlign: 'center' }}>
-            Confira no seu WhatsApp em instantes.
-          </div>
-
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 14px', borderRadius: 20, background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.15)', color: accent, marginBottom: 36 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 14px', borderRadius: 20, background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.15)', color: accent, marginBottom: 20 }}>
             👤 {consulta.paciente_nome}
+          </div>
+
+          {/* MVP sem bot: o prontuário aparece aqui, não no WhatsApp */}
+          <div style={{ width: '100%', maxWidth: 480, background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 14, padding: 16, marginBottom: 24, whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.7, color: '#a8c0d8', textAlign: 'left' }}>
+            {prontuario?.prontuario_texto || 'Prontuário gerado. Abra "Prontuários" no topo pra ver.'}
           </div>
 
           <button onClick={onNova} style={{ padding: '16px 40px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 14, color: 'white', fontFamily: 'inherit', fontSize: 17, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 12px 40px rgba(45,212,191,0.2)', transition: 'transform 0.2s' }}>
