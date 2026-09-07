@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { track, Events } from '../lib/analytics'
+import ProntuarioTexto from './ProntuarioTexto'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://xzknmihhtgwggpndpivb.supabase.co'
 const API_URL = `${SUPABASE_URL}/functions/v1/api`
@@ -144,8 +145,8 @@ body{font-family:'Outfit',system-ui,sans-serif;color:#1a1a1a;padding:40px;max-wi
           </div>
           <div style={{ fontSize: 13, ...muted, marginBottom: 20 }}>{formatDate(selected.created_at)}</div>
 
-          <div style={{ ...card, cursor: 'default', whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.7, color: '#a8c0d8' }}>
-            {selected.prontuario_texto}
+          <div style={{ ...card, cursor: 'default' }}>
+            <ProntuarioTexto texto={selected.prontuario_texto} />
           </div>
         </div>
       </div>

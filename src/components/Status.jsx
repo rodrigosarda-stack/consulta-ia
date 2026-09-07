@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { getConsulta, getProntuario } from '../lib/api'
+import { getConsulta, getProntuario, retryConsulta } from '../lib/api'
+import ProntuarioTexto from './ProntuarioTexto'
 import { track, Events } from '../lib/analytics'
 
 const STEPS = [
   { id: 'upload', icon: '☁️', name: 'Gravação recebida', detail: 'Áudio salvo com segurança' },
   { id: 'queue', icon: '📋', name: 'Na fila de processamento', detail: 'Aguardando sua vez' },
-  { id: 'transcribe', icon: '🎙️', name: 'Transcrição com Whisper', detail: 'Português médico (PT-BR)' },
-  { id: 'analyze', icon: '🧠', name: 'Gerando prontuário com IA', detail: 'Estruturando consulta' },
+  { id: 'transcribe', icon: '🎙️', name: 'Transcrição pronta', detail: 'Feita durante a gravação' },
+  { id: 'analyze', icon: '🧠', name: 'Gerando prontuário com IA', detail: 'Resumo, seções e o que foi interpretado' },
   { id: 'deliver', icon: '📋', name: 'Prontuário pronto', detail: 'Aparece aqui na tela' },
 ]
 
@@ -26,6 +27,7 @@ export default function Status({ consulta, onNova }) {
   const [done, setDone] = useState(false)
   const [failed, setFailed] = useState(false)
   const [prontuario, setProntuario] = useState(null)
+  const [tentativa, setTentativa] = useState(0)   // muda → o polling recomeça (depois de "tentar de novo")
   const [erro, setErro] = useState('')
   const [showDetails, setShowDetails] = useState(false)
 
@@ -66,7 +68,7 @@ export default function Status({ consulta, onNova }) {
       clearTimeout(sim2)
       clearTimeout(sim3)
     }
-  }, [consulta?.id])
+  }, [consulta?.id, tentativa])
 
   const muted = { color: '#6b85a4' }
   const accent = '#2dd4bf'
@@ -92,8 +94,8 @@ export default function Status({ consulta, onNova }) {
           </div>
 
           {/* MVP sem bot: o prontuário aparece aqui, não no WhatsApp */}
-          <div style={{ width: '100%', maxWidth: 480, background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 14, padding: 16, marginBottom: 24, whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.7, color: '#a8c0d8', textAlign: 'left' }}>
-            {prontuario?.prontuario_texto || 'Prontuário gerado. Abra "Prontuários" no topo pra ver.'}
+          <div style={{ width: '100%', maxWidth: 480, background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 14, padding: 16, marginBottom: 24, textAlign: 'left' }}>
+            <ProntuarioTexto texto={prontuario?.prontuario_texto || 'Prontuário gerado. Abra "Prontuários" no topo pra ver.'} />
           </div>
 
           <button onClick={onNova} style={{ padding: '16px 40px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 14, color: 'white', fontFamily: 'inherit', fontSize: 17, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 12px 40px rgba(45,212,191,0.2)', transition: 'transform 0.2s' }}>
@@ -115,9 +117,13 @@ export default function Status({ consulta, onNova }) {
       <div style={{ minHeight: '100vh', background: '#060c14', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif" }}>
         <div style={{ width: 80, height: 80, borderRadius: 20, fontSize: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', marginBottom: 20 }}>!</div>
         <div style={{ fontFamily: 'Georgia,serif', fontSize: 22, marginBottom: 8, textAlign: 'center' }}>Algo deu errado</div>
-        <div style={{ fontSize: 14, ...muted, marginBottom: 24, textAlign: 'center', maxWidth: 320 }}>Sua gravação foi salva. Vamos tentar processar novamente.</div>
-        <button onClick={onNova} style={{ padding: '14px 32px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 12, color: 'white', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer' }}>
-          Tentar novamente
+        <div style={{ fontSize: 14, ...muted, marginBottom: 8, textAlign: 'center', maxWidth: 320 }}>A gravação está salva no servidor. Não se perdeu.</div>
+        {erro && <div style={{ fontSize: 11, color: '#4a6a8a', marginBottom: 20, textAlign: 'center', maxWidth: 320, wordBreak: 'break-word' }}>{String(erro).slice(0, 160)}</div>}
+        <button onClick={async () => { try { await retryConsulta(consulta.id); setFailed(false); setErro(''); setCurrentStep(1); setTentativa(t => t + 1) } catch (e) { setErro('Não consegui reenfileirar: ' + e.message) } }} style={{ padding: '14px 32px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 12, color: 'white', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer', marginBottom: 12 }}>
+          Tentar de novo
+        </button>
+        <button onClick={onNova} style={{ background: 'none', border: 'none', color: '#6b85a4', fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', padding: 10 }}>
+          Gravar outra consulta
         </button>
       </div>
     )
@@ -143,8 +149,8 @@ export default function Status({ consulta, onNova }) {
         </div>
 
         <div style={{ fontSize: 14, color: '#a8c0d8', textAlign: 'center', lineHeight: 1.6, marginBottom: 16, maxWidth: 340 }}>
-          Fique tranquilo, agora \u00e9 com a gente.
-          <br />O prontu\u00e1rio chegar\u00e1 no seu WhatsApp em instantes.
+          Fique tranquilo, agora é com a gente.
+          <br />O prontuário aparece aqui em instantes.
         </div>
 
         {/* Steps colapsados — logo abaixo do título */}
@@ -184,7 +190,7 @@ export default function Status({ consulta, onNova }) {
 
         {/* Botão nova consulta */}
         <button onClick={onNova} style={{ width: '100%', padding: '16px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 14, color: 'white', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 8px 30px rgba(45,212,191,0.15)', marginBottom: 20 }}>
-          🎙️ Gravar pr\u00f3ximo paciente
+          🎙️ Gravar próximo paciente
         </button>
 
         {/* Acompanhar — abaixo do botão, mais visível */}
@@ -192,7 +198,7 @@ export default function Status({ consulta, onNova }) {
           onClick={() => setShowDetails(d => !d)}
           style={{ background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 12, fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 8, color: '#6b85a4', width: '100%', justifyContent: 'center', marginBottom: 8 }}
         >
-          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 10 }}>\u25bc</span>
+          <span style={{ transform: showDetails ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.3s', display: 'inline-block', fontSize: 10 }}>▼</span>
           {showDetails ? 'Ocultar detalhes do processamento' : 'Acompanhar o processamento'}
         </button>
 

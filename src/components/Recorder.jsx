@@ -427,10 +427,10 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
 
         {/* Consentimento LGPD */}
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#4a6a8a', lineHeight: 1.6, padding: '0 10px' }}>
-          Ao gravar, voc\u00ea confirma que informou ao paciente sobre o uso de IA para documenta\u00e7\u00e3o cl\u00ednica.
+          Ao gravar, você confirma que informou ao paciente sobre o uso de IA para documentação clínica.
           <br />
           <span style={{ cursor: 'pointer', color: accent, opacity: 0.7 }}>Termos de Uso</span>
-          {' \u00b7 '}
+          {' · '}
           <span style={{ cursor: 'pointer', color: accent, opacity: 0.7 }}>Privacidade</span>
         </div>
       </div>

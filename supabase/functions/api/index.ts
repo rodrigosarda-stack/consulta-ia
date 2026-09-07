@@ -205,6 +205,17 @@ Deno.serve(async (req: Request) => {
       return json({ success: true, consulta: c }, 200, req);
     }
 
+    // Consulta 'failed' (5 tentativas) era terminal: nada nunca mais tocava nela, e a
+    // tela dizia "vamos tentar de novo" sem tentar. Isto volta ela pra fila.
+    // O gatilho só roda no INSERT, então seta 'queued' direto.
+    if (action === "retry" && req.method === "POST") {
+      const id = url.searchParams.get("id");
+      if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return json({ error: "ID invalido" }, 400, req);
+      const { data, error } = await supabase.from("consultas").update({ status: "queued", tentativas: 0, erro: null }).eq("id", id).eq("usuario_tel", telefone).eq("status", "failed").select().single();
+      if (error || !data) return json({ error: "Consulta nao esta com falha" }, 409, req);
+      return json({ success: true, consulta: data }, 200, req);
+    }
+
     // PAINEL
     if(action==="historico"){const pg=parseInt(url.searchParams.get("page")||"1");const lm=Math.min(parseInt(url.searchParams.get("limit")||"20"),50);const of2=(pg-1)*lm;const q=url.searchParams.get("q")||"";const{data:u}=await supabase.from("usuarios").select("plano").eq("telefone",telefone).single();if(u?.plano==="free")return json({success:false,paywall:true},200,req);let qr=supabase.from("prontuarios").select("id,consulta_id,paciente_nome,prontuario,prontuario_texto,created_at",{count:"exact"}).eq("usuario_tel",telefone).order("created_at",{ascending:false}).range(of2,of2+lm-1);if(q)qr=qr.textSearch("fts",q,{type:"websearch",config:"portuguese"});const{data,count}=await qr;return json({success:true,prontuarios:data,total:count,page:pg,limit:lm},200,req)}
     if(action==="pacientes"){const{data:u}=await supabase.from("usuarios").select("plano").eq("telefone",telefone).single();if(u?.plano==="free")return json({success:false,paywall:true},200,req);const{data}=await supabase.from("prontuarios").select("paciente_nome,created_at").eq("usuario_tel",telefone).order("created_at",{ascending:false});const p:Record<string,{nome:string;consultas:number;ultima:string}>={};for(const r of data||[]){const n=r.paciente_nome||"Sem nome";if(!p[n])p[n]={nome:n,consultas:0,ultima:r.created_at};p[n].consultas++}return json({success:true,pacientes:Object.values(p).sort((a,b)=>b.consultas-a.consultas)},200,req)}

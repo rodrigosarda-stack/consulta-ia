@@ -120,3 +120,9 @@ export async function finalizeRecording({ sessionId, pacienteNome, pacienteTel, 
   if (!res.ok) throw new Error(data.error || `finalize ${res.status}`)
   return data.consulta
 }
+
+// Consulta que falhou 5x fica 'failed' pra sempre — isto volta ela pra fila.
+export async function retryConsulta(id) {
+  const data = await apiFetch('retry', { id }, { method: 'POST' })
+  return data.consulta
+}
