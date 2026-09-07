@@ -1,6 +1,15 @@
-import { useState, useRef } from 'react'
-import { uploadAndCreateConsulta, canRecord } from '../lib/api'
+import { useState, useRef, useEffect } from 'react'
+import { uploadChunk, finalizeRecording, canRecord } from '../lib/api'
+import { criarFila, criarDetectorSilencio, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
+
+// Gravação em pedaços (07/09/2026): cada PEDACO_MS vai pro servidor assim que
+// sai do microfone. Antes tudo ficava na memória e subia num arquivo só no
+// fim — celular morre, perde a consulta inteira.
+const PEDACO_MS = 30_000
+const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x isso)
+const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
+const SILENCIO_MS = 5 * 60_000    // sem fala por 5 min: para sozinho
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -16,13 +25,25 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState('')
   const [patientShake, setPatientShake] = useState(false)
+  const [pendentes, setPendentes] = useState(0)             // pedaços ainda não enviados
+  const [semFalaSeg, setSemFalaSeg] = useState(0)
+  const [sessaoPendente, setSessaoPendente] = useState(null) // gravação antiga sem enviar
+  const [motivoParada, setMotivoParada] = useState('')
 
   const recorderRef = useRef(null)
-  const chunksRef = useRef([])
   const timerRef = useRef(null)
   const secsRef = useRef(0)
   const wakeLockRef = useRef(null)
   const patientRef = useRef(null)
+  const sessaoRef = useRef(null)
+  const seqRef = useRef(0)
+  const filaRef = useRef(null)
+  const detectorRef = useRef(null)
+  const mimeRef = useRef('')
+  const motivoRef = useRef('')
+
+  // Ficou gravação de outra vez sem enviar? Oferece enviar.
+  useEffect(() => { lerSessoes().then(s => { if (s.length) setSessaoPendente(s[0]) }).catch(() => {}) }, [])
 
   async function requestWakeLock() {
     try {
@@ -45,7 +66,10 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
 
   function startTimer() {
     secsRef.current = 0; setSecs(0)
-    timerRef.current = setInterval(() => { secsRef.current++; setSecs(secsRef.current) }, 1000)
+    timerRef.current = setInterval(() => {
+      secsRef.current++; setSecs(secsRef.current)
+      if (secsRef.current >= LIMITE_SEG) { motivoRef.current = 'limite'; setMotivoParada('limite'); stopRec() }
+    }, 1000)
   }
   function stopTimer() { clearInterval(timerRef.current) }
 
@@ -83,11 +107,30 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       }
       const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4']
         .find(t => MediaRecorder.isTypeSupported(t)) || ''
-      const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {})
-      chunksRef.current = []
-      recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
-      recorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); handleUpload() }
-      recorder.start(1000)
+      mimeRef.current = mime
+      const recorder = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: BITRATE })
+
+      // sessão desta gravação: os pedaços vão pra {uid}/rec/{sessao}/ no servidor
+      const sessao = crypto.randomUUID()
+      const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, inicio: Date.now(), ultimoSeq: -1 }
+      sessaoRef.current = sessao; seqRef.current = 0
+      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0)
+      await salvarSessao(meta)
+      filaRef.current = criarFila({ enviar: uploadChunk, aoMudar: n => setPendentes(n) })
+      recorder.ondataavailable = e => {
+        if (e.data.size === 0) return
+        const seq = seqRef.current++
+        filaRef.current.adicionar(sessao, seq, e.data)
+        salvarSessao({ ...meta, ultimoSeq: seq }).catch(() => {})
+      }
+      recorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); handleFinalizar() }
+      recorder.start(PEDACO_MS)
+
+      detectorRef.current = criarDetectorSilencio(stream, {
+        limiteMs: SILENCIO_MS,
+        aoTick: ({ semFalaMs }) => setSemFalaSeg(Math.floor(semFalaMs / 1000)),
+        aoSilencio: () => { motivoRef.current = 'silencio'; setMotivoParada('silencio'); stopRec() },
+      })
       recorderRef.current = recorder
       setIsRec(true); startTimer()
       requestWakeLock()
@@ -103,26 +146,67 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     const duracao = secsRef.current
     stopTimer(); setIsRec(false)
     releaseWakeLock()
-    track(Events.RECORDING_STOP, { mode, duracao })
+    detectorRef.current?.parar(); detectorRef.current = null
+    track(Events.RECORDING_STOP, { mode, duracao, motivo: motivoRef.current || 'manual' })
     if (recorderRef.current?.state !== 'inactive') recorderRef.current.stop()
   }
 
-  async function handleUpload() {
+  // Fim da gravação: espera os últimos pedaços subirem e pede pro servidor juntar.
+  async function handleFinalizar() {
     setUploading(true)
-    setUploadProgress('Enviando gravação...')
     track(Events.UPLOAD_START)
+    const sessao = sessaoRef.current
+    const duracao = secsRef.current
+    const fila = filaRef.current
     try {
-      const blob = new Blob(chunksRef.current, { type: recorderRef.current?.mimeType || 'audio/webm' })
-      const duracao = secsRef.current
-      setUploadProgress('Enviando para processamento...')
-      const consulta = await uploadAndCreateConsulta(telefone, patient.trim(), patientPhone.replace(/\D/g, ''), blob, duracao)
+      await new Promise(r => setTimeout(r, 300))   // o último pedaço sai no onstop
+      setUploadProgress(fila.pendentes() ? `Enviando… ${fila.pendentes()} pedaço(s)` : 'Finalizando…')
+      const subiu = await fila.esperarVazia(120_000, n => setUploadProgress(`Enviando… ${n} pedaço(s)`))
+      if (!subiu) throw new Error('sem-rede')
+      setUploadProgress('Juntando a gravação…')
+      const consulta = await finalizeRecording({ sessionId: sessao, pacienteNome: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), duracao, totalChunks: seqRef.current, mime: mimeRef.current })
+      fila.parar()
+      await apagarSessao(sessao)
       track(Events.UPLOAD_SUCCESS, { duracao })
       onConsultaCriada(consulta)
     } catch (e) {
       track(Events.UPLOAD_ERROR, { error: e.message })
       setUploading(false)
-      setPermErr('Erro no upload: ' + e.message)
+      // a gravação NÃO se perdeu: os pedaços estão no IndexedDB e/ou no servidor
+      setSessaoPendente({ sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime: mimeRef.current, inicio: Date.now() - duracao * 1000, ultimoSeq: seqRef.current - 1 })
+      setPermErr(e.message === 'sem-rede'
+        ? 'Sem internet. A gravação está guardada no celular — toque em "Enviar agora" quando a rede voltar.'
+        : 'Não consegui finalizar: ' + e.message + '. A gravação está guardada.')
     }
+  }
+
+  // Retoma uma gravação que ficou sem enviar (aba fechou, celular morreu, sem rede).
+  async function enviarPendente() {
+    const s = sessaoPendente
+    if (!s) return
+    setUploading(true); setUploadProgress('Enviando gravação guardada…')
+    const fila = criarFila({ enviar: uploadChunk, aoMudar: n => setUploadProgress(n ? `Enviando… ${n} pedaço(s)` : 'Juntando a gravação…') })
+    try {
+      await fila.carregar(s.sessao)
+      const subiu = await fila.esperarVazia(120_000)
+      if (!subiu) throw new Error('sem-rede')
+      // sem total_chunks: o servidor usa o que chegou, exigindo sequência contínua
+      const duracao = s.ultimoSeq >= 0 ? Math.round((s.ultimoSeq + 1) * PEDACO_MS / 1000) : 0
+      const consulta = await finalizeRecording({ sessionId: s.sessao, pacienteNome: s.paciente, pacienteTel: s.pacienteTel, duracao, totalChunks: null, mime: s.mime })
+      await apagarSessao(s.sessao)
+      setSessaoPendente(null)
+      onConsultaCriada(consulta)
+    } catch (e) {
+      setUploading(false)
+      setPermErr(e.message === 'sem-rede' ? 'Ainda sem internet. Tenta de novo quando voltar.' : 'Não consegui enviar: ' + e.message)
+    } finally { fila.parar() }
+  }
+
+  async function descartarPendente() {
+    if (!sessaoPendente) return
+    if (!confirm(`Descartar a gravação de ${sessaoPendente.paciente}? Não dá pra desfazer.`)) return
+    await apagarSessao(sessaoPendente.sessao)
+    setSessaoPendente(null)
   }
 
   function formatPatientPhone(raw) {
@@ -145,6 +229,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           <div style={{ position: 'absolute', inset: -3, borderRadius: 19, border: '2px solid transparent', borderTopColor: '#2dd4bf', animation: 'spin 1.5s linear infinite' }} />
         </div>
         <div style={{ fontFamily: 'Georgia,serif', fontSize: 20, marginBottom: 8 }}>{uploadProgress}</div>
+        {motivoParada === 'silencio' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>🔇 Parei sozinho: 5 minutos sem ninguém falar.</div>}
+        {motivoParada === 'limite' && <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 6 }}>⏱ Parei sozinho: limite de 2 horas.</div>}
         <div style={{ fontSize: 14, ...muted }}>Não feche esta tela.</div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -223,6 +309,17 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           </div>
         )}
 
+        {sessaoPendente && !isRec && (
+          <div style={{ ...card, marginBottom: 6, border: '1px solid rgba(251,191,36,0.35)' }}>
+            <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 4 }}>⚠️ Gravação de <b>{sessaoPendente.paciente}</b> não foi enviada</div>
+            <div style={{ fontSize: 12, ...muted, marginBottom: 10 }}>{new Date(sessaoPendente.inicio).toLocaleString('pt-BR')} · guardada no celular</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={enviarPendente} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: accent, color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>Enviar agora</button>
+              <button onClick={descartarPendente} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(248,113,113,0.3)', background: 'none', color: '#f87171', fontFamily: 'inherit', cursor: 'pointer' }}>Descartar</button>
+            </div>
+          </div>
+        )}
+
         {/* Mode selector — compacto */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
           {[{ id: 'presencial', icon: '🎙️', label: 'Presencial' }, { id: 'tele', icon: '🖥️', label: 'Teleconsulta' }].map(m => {
@@ -267,6 +364,12 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} style={{ width: 3, background: '#f87171', borderRadius: 3, animation: `wv ${0.6 + i * 0.05}s ease-in-out ${i * 0.04}s infinite alternate` }} />
               ))}
+            </div>
+          )}
+          {isRec && (
+            <div style={{ fontSize: 11, ...muted, textAlign: 'center', lineHeight: 1.6 }}>
+              {pendentes > 0 ? `☁️ ${pendentes} pedaço(s) aguardando envio` : '☁️ salvo no servidor até agora'}
+              {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
             </div>
           )}
         </div>

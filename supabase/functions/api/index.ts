@@ -36,6 +36,72 @@ Deno.serve(async (req: Request) => {
     if(action==="prontuario"){const ci=url.searchParams.get("consulta_id");if(!ci||!/^[0-9a-f-]{36}$/i.test(ci))return json({error:"ID invalido"},400,req);const{data}=await supabase.from("prontuarios").select("*").eq("consulta_id",ci).eq("usuario_tel",telefone).single();return json({success:true,prontuario:data},200,req)}
     if(action==="logout"&&req.method==="POST"){await supabase.from("session_tokens").delete().eq("token",token);return json({success:true},200,req)}
 
+    // GRAVAÇÃO EM PEDAÇOS (07/09/2026)
+    // O celular manda cada pedaço de ~30 s assim que grava (action=chunk);
+    // 'finalize' junta tudo e cria a consulta como o 'upload' sempre criou —
+    // o gatilho uploaded→queued e o pipeline não mudam.
+    // Por que: antes subia um arquivo só no fim. Celular morre → perde tudo.
+    if (action === "chunk" && req.method === "POST") {
+      const fd = await req.formData();
+      const sid = String(fd.get("session_id") || "");
+      const seq = parseInt(String(fd.get("seq")));
+      const af = fd.get("audio") as File;
+      if (!/^[0-9a-f-]{36}$/i.test(sid) || !Number.isInteger(seq) || seq < 0 || seq > 9999 || !af) return json({ error: "Pedaco invalido" }, 400, req);
+      if (af.size > 5 * 1024 * 1024) return json({ error: "Pedaco grande demais" }, 400, req);
+      const fn = `${uid}/rec/${sid}/${String(seq).padStart(5, "0")}.bin`;
+      // upsert: o celular pode reenviar o mesmo pedaço depois de uma falha
+      const { error: ue } = await supabase.storage.from("audios").upload(fn, af, { contentType: "application/octet-stream", upsert: true });
+      if (ue) return json({ error: "Upload do pedaco falhou" }, 500, req);
+      return json({ success: true, seq }, 200, req);
+    }
+    if (action === "finalize" && req.method === "POST") {
+      const fd = await req.formData();
+      const sid = String(fd.get("session_id") || "");
+      const pn = san(String(fd.get("paciente_nome") || ""));
+      const ptr = String(fd.get("paciente_tel") || "");
+      const dur = parseInt(String(fd.get("duracao"))) || 0;
+      const tc = fd.get("total_chunks") != null ? parseInt(String(fd.get("total_chunks"))) : null;
+      const mime = String(fd.get("mime") || "");
+      if (!/^[0-9a-f-]{36}$/i.test(sid)) return json({ error: "Sessao invalida" }, 400, req);
+      if (!pn) return json({ error: "Nome invalido" }, 400, req);
+      const pt = ptr ? sanPh(ptr) : null;
+      const pasta = `${uid}/rec/${sid}`;
+      const { data: lista, error: le } = await supabase.storage.from("audios").list(pasta, { limit: 10000, sortBy: { column: "name", order: "asc" } });
+      if (le || !lista || !lista.length) return json({ error: "Nenhum pedaco recebido" }, 409, req);
+      const seqs = lista.map(x => parseInt(x.name)).filter(n => Number.isInteger(n)).sort((a, b) => a - b);
+      // com total_chunks: exige todos. Sem (retomada): usa o que tem, desde que contínuo a partir do 0.
+      const esperado = tc ?? seqs.length;
+      const faltando: number[] = [];
+      for (let i = 0; i < esperado; i++) if (!seqs.includes(i)) faltando.push(i);
+      if (faltando.length) return json({ error: "Faltam pedacos", faltando }, 409, req);
+      const usados = seqs.filter(x => x < esperado);
+      const nomeDe = (x: number) => `${pasta}/${String(x).padStart(5, "0")}.bin`;
+      const partes: Uint8Array[] = [];
+      let total = 0;
+      for (let i = 0; i < usados.length; i += 8) {
+        const bufs = await Promise.all(usados.slice(i, i + 8).map(async x => {
+          const { data, error } = await supabase.storage.from("audios").download(nomeDe(x));
+          if (error || !data) throw new Error("download " + x);
+          return new Uint8Array(await data.arrayBuffer());
+        }));
+        for (const b of bufs) { partes.push(b); total += b.length; }
+      }
+      if (total > 104857600) return json({ error: "Max 100MB" }, 400, req);
+      // pedaços de um mesmo MediaRecorder concatenados em ordem = o arquivo inteiro
+      const junto = new Uint8Array(total);
+      let off = 0;
+      for (const p of partes) { junto.set(p, off); off += p.length; }
+      const ext = mime.includes("webm") ? "webm" : mime.includes("mp4") ? "m4a" : mime.includes("ogg") ? "ogg" : "wav";
+      const fn = `${uid}/${crypto.randomUUID()}.${ext}`;
+      const { error: ue } = await supabase.storage.from("audios").upload(fn, junto, { contentType: mime || "application/octet-stream" });
+      if (ue) return json({ error: "Upload falhou" }, 500, req);
+      const { data: c, error: ie } = await supabase.from("consultas").insert({ usuario_tel: telefone, paciente_nome: pn, paciente_tel: pt, audio_path: fn, audio_size_bytes: total, duracao_seg: dur, status: "uploaded" }).select().single();
+      if (ie) return json({ error: "Insert falhou" }, 500, req);
+      // limpa os pedaços — melhor esforço; se falhar sobra lixo, não quebra
+      await supabase.storage.from("audios").remove(usados.map(nomeDe)).catch(() => {});
+      return json({ success: true, consulta: c }, 200, req);
+    }
+
     // PAINEL
     if(action==="historico"){const pg=parseInt(url.searchParams.get("page")||"1");const lm=Math.min(parseInt(url.searchParams.get("limit")||"20"),50);const of2=(pg-1)*lm;const q=url.searchParams.get("q")||"";const{data:u}=await supabase.from("usuarios").select("plano").eq("telefone",telefone).single();if(u?.plano==="free")return json({success:false,paywall:true},200,req);let qr=supabase.from("prontuarios").select("id,consulta_id,paciente_nome,prontuario,prontuario_texto,created_at",{count:"exact"}).eq("usuario_tel",telefone).order("created_at",{ascending:false}).range(of2,of2+lm-1);if(q)qr=qr.textSearch("fts",q,{type:"websearch",config:"portuguese"});const{data,count}=await qr;return json({success:true,prontuarios:data,total:count,page:pg,limit:lm},200,req)}
     if(action==="pacientes"){const{data:u}=await supabase.from("usuarios").select("plano").eq("telefone",telefone).single();if(u?.plano==="free")return json({success:false,paywall:true},200,req);const{data}=await supabase.from("prontuarios").select("paciente_nome,created_at").eq("usuario_tel",telefone).order("created_at",{ascending:false});const p:Record<string,{nome:string;consultas:number;ultima:string}>={};for(const r of data||[]){const n=r.paciente_nome||"Sem nome";if(!p[n])p[n]={nome:n,consultas:0,ultima:r.created_at};p[n].consultas++}return json({success:true,pacientes:Object.values(p).sort((a,b)=>b.consultas-a.consultas)},200,req)}

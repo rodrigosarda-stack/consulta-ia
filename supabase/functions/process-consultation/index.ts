@@ -161,7 +161,7 @@ async function processOne(): Promise<boolean> {
   if (!consulta) return false;
   console.log(`Processing: ${consulta.id}`);
   try {
-    if (consulta.duracao_seg && consulta.duracao_seg > 3600) throw new Error("Audio too long");
+    if (consulta.duracao_seg && consulta.duracao_seg > 7200) throw new Error("Audio too long"); // 2h — o gravador para sozinho nesse teto
     const { data: usuario } = await supabase.from("usuarios").select("plano").eq("telefone", consulta.usuario_tel).single();
     const plano = usuario?.plano || "free";
     await supabase.from("consultas").update({ status: "processing" }).eq("id", consulta.id);
