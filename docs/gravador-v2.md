@@ -86,6 +86,24 @@ anterior. Medido no primeiro teste: o **mesmo áudio** que ontem deu "lasartana"
 e "tratamento", com a nota "HAS em uso de losartana", deu **losartana** e
 **travamento**.
 
+### Por que parar quando não é saúde
+
+Rodrigo: *"se ficar claro que não é consulta, tem que parar imediatamente e
+dizer — pra não ficar comendo recurso nosso."* A mesma chamada do monitor
+responde também **"é saúde? sim / nao / incerto"**, olhando o início e o fim do
+texto. `nao` + plano free → o servidor tranca a sessão (`bloqueada_em`): o
+pedaço seguinte volta 409 **sem guardar nem transcrever**, `finalize` volta
+409, o celular para na hora e mostra o motivo. Nada vira prontuário.
+
+- Pagante nunca é trancado — "gravar qualquer conteúdo" está na tabela de planos.
+- `incerto` nunca tranca. Falso positivo mata uma consulta real; um minuto a
+  mais de Whisper custa 0,2 centavo.
+- Custo extra: zero. É a mesma chamada que já perguntava "terminou?".
+
+Testado com voz sintética: reunião de vendas trancou no 2º pedaço ("reunião
+corporativa de alinhamento de vendas e metas"); consulta de controle nunca
+trancou.
+
 ## Números
 
 | | antes | agora |

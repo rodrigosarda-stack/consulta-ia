@@ -558,3 +558,8 @@ select cron.schedule('requeue_failed_consultas', '*/30 * * * *', $$
     AND created_at > now() - interval '24 hours'
     AND coalesce(erro, '') NOT LIKE '%Audio too long%';
 $$);
+
+-- Sessão trancada por não ser saúde (07/09/2026, plano free). Pedaço seguinte e
+-- finalize voltam 409; nada mais é transcrito. Aplicado em prod via execute_sql.
+alter table gravacao_sessoes add column if not exists bloqueada_em timestamptz;
+alter table gravacao_sessoes add column if not exists bloqueio_motivo text;
