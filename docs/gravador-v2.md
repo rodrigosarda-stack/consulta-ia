@@ -71,9 +71,12 @@ transcrição ou a interpretação?"* Três respostas:
   Whisper perde as duas metades. Numa consulta de 1 h são 120 emendas.
 
 Conserto (`criarGravadorEmPedacos`, commit desta seção):
-1. A partir de **25 s**, corta na **primeira pausa de fala** (≥ 350 ms sem
-   volume — o detector de silêncio já mede 4x/s). Se ninguém respirar, corta em
-   **45 s**. A emenda cai entre palavras, não dentro.
+1. Corta numa **pausa de fala** (o detector de silêncio já mede 4x/s). Rodrigo:
+   *"só dá picote quando encontra dois segundos de pausa"* — 2 s é fim de frase,
+   0,35 s pode ser vírgula. Dois limites: **mínimo 20 s** (o Groq cobra no mínimo
+   10 s por pedaço; pedaço de 3 s custa 10) e **máximo 60 s** (é o que se perde
+   se o celular morrer). Entre eles a exigência relaxa: 20-35 s pausa ≥ 2 s ·
+   35-45 s ≥ 1 s · 45-60 s ≥ 0,35 s · 60 s forçado.
 2. O pedaço novo começa antes do antigo parar (ideia do Rodrigo): **0,3 s** se o corte foi na pausa (só cobre a demora do celular em começar), **2 s** se foi forçado aos 45 s. Custo da sobreposição: <1% do Whisper. A palavra da fronteira
    sai inteira em pelo menos um dos dois.
 3. O servidor **costura** (`costurar()`): acha o maior bloco de 2 a 8 palavras

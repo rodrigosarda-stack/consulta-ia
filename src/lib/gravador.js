@@ -179,9 +179,9 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 //
 // ONDE cortar importa (Rodrigo, 07/09: "picotar de 30 em 30 não prejudica?").
 // Cortar no relógio parte palavra ao meio ("losar-" | "-tana") e o Whisper
-// perde as duas metades. Então: a partir de minMs, corta na PRIMEIRA PAUSA de
-// fala (o detector de silêncio já mede o volume 4x/s); se ninguém respirar,
-// corta em maxMs. E o pedaço novo começa 2 s ANTES do antigo parar (ideia do
+// perde as duas metades. Então: a partir de minMs, corta numa PAUSA de fala
+// (o detector de silêncio já mede o volume 4x/s) — de preferência 2 s, relaxando
+// conforme o pedaço cresce; se ninguém pausar, corta em maxMs. E o pedaço novo começa 2 s ANTES do antigo parar (ideia do
 // Rodrigo — "começa a gravar o segundo dois segundos antes do término do primeiro"):
 // a palavra da fronteira sai inteira em pelo menos um dos dois — o servidor
 // costura a repetição.
@@ -191,7 +191,17 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 // pausa não tem palavra na fronteira → 0,3 s, só pra cobrir a demora do celular em
 // começar a gravar. Corte forçado em maxMs (ninguém parou de falar) → 2 s. O custo
 // da sobreposição cai de ~7% pra <1% do Whisper.
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, semFala = () => 0, aoPedaco }) {
+// Quando cortar (Rodrigo, 07/09: "só dá picote quando encontra dois segundos
+// de pausa"). Pausa de 2 s é fim de frase de verdade; 0,35 s pode ser vírgula.
+// Mas dois limites ficam: MÍNIMO de 20 s, porque o Groq cobra no mínimo 10 s
+// por pedaço (pedaço de 3 s custa 10); e MÁXIMO, porque se ninguém pausa o
+// pedaço cresce e é o que se perde se o celular morrer. Entre os dois, a
+// exigência de pausa relaxa aos poucos:
+//   20-35 s: pausa ≥ 2 s · 35-45 s: ≥ 1 s · 45-60 s: ≥ 0,35 s · 60 s: forçado
+const PAUSA_POR_DURACAO = [[35_000, 2_000], [45_000, 1_000], [60_000, 350]]
+function pausaExigida(durMs) { for (const [ate, pausa] of PAUSA_POR_DURACAO) if (durMs < ate) return pausa; return 0 }
+
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, semFala = () => 0, aoPedaco }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null
@@ -230,8 +240,8 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, 
   const relogio = setInterval(() => {
     if (parando) return
     const dur = Date.now() - inicioAtual
-    if (dur >= maxMs) girar(true)                              // ninguém respirou: corte forçado, sobreposição longa
-    else if (dur >= minMs && semFala() >= pausaMs) girar(false) // pausa: corte limpo, sobreposição mínima
+    if (dur >= maxMs) girar(true)                                        // ninguém pausou em 60 s: corte forçado, sobreposição longa
+    else if (dur >= minMs && semFala() >= pausaExigida(dur)) girar(false) // pausa (2 s → 1 s → 0,35 s conforme o pedaço cresce): corte limpo
   }, 250)
 
   return {

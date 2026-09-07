@@ -7,8 +7,8 @@ import { track, Events } from '../lib/analytics'
 // sai do microfone. Antes tudo ficava na memória e subia num arquivo só no
 // fim — celular morre, perde a consulta inteira.
 const PEDACO_MS = 30_000            // só pra estimar duração de gravação retomada
-const PEDACO_MIN_MS = 25_000        // a partir daqui, corta na primeira pausa de fala
-const PEDACO_MAX_MS = 45_000        // se ninguém respirar, corta aqui
+const PEDACO_MIN_MS = 20_000        // antes disso não corta: o Groq cobra no mínimo 10 s por pedaço
+const PEDACO_MAX_MS = 60_000        // se ninguém pausar, corta aqui (é o máximo que se perde se o celular morrer)
 const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x isso)
 const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
 const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
