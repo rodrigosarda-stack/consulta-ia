@@ -93,7 +93,7 @@ Rodrigo, em seguida: *"o médico escrevendo, uma criança fala uma bobagem, a m�
 fala outra — esses pedaços que não têm nada a ver."* Jogar fora pedaço mudo não
 bastava: 3 s de criança + 17 s de caneta = pedaço com som = 20 s cobrados.
 
-**Então o gravador não grava o silêncio.** Depois de 2 s sem som ele **pausa**
+**Então o gravador não grava o silêncio.** Depois de 3 s sem som ele **pausa**
 o MediaRecorder; quando o som volta, **retoma**. O arquivo do pedaço só tem o que
 foi dito; os cortes (mín 20 s / máx 60 s) contam o tempo **gravado**, não o
 relógio. Criança 3 s + mãe 2 s + médico voltando se juntam num pedaço de 20 s
@@ -262,3 +262,14 @@ recebeu 1.361 dos 2.597 caracteres. Finalize em 2 s.
 - Matar o Safari no meio e retomar.
 - Modo avião no meio.
 - Consulta de 1 hora de verdade.
+
+### O que se perde na retomada depois de uma pausa
+
+Rodrigo: *"ouviu qualquer som, ele começa a gravar — ele não perde nada?"* Perde
+um pouquinho, só na retomada: detector (50 ms) + a palavra começar baixinha +
+o gravador retomar ≈ **50–100 ms**, menos que um fonema. Mitigações: detector a
+20x/s; **retomar num limiar mais baixo (0,003) do que pausar (0,005)** — pega a
+palavra no começo; pausar só após **3 s** de silêncio (pausa de conversa não
+pausa o gravador; só silêncio de verdade). Zerar de vez exigiria um buffer de
+~500 ms pra trás com áudio cru e compressão própria no celular — reescrita da
+captura, arquivos 5–10x maiores. Não vale hoje.

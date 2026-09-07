@@ -137,7 +137,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       gravRef.current = criarGravadorEmPedacos(stream, {
         mime, bitrate: BITRATE, minMs: PEDACO_MIN_MS, maxMs: PEDACO_MAX_MS,
         semFala: () => detectorRef.current ? detectorRef.current.semFalaMs() : 0,   // corta na pausa
-        semSom: () => detectorRef.current ? detectorRef.current.semSomMs() : 0,     // silêncio total: pedaço não sobe
+        semSom: () => detectorRef.current ? detectorRef.current.semSomMs() : 0,     // está quieto? → pausa
+        semSomFraco: () => detectorRef.current ? detectorRef.current.semSomFracoMs() : 0,   // começou algo? → retoma
         aoSilencioMudo: setMudo,
         aoPedaco: (blob, seq, dur) => {
           filaRef.current.adicionar(sessao, seq, blob, dur)

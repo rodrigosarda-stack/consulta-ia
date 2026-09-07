@@ -140,7 +140,11 @@ export function criarFila({ enviar, aoMudar, aoResposta }) {
 // Detector de silêncio: mede o volume do microfone 4x por segundo. Sem fala
 // por limiteMs → aoSilencio(). Caso comum: médico esquece de parar e a gente
 // transcreveria uma hora de sala vazia (e pagaria por ela).
-export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.005, limiteMs = 5 * 60000, aoTick, aoSilencio }) {
+// Três limiares: fala (0,012 — corte de pedaço, fim por silêncio), som (0,005 —
+// "está quieto?", decide PAUSAR) e somFraco (0,003 — "começou algo?", decide
+// RETOMAR). Retomar mais sensível que pausar: a palavra é pega no começo, ainda
+// baixinha, e só pausa quando está bem quieto.
+export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.005, limiarSomFraco = 0.003, limiteMs = 5 * 60000, aoTick, aoSilencio }) {
   const Ctx = window.AudioContext || window.webkitAudioContext
   if (!Ctx) return { parar() {} }
   const ctx = new Ctx()
@@ -150,7 +154,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.00
   an.fftSize = 1024
   src.connect(an)
   const buf = new Float32Array(an.fftSize)
-  let ultimaFala = Date.now(), ultimoSom = Date.now(), disparou = false
+  let ultimaFala = Date.now(), ultimoSom = Date.now(), ultimoSomFraco = Date.now(), disparou = false
 
   const timer = setInterval(() => {
     an.getFloatTimeDomainData(buf)
@@ -160,14 +164,16 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.00
     const agora = Date.now()
     if (rms > limiar) ultimaFala = agora
     if (rms > limiarSom) ultimoSom = agora      // qualquer som acima do ruído de fundo — fala baixa conta
+    if (rms > limiarSomFraco) ultimoSomFraco = agora
     const semFalaMs = agora - ultimaFala
     aoTick?.({ rms, semFalaMs })
     if (!disparou && semFalaMs >= limiteMs) { disparou = true; aoSilencio?.(semFalaMs) }
-  }, 100)   // 10x/s: quanto mais rápido percebe o som, menos se perde do começo da fala depois de uma pausa
+  }, 50)    // 20x/s: quanto mais rápido percebe o som, menos se perde do começo da fala depois de uma pausa
 
   return {
     semFalaMs: () => Date.now() - ultimaFala,   // o gravador usa pra cortar o pedaço numa pausa
-    semSomMs: () => Date.now() - ultimoSom,     // o gravador usa pra NÃO ENVIAR pedaço mudo (limiar bem mais baixo)
+    semSomMs: () => Date.now() - ultimoSom,     // o gravador usa pra PAUSAR (está quieto de verdade?)
+    semSomFracoMs: () => Date.now() - ultimoSomFraco,   // o gravador usa pra RETOMAR (começou algo, mesmo baixinho?)
     parar() {
       clearInterval(timer)
       try { src.disconnect(); ctx.close() } catch {}
@@ -218,7 +224,7 @@ function pausaExigida(durMs) { for (const [ate, pausa] of PAUSA_POR_DURACAO) if 
 // volta. O arquivo do pedaço só tem o que foi dito; os cortes (mín/máx) contam
 // só o tempo gravado. Criança 3 s + mãe 2 s + médico voltando se juntam num
 // pedaço de 20 s de fala real. Paga-se pelo que foi dito, não pelo relógio.
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, pausaGravacaoMs = 2_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, aoPedaco, aoSilencioMudo }) {
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, pausaGravacaoMs = 3_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, semSomFraco = () => 0, aoPedaco, aoSilencioMudo }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null, houveSomNoAtual = false, mudoAvisado = false
@@ -276,14 +282,15 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
   const relogio = setInterval(() => {
     if (parando || !atual) return
     const agora = Date.now()
-    const temSom = semSom() < 200
+    const temSom = semSom() < 150
+    const comecouAlgo = semSomFraco() < 100        // retomar é mais sensível que pausar
 
     // pausa/retoma: o silêncio não entra no arquivo
     if (podePausar && atual.state !== 'inactive') {
       if (!atual.pausado && !temSom && semSom() >= pausaGravacaoMs && atual.state === 'recording') {
         atual.gravadoMs += agora - atual.ultimoResume
         try { atual.pause(); atual.pausado = true; if (!mudoAvisado) { mudoAvisado = true; aoSilencioMudo?.(true) } } catch {}
-      } else if (atual.pausado && temSom && atual.state === 'paused') {
+      } else if (atual.pausado && comecouAlgo && atual.state === 'paused') {
         try { atual.resume(); atual.pausado = false; atual.ultimoResume = agora; if (mudoAvisado) { mudoAvisado = false; aoSilencioMudo?.(false) } } catch {}
       }
     }
@@ -295,7 +302,7 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
     const dur = gravadoAtual()   // cortes pelo tempo GRAVADO, não pelo relógio
     if (dur >= maxMs) girar(true)                                        // 60 s de fala sem pausa: corte forçado, sobreposição longa
     else if (dur >= minMs && semFala() >= pausaExigida(dur)) girar(false) // pausa (2 s → 1 s → 0,35 s conforme o pedaço cresce): corte limpo
-  }, 100)
+  }, 50)
 
   return {
     mimeType: () => atual?.mimeType || mime,
