@@ -147,6 +147,28 @@ Testado (voz sintética): papo → clínico foi promovido no 1º minuto (a
 saudação "doutor / dona Ana" já é contexto de consulta) e os pedaços 0-1 foram
 refeitos com o large-v3; reunião ficou no turbo do início ao fim.
 
+### Por que etiquetar cada pedaço
+
+Rodrigo: *"daria pra marcar os pedaços que devem passar? esse pedaço sim,
+esse pedaço não — quase uma edição."* Cada pedaço já é um arquivo com a
+própria transcrição, então no `finalize` uma chamada ao Gemini etiqueta cada
+um: `clinico` true/false + `tema`. Regras: qualquer conteúdo clínico = true;
+saudação colada em clínico = true; **na dúvida = true** (errar pra esse lado
+custa pouco; errar pro outro perde informação do prontuário).
+
+- O prontuário recebe **só os pedaços clínicos** (`consultas.transcricao_pronta`).
+  O papo não entra nem pra confundir a IA nem pra custar token.
+- Tudo que foi dito fica em `transcricao_completa`; o mapa em `mapa_pedacos`.
+- Se nada for marcado clínico, manda tudo — nunca prontuário vazio.
+- Tela de sucesso: fileira de quadradinhos (verde consulta, cinza conversa).
+  **Passo 2 (não feito):** tocar num quadradinho vira a etiqueta e refaz o
+  prontuário. **Passo 3 (decisão do Rodrigo):** apagar o áudio dos pedaços
+  "conversa" e guardar só o clínico — retenção inteligente.
+
+Testado: 3 pedaços de papo + 3 clínicos → `□0 □1 □2 ■3 ■4 ■5`, temas
+"conversa sobre viagem e futebol" / "dor no joelho e exame"; o prontuário
+recebeu 1.361 dos 2.597 caracteres. Finalize em 2 s.
+
 ## Números
 
 | | antes | agora |

@@ -568,3 +568,7 @@ alter table gravacao_sessoes add column if not exists nao_saude_avisos integer n
 alter table gravacao_sessoes add column if not exists modo text not null default 'espera'; -- espera (turbo) | consulta (large-v3 + dica)
 alter table gravacao_sessoes add column if not exists modo_consulta_desde_seq integer;
 alter table gravacao_pedacos add column if not exists modelo text;                           -- qual Whisper transcreveu
+alter table gravacao_pedacos add column if not exists clinico boolean;              -- etiqueta: entra no prontuário?
+alter table gravacao_pedacos add column if not exists tema text;                    -- 2-5 palavras
+alter table consultas add column if not exists transcricao_completa text;           -- tudo que foi dito (transcricao_pronta = só o clínico)
+alter table consultas add column if not exists mapa_pedacos jsonb;                  -- [{seq, clinico, tema, seg}]
