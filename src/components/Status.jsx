@@ -27,6 +27,7 @@ export default function Status({ consulta, onNova }) {
   const [done, setDone] = useState(false)
   const [failed, setFailed] = useState(false)
   const [prontuario, setProntuario] = useState(null)
+  const [mapa, setMapa] = useState(null)             // [{seq, clinico, tema, seg}] — quais pedaços entraram no prontuário
   const [tentativa, setTentativa] = useState(0)   // muda → o polling recomeça (depois de "tentar de novo")
   const [erro, setErro] = useState('')
   const [showDetails, setShowDetails] = useState(false)
@@ -39,6 +40,7 @@ export default function Status({ consulta, onNova }) {
         const c = await getConsulta(consulta.id)
         if (!c) return
 
+        if (c.mapa_pedacos && !mapa) setMapa(c.mapa_pedacos)
         if (c.status === 'done') {
           setCurrentStep(4)
           track(Events.PRONTUARIO_DONE)
@@ -93,6 +95,20 @@ export default function Status({ consulta, onNova }) {
             👤 {consulta.paciente_nome}
           </div>
 
+          {/* Fileira de pedaços: verde entrou no prontuário, cinza era conversa. É a "edição" do Rodrigo, passo 1 (só leitura). */}
+          {mapa && mapa.length > 1 && (
+            <div style={{ width: '100%', maxWidth: 480, marginBottom: 12 }}>
+              <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                {mapa.map(p => (
+                  <div key={p.seq} title={`${Math.floor(p.seq * 30 / 60)}:${String((p.seq * 30) % 60).padStart(2, '0')} · ${p.clinico ? 'consulta' : 'conversa'}${p.tema ? ' · ' + p.tema : ''}`}
+                    style={{ flex: '1 0 14px', height: 10, borderRadius: 3, background: p.clinico ? '#2dd4bf' : 'rgba(107,133,164,0.35)' }} />
+                ))}
+              </div>
+              <div style={{ fontSize: 11, ...muted, marginTop: 6, textAlign: 'left' }}>
+                {mapa.length} pedaços de 30 s · <span style={{ color: '#2dd4bf' }}>■</span> {mapa.filter(p => p.clinico).length} consulta · <span style={{ color: 'rgba(107,133,164,0.7)' }}>■</span> {mapa.filter(p => !p.clinico).length} conversa (não entrou no prontuário)
+              </div>
+            </div>
+          )}
           {/* MVP sem bot: o prontuário aparece aqui, não no WhatsApp */}
           <div style={{ width: '100%', maxWidth: 480, background: '#0c1622', border: '1px solid rgba(99,179,237,0.1)', borderRadius: 14, padding: 16, marginBottom: 24, textAlign: 'left' }}>
             <ProntuarioTexto texto={prontuario?.prontuario_texto || 'Prontuário gerado. Abra "Prontuários" no topo pra ver.'} />
