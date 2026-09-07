@@ -181,12 +181,13 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 // Cortar no relógio parte palavra ao meio ("losar-" | "-tana") e o Whisper
 // perde as duas metades. Então: a partir de minMs, corta na PRIMEIRA PAUSA de
 // fala (o detector de silêncio já mede o volume 4x/s); se ninguém respirar,
-// corta em maxMs. E o pedaço novo começa sobreposicaoMs ANTES do antigo parar:
+// corta em maxMs. E o pedaço novo começa 2 s ANTES do antigo parar (ideia do
+// Rodrigo — "começa a gravar o segundo dois segundos antes do término do primeiro"):
 // a palavra da fronteira sai inteira em pelo menos um dos dois — o servidor
 // costura a repetição.
 //   semFala()               → ms desde a última fala (vem do detector)
 //   aoPedaco(blob, seq, duracaoSeg)
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoMs = 1_000, semFala = () => 0, aoPedaco }) {
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 25_000, maxMs = 45_000, pausaMs = 350, sobreposicaoMs = 2_000, semFala = () => 0, aoPedaco }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null
