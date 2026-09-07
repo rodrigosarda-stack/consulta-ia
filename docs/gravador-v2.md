@@ -95,14 +95,31 @@ texto. `nao` + plano free → o servidor tranca a sessão (`bloqueada_em`): o
 pedaço seguinte volta 409 **sem guardar nem transcrever**, `finalize` volta
 409, o celular para na hora e mostra o motivo. Nada vira prontuário.
 
-- Pagante nunca é trancado — "gravar qualquer conteúdo" está na tabela de planos.
-- `incerto` nunca tranca. Falso positivo mata uma consulta real; um minuto a
-  mais de Whisper custa 0,2 centavo.
-- Custo extra: zero. É a mesma chamada que já perguntava "terminou?".
+Rodrigo, logo depois: *"médico e paciente falam da família, da vida, da
+política — isso é comum. Isso acabaria fazendo o agente desligar."* Verdade. A
+primeira versão decidia no minuto 1 e era definitiva. Então a régua virou:
 
-Testado com voz sintética: reunião de vendas trancou no 2º pedaço ("reunião
-corporativa de alinhamento de vendas e metas"); consulta de controle nunca
-trancou.
+- A pergunta é "existe **algum** sinal de atendimento em **toda** a gravação?",
+  com a regra explícita de que papo de família/política/futebol entre médico e
+  paciente **faz parte** da consulta. Olha 400 palavras do início + 500 do fim.
+- Só decide depois de **170 s** de áudio.
+- Precisa de **dois "nao" seguidos**. O primeiro só avisa na tela
+  ("⚠️ está parecendo não ser consulta — É consulta, pode continuar").
+  Qualquer sim/incerto zera o contador.
+- "É consulta" (`action=confirm-saude`) → `saude_confirmada`: nunca mais
+  pergunta nessa sessão; se já tinha trancado, destranca.
+- Trancou por engano? O que subiu fica guardado; o card vermelho oferece
+  "Era consulta, sim — enviar".
+- Pagante nunca é trancado — "gravar qualquer conteúdo" está na tabela de planos.
+- `incerto` nunca tranca. Custo extra: zero (mesma chamada do "terminou?").
+
+Testado com voz sintética (07/09):
+- 4 min de papo puro (viagem, debate, Grêmio) entre "doutor" e "dona Ana" →
+  "início de atendimento médico com conversa inicial" — sem aviso, sem trava;
+  depois dos sintomas, "consulta em andamento". Prontuário saiu.
+- Reunião do início ao fim → 2 min nada (abaixo do mínimo), 4 min **aviso**,
+  6 min **trancou**, pedaço seguinte 409.
+- `confirm-saude` na sessão trancada → `finalize` passa.
 
 ## Números
 

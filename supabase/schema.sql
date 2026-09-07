@@ -563,3 +563,5 @@ $$);
 -- finalize voltam 409; nada mais é transcrito. Aplicado em prod via execute_sql.
 alter table gravacao_sessoes add column if not exists bloqueada_em timestamptz;
 alter table gravacao_sessoes add column if not exists bloqueio_motivo text;
+alter table gravacao_sessoes add column if not exists saude_confirmada boolean not null default false; -- "É consulta": nunca mais pergunta
+alter table gravacao_sessoes add column if not exists nao_saude_avisos integer not null default 0;     -- "não" seguidos; tranca no 2º
