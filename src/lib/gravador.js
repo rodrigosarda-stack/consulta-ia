@@ -140,7 +140,7 @@ export function criarFila({ enviar, aoMudar, aoResposta }) {
 // Detector de silêncio: mede o volume do microfone 4x por segundo. Sem fala
 // por limiteMs → aoSilencio(). Caso comum: médico esquece de parar e a gente
 // transcreveria uma hora de sala vazia (e pagaria por ela).
-export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 60000, aoTick, aoSilencio }) {
+export function criarDetectorSilencio(stream, { limiar = 0.012, limiarSom = 0.005, limiteMs = 5 * 60000, aoTick, aoSilencio }) {
   const Ctx = window.AudioContext || window.webkitAudioContext
   if (!Ctx) return { parar() {} }
   const ctx = new Ctx()
@@ -150,7 +150,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
   an.fftSize = 1024
   src.connect(an)
   const buf = new Float32Array(an.fftSize)
-  let ultimaFala = Date.now(), disparou = false
+  let ultimaFala = Date.now(), ultimoSom = Date.now(), disparou = false
 
   const timer = setInterval(() => {
     an.getFloatTimeDomainData(buf)
@@ -159,6 +159,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
     const rms = Math.sqrt(soma / buf.length)
     const agora = Date.now()
     if (rms > limiar) ultimaFala = agora
+    if (rms > limiarSom) ultimoSom = agora      // qualquer som acima do ruído de fundo — fala baixa conta
     const semFalaMs = agora - ultimaFala
     aoTick?.({ rms, semFalaMs })
     if (!disparou && semFalaMs >= limiteMs) { disparou = true; aoSilencio?.(semFalaMs) }
@@ -166,6 +167,7 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 
   return {
     semFalaMs: () => Date.now() - ultimaFala,   // o gravador usa pra cortar o pedaço numa pausa
+    semSomMs: () => Date.now() - ultimoSom,     // o gravador usa pra NÃO ENVIAR pedaço mudo (limiar bem mais baixo)
     parar() {
       clearInterval(timer)
       try { src.disconnect(); ctx.close() } catch {}
@@ -201,27 +203,38 @@ export function criarDetectorSilencio(stream, { limiar = 0.012, limiteMs = 5 * 6
 const PAUSA_POR_DURACAO = [[35_000, 2_000], [45_000, 1_000], [60_000, 350]]
 function pausaExigida(durMs) { for (const [ate, pausa] of PAUSA_POR_DURACAO) if (durMs < ate) return pausa; return 0 }
 
-export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, semFala = () => 0, aoPedaco }) {
+// SILÊNCIO NÃO SAI DO CELULAR (Rodrigo, 07/09: "o médico começa a escrever e fica
+// um minuto, dois, sem falar — e a gente vai ser cobrado por isso?"). O Whisper
+// cobra por segundo de áudio e, pior, ALUCINA em silêncio ("Obrigado por
+// assistir"). Então: pedaço em que não houve SOM NENHUM (limiar bem abaixo do de
+// fala — fala baixa conta como som) é jogado fora a cada silencioRecicloMs e um
+// novo começa; nada é enviado. Quando alguém volta a falar, o pedaço aberto tem
+// no máximo 10 s de silêncio antes. seq só conta o que é enviado — a sequência
+// fica contínua pro finalize.
+export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, maxMs = 60_000, sobreposicaoPausaMs = 300, sobreposicaoForcadaMs = 2_000, silencioRecicloMs = 10_000, semFala = () => 0, semSom = () => 0, aoPedaco, aoSilencioMudo }) {
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
-  let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null
+  let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null, houveSomNoAtual = false, mudoAvisado = false
 
   function novo() {
     const rec = new MediaRecorder(stream, opts)
     const partes = []
-    const meuSeq = seq++
     const inicio = Date.now()
+    rec.descartar = false
     rec.terminou = new Promise(res => {
       rec.ondataavailable = e => { if (e.data.size > 0) partes.push(e.data) }
       rec.onstop = () => {
         vivos.delete(rec)
+        if (rec.descartar) { res(); return }                    // mudo: não vira pedaço, não sobe, não custa
         const blob = new Blob(partes, { type: rec.mimeType || mime || 'audio/webm' })
+        const meuSeq = seq++                                     // numera só o que é enviado
         try { aoPedaco(blob, meuSeq, (Date.now() - inicio) / 1000) } finally { res() }
       }
     })
     rec.start()
     vivos.add(rec)
     inicioAtual = inicio
+    houveSomNoAtual = false
     return rec
   }
 
@@ -234,12 +247,22 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
       if (anterior && anterior.state !== 'inactive') anterior.stop()
     }, forcado ? sobreposicaoForcadaMs : sobreposicaoPausaMs)
   }
+  // pedaço mudo: joga fora e recomeça, sem sobreposição — não há nada pra emendar
+  function reciclarMudo() {
+    if (parando) return
+    const anterior = atual
+    atual = novo()
+    if (anterior) { anterior.descartar = true; if (anterior.state !== 'inactive') anterior.stop() }
+    if (!mudoAvisado) { mudoAvisado = true; aoSilencioMudo?.(true) }
+  }
 
   atual = novo()
   // 4x por segundo: já passou do mínimo e há pausa? ou passou do máximo? → gira
   const relogio = setInterval(() => {
     if (parando) return
     const dur = Date.now() - inicioAtual
+    if (semSom() < 250) { if (!houveSomNoAtual) { houveSomNoAtual = true; if (mudoAvisado) { mudoAvisado = false; aoSilencioMudo?.(false) } } }
+    if (!houveSomNoAtual) { if (dur >= silencioRecicloMs) reciclarMudo(); return }   // mudo até agora: recicla a cada 10 s, não corta pra enviar
     if (dur >= maxMs) girar(true)                                        // ninguém pausou em 60 s: corte forçado, sobreposição longa
     else if (dur >= minMs && semFala() >= pausaExigida(dur)) girar(false) // pausa (2 s → 1 s → 0,35 s conforme o pedaço cresce): corte limpo
   }, 250)
@@ -252,6 +275,7 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
       parando = true
       clearInterval(relogio)
       if (timerStop) { clearTimeout(timerStop); timerStop = null }
+      if (atual && !houveSomNoAtual) atual.descartar = true   // terminou em silêncio: o último pedaço não sobe
       const promessas = []
       for (const r of vivos) { promessas.push(r.terminou); if (r.state !== 'inactive') r.stop() }
       return Promise.all(promessas)

@@ -83,6 +83,24 @@ Conserto (`criarGravadorEmPedacos`, commit desta seção):
    em que o fim de A == o começo de B (sem acento/pontuação/caixa) e fica com a
    versão de B, que tem a pontuação que continua a frase. Testado em 5 casos.
 
+### Por que silêncio não sai do celular
+
+Rodrigo: *"o médico começa a escrever e fica um minuto, dois, sem falar — e a
+gente vai ser cobrado por isso?"* Sim, e pior: o Whisper cobra por segundo de
+áudio **e alucina em silêncio** ("Obrigado por assistir", frase repetida).
+
+Então o gravador não envia pedaço mudo. O detector de silêncio passou a rastrear
+também "qualquer som" (`semSomMs`, limiar 0,005 — bem abaixo do de fala, 0,012,
+pra fala baixa contar como som). Pedaço em que não houve som nenhum é **jogado
+fora a cada 10 s** e um novo começa; nada sobe, nada custa. Quando alguém volta a
+falar, o pedaço aberto tem no máximo 10 s de silêncio antes. A tela mostra
+"🔇 silêncio — não está sendo cobrado". Gravação inteira muda → "não ouvi nada",
+sessão descartada, sem prontuário.
+
+`seq` só numera o que é enviado — a sequência fica contínua pro `finalize`.
+
+Dois minutos de médico escrevendo: **10 s cobrados** em vez de 120.
+
 ### Por que a fila offline
 
 `criarFila` guarda cada pedaço no IndexedDB **antes** de tentar enviar. Falhou:

@@ -36,6 +36,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [bloqueio, setBloqueio] = useState('')                // IA disse que não é saúde: parou
   const [avisoSaude, setAvisoSaude] = useState('')            // 1ª suspeita: pergunta antes de parar
   const [modo, setModo] = useState('espera')                  // espera (barato) → consulta (Whisper bom)
+  const [mudo, setMudo] = useState(false)                     // pedaço atual sem som: não está sendo enviado nem cobrado
   const saudeConfirmadaRef = useRef(false)
 
   const gravRef = useRef(null)       // gravador em pedaços
@@ -126,7 +127,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const nota = notaRef.current?.value?.trim() || ''
       const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, nota, inicio: Date.now(), ultimoSeq: -1 }
       sessaoRef.current = sessao
-      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio(''); setAvisoSaude('')
+      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio(''); setAvisoSaude(''); setMudo(false)
       saudeConfirmadaRef.current = false; setModo('espera')
       avisosFimRef.current = 0; ignorarFimAteRef.current = -1
       // o servidor precisa conhecer a sessão antes do 1º pedaço (nome + nota viram dica pro Whisper)
@@ -136,6 +137,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       gravRef.current = criarGravadorEmPedacos(stream, {
         mime, bitrate: BITRATE, minMs: PEDACO_MIN_MS, maxMs: PEDACO_MAX_MS,
         semFala: () => detectorRef.current ? detectorRef.current.semFalaMs() : 0,   // corta na pausa
+        semSom: () => detectorRef.current ? detectorRef.current.semSomMs() : 0,     // silêncio total: pedaço não sobe
+        aoSilencioMudo: setMudo,
         aoPedaco: (blob, seq, dur) => {
           filaRef.current.adicionar(sessao, seq, blob, dur)
           salvarSessao({ ...meta, ultimoSeq: seq }).catch(() => {})
@@ -229,6 +232,12 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     const fila = filaRef.current
     try {
       await new Promise(r => setTimeout(r, 300))   // o último pedaço sai no onstop
+      if ((gravRef.current?.totalPedacos() || 0) === 0) {
+        // só silêncio do começo ao fim: nada foi enviado, nada pra transcrever
+        fila.parar(); try { await discardSession(sessao) } catch {} try { await apagarSessao(sessao) } catch {}
+        setUploading(false); setPermErr('Não ouvi nada nessa gravação — nada foi enviado nem cobrado.')
+        return
+      }
       setUploadProgress(fila.pendentes() ? `Enviando… ${fila.pendentes()} pedaço(s)` : 'Finalizando…')
       const subiu = await fila.esperarVazia(120_000, n => setUploadProgress(`Enviando… ${n} pedaço(s)`))
       if (!subiu) throw new Error('sem-rede')
@@ -452,7 +461,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           {isRec && (
             <div style={{ fontSize: 11, ...muted, textAlign: 'center', lineHeight: 1.6 }}>
               {pendentes > 0 ? `☁️ ${pendentes} pedaço(s) aguardando envio` : '☁️ salvo no servidor até agora'}
-              {' · '}{modo === 'consulta' ? '🩺 consulta detectada' : '👂 ouvindo'}
+              {' · '}{mudo ? '🔇 silêncio — não está sendo cobrado' : modo === 'consulta' ? '🩺 consulta detectada' : '👂 ouvindo'}
               {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
             </div>
           )}
