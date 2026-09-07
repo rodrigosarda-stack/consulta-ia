@@ -79,12 +79,17 @@ Responda SÓ o JSON: {"terminou": true ou false, "motivo": "<até 12 palavras>"}
 ${cauda}
 ===== =====`;
   try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_FIM}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 80, responseMimeType: "application/json" } }) });
-    if (!r.ok) return { terminou: false, motivo: `erro ${r.status}` };
+    // maxOutputTokens folgado: os modelos 3.x "pensam" antes de responder e o
+    // pensamento conta no limite — com 80 tokens a resposta vinha vazia.
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_FIM}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 2048, responseMimeType: "application/json" } }) });
+    if (!r.ok) { console.error("fim: http", r.status, (await r.text()).slice(0, 300)); return { terminou: false, motivo: `erro ${r.status}` }; }
     const d = await r.json();
-    const j = JSON.parse(d.candidates[0].content.parts[0].text);
+    const bruto = (d.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("").trim();
+    const m = bruto.match(/\{[\s\S]*\}/);          // tolera cerca ```json e texto em volta
+    if (!m) { console.error("fim: sem JSON:", bruto.slice(0, 200), JSON.stringify(d).slice(0, 300)); return { terminou: false, motivo: "sem resposta" }; }
+    const j = JSON.parse(m[0]);
     return { terminou: j.terminou === true, motivo: String(j.motivo || "").slice(0, 120) };
-  } catch { return { terminou: false, motivo: "sem resposta" }; }
+  } catch (e) { console.error("fim:", String(e)); return { terminou: false, motivo: "sem resposta" }; }
 }
 
 Deno.serve(async (req: Request) => {
