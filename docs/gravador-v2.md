@@ -1,0 +1,119 @@
+# Gravador v2 — como a MarIA grava, transcreve e decide que a consulta acabou
+
+**07/09/2026.** Reescrito depois dos dois primeiros testes reais no celular do
+Rodrigo. Este documento explica o desenho e o **porquê** de cada decisão. O
+código está em `src/lib/gravador.js`, `src/components/Recorder.jsx` e
+`supabase/functions/api/index.ts` (actions `session-start`, `chunk`, `finalize`).
+
+## O problema que estava lá
+
+Até 07/09 o gravador guardava a consulta inteira **na memória do navegador** e
+subia **um arquivo só** quando o médico apertava Parar. Três coisas ruins ao
+mesmo tempo:
+
+1. Celular morre, aba fecha, 4G cai no fim → **perde a consulta inteira**.
+2. Ninguém tinha dito ao celular em que qualidade gravar. Os dois testes deram
+   26 e 50 KB/s — **94 a 180 MB por hora** — acima do limite de 50 MB. Na
+   prática só passavam ~15-20 minutos. A auditoria de abril *assumiu*
+   "60 min ≈ 30-40 MB" e baixou o limite pra 50 com base nisso. Ninguém mediu.
+3. Havia um corte em 1 hora escrito no código. Consulta de 1h30 nem entrava.
+
+O Rodrigo: *"a gente vai ter consulta de uma hora, uma hora e meia"* e *"se
+cair no meio você perde tudo, não?"* Sim.
+
+## O desenho
+
+```
+celular                                  servidor (Edge Function api)
+───────                                  ──────────────────────────
+Gravar ──► session-start ─────────────►  gravacao_sessoes (nome, nota, mime)
+           │
+           ├─ MediaRecorder A (0-30 s)
+           │     └─ para → pedaço 0 ──► chunk: guarda + TRANSCREVE (Whisper, com dica)
+           ├─ MediaRecorder B (30-60 s)               └─ dica = "Consulta médica PT-BR. Paciente: X.
+           │     └─ para → pedaço 1 ──► chunk           <nota do médico>. <fim do pedaço anterior>"
+           │                             │
+           │                             └─ a cada 2 pedaços: Gemini lê o fim do texto
+           │                                "a consulta claramente terminou?" ──► resposta
+           │  ◄──── { terminou: true, motivo } ◄─────────────────────────────────────┘
+           │        tela: "🤖 Parece que terminou — Parar agora / Continuar"
+           │        2ª vez seguida sem resposta → para sozinho
+           │
+Parar ───► espera a fila esvaziar ───► finalize: junta os TEXTOS → consultas(transcricao_pronta)
+                                                  └─► gatilho → fila → process-consultation
+                                                       (pula download + Whisper) → prontuário
+```
+
+### Por que reiniciar o MediaRecorder a cada pedaço, em vez de fatiar um só
+
+A primeira versão (commit fc73d55) usava um MediaRecorder com `timeslice` e
+o servidor **colava os bytes** no fim. Funcionava — mas os pedaços do meio não
+têm cabeçalho, então não dá pra transcrever cada um sozinho. Quando o Rodrigo
+pediu que a detecção de fim fosse **pelo conteúdo, já** (não "depois"), a
+transcrição precisou virar progressiva, e cada pedaço precisou ser um arquivo
+completo. Reiniciar o gravador resolve. O próximo começa **antes** do anterior
+parar, pra não ter buraco.
+
+Efeito colateral bom: ao apertar Parar, a transcrição já está pronta. O
+prontuário sai em ~30 s em vez de ~70.
+
+### Por que a fila offline
+
+`criarFila` guarda cada pedaço no IndexedDB **antes** de tentar enviar. Falhou:
+espera 2 s, 4 s, 8 s… até 30 s, e tenta de novo; o evento `online` acorda a
+fila na hora. Se a aba morrer, ao reabrir aparece "Gravação de X não foi
+enviada — Enviar agora / Descartar", e `finalize` sem `total_chunks` usa o que
+chegou (exigindo sequência contínua a partir do 0).
+
+### Por que dois detectores de fim
+
+- **Silêncio** (`criarDetectorSilencio`): 3 min sem fala → para. Cliente, de
+  graça, sem rede. Pega o caso "esqueceu de desligar e saiu da sala".
+- **Conteúdo** (`consultaTerminou` no servidor): a cada ~1 min, o Gemini olha as
+  últimas ~500 palavras e responde `{terminou, motivo}`. Pega "Obrigada,
+  doutor" seguido de conversa de corredor — que **não é** silêncio.
+
+O de conteúdo **pergunta** antes de agir. Só para sozinho na 2ª resposta
+positiva seguida (~2 min) sem o médico tocar em nada. "Continuar gravando"
+silencia a pergunta por ~2 min.
+
+### Por que a dica pro Whisper
+
+O Whisper aceita até 224 tokens de "prompt" — contexto do que esperar. A MarIA
+não mandava nada. Agora manda nome do paciente, a **nota rápida** do médico (que
+era um `<textarea>` sem estado — o médico digitava e sumia) e o fim do pedaço
+anterior. Medido no primeiro teste: o **mesmo áudio** que ontem deu "lasartana"
+e "tratamento", com a nota "HAS em uso de losartana", deu **losartana** e
+**travamento**.
+
+## Números
+
+| | antes | agora |
+|---|---|---|
+| bitrate | o celular escolhia (26-50 KB/s) | 24 kbps (~11 MB/h) |
+| teto | 1 h (código) / ~20 min (50 MB) | 2 h |
+| perda se o celular morrer | tudo | ≤ 30 s |
+| tempo Parar → prontuário | ~70 s | ~30 s |
+| custo Whisper por hora | $0,11 | $0,11 (a dica é de graça) |
+| custo detecção de fim | — | ~$0,01/h (Gemini, 60 chamadas curtas) |
+
+## Armadilhas encontradas (e como não cair de novo)
+
+- **Bucket com `allowed_mime_types` recusa `audio/webm;codecs=opus`** (com
+  parâmetro) e `application/octet-stream`, com erro genérico "Upload falhou".
+  `mimeBase()` normaliza pro tipo base antes de subir.
+- **Gemini 3.x pensa antes de responder e o pensamento conta no
+  `maxOutputTokens`.** Com 80 tokens pra um JSON de 10 palavras, a resposta
+  vinha vazia — falha silenciosa. Use 1-2k e extraia o primeiro `{...}`.
+- **`storage.objects` não aceita DELETE por SQL** (`storage.protect_delete`).
+  Limpeza de arquivo é pela API ou pelo painel.
+- **O gatilho `tr_enqueue_consulta` só roda no INSERT.** Pra reenfileirar,
+  seta `status='queued'` direto (action `retry`, cron `requeue_failed_consultas`).
+
+## O que ainda não foi testado
+
+- Safari/iOS gravando em `audio/mp4` por pedaço (cada pedaço é arquivo inteiro,
+  então o risco é menor que na v2.0 — mas precisa do celular do Rodrigo).
+- Matar o Safari no meio e retomar.
+- Modo avião no meio.
+- Consulta de 1 hora de verdade.

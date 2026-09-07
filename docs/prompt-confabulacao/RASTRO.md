@@ -145,3 +145,37 @@ avisa.
 Áudio humano real → upload → fila → Whisper → gemini-3.7-flash → prontuário,
 em **30 segundos**. Losartana, Dipirona, travamento, condropatia: todos
 corretos. Nenhuma invenção de remédio ou idade.
+
+---
+
+# Em produção — 07/09/2026
+
+O prompt de produção passou a ser a variante C, adaptada: RESUMO no topo, bloco
+`---TRECHOS---` (o servidor tira do texto e guarda em `prontuario.trechos_literais`),
+seção "O QUE EU INTERPRETEI" limitada ao que **muda sentido clínico**, e regra
+explícita contra acréscimo sem fonte. Commit `a33ba7e`.
+
+Medido com as **duas transcrições reais de hoje** (voz humana, 2 pessoas,
+criança ao fundo), 3 rodadas cada, `gemini-3.7-flash`:
+
+| conserto feito | declarou |
+|---|---|
+| `chondropatia` → condropatia (T1) | 3/3 |
+| `de pirona` → Dipirona (T1 e T2) | 6/6 |
+| `est preservada` → preservada (T1) | 2/3 |
+| `ergonômica` → ergométrica (T1) | **0/2** — e em 1/3 nem consertou |
+| `psiculécia` → bicicleta (T2) | 3/3 |
+| `hip … les` → hipótese, lesão (T2) | 3/3 |
+| `provamento` → travamento (T2) | 2/2 (na 3ª rodada não usou o trecho) |
+| **total** | **17/19 = 89%** |
+
+Inventou idade/sexo/peso: **0/6**. `CLASSIFICACAO` vazando: 0/6. Markdown: 0/6.
+
+**O ponto cego é sempre o mesmo:** "ergonômica" vs "ergométrica". O modelo
+trata como ortografia e não lista; às vezes nem corrige. É o termo que já falhava
+com voz sintética, com voz humana e agora aqui. Não é perigoso (bicicleta
+ergonômica existe), mas é o exemplo de que a seção pega o que o modelo *acha*
+que é interpretação — não tudo.
+
+Amostra pequena (6). Serve pra confirmar que a técnica sobreviveu ao prompt
+completo de produção; não pra cravar taxa.

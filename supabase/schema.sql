@@ -547,3 +547,14 @@ alter table consultas add column if not exists transcricao_pronta text;   -- já
 alter table consultas add column if not exists sessao_gravacao uuid;
 alter table gravacao_sessoes enable row level security;
 alter table gravacao_pedacos enable row level security;
+
+-- A cada 30 min: consulta 'failed' volta pra fila (07/09/2026). Antes 'failed' era
+-- terminal — nada nunca mais tocava nela. Até 15 tentativas no total, só das
+-- últimas 24h, exceto erro permanente. Não zera 'tentativas'.
+select cron.schedule('requeue_failed_consultas', '*/30 * * * *', $$
+  UPDATE consultas SET status = 'queued'
+  WHERE status = 'failed'
+    AND tentativas < 15
+    AND created_at > now() - interval '24 hours'
+    AND coalesce(erro, '') NOT LIKE '%Audio too long%';
+$$);
