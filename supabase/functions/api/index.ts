@@ -19,6 +19,20 @@ function json(d:unknown,s=200,r?:Request){return new Response(JSON.stringify(d),
 
 const PLANO_PRECOS: Record<string, number> = { maria: 4700, cerebro: 9700 }; // centavos
 
+// O bucket 'audios' tem allowed_mime_types = [audio/webm, audio/ogg, audio/mp4, audio/mpeg,
+// audio/wav, audio/x-m4a]. O navegador manda 'audio/webm;codecs=opus' (com parâmetro) e o
+// upload em pedaços chegava como octet-stream — os dois são recusados. Normaliza.
+function mimeBase(m: string): string {
+  const b = (m || "").split(";")[0].trim().toLowerCase();
+  if (b.includes("webm")) return "audio/webm";
+  if (b.includes("mp4") || b.includes("m4a") || b.includes("aac")) return "audio/mp4";
+  if (b.includes("ogg") || b.includes("opus")) return "audio/ogg";
+  if (b.includes("mpeg") || b.includes("mp3")) return "audio/mpeg";
+  if (b.includes("wav")) return "audio/wav";
+  return "audio/webm";
+}
+function extDe(m: string): string { const b = mimeBase(m); return b === "audio/webm" ? "webm" : b === "audio/mp4" ? "m4a" : b === "audio/ogg" ? "ogg" : b === "audio/mpeg" ? "mp3" : "wav"; }
+
 Deno.serve(async (req: Request) => {
   const cors = getCorsHeaders(req);
   if (req.method==="OPTIONS") return new Response(null,{headers:cors});
@@ -50,8 +64,8 @@ Deno.serve(async (req: Request) => {
       if (af.size > 5 * 1024 * 1024) return json({ error: "Pedaco grande demais" }, 400, req);
       const fn = `${uid}/rec/${sid}/${String(seq).padStart(5, "0")}.bin`;
       // upsert: o celular pode reenviar o mesmo pedaço depois de uma falha
-      const { error: ue } = await supabase.storage.from("audios").upload(fn, af, { contentType: "application/octet-stream", upsert: true });
-      if (ue) return json({ error: "Upload do pedaco falhou" }, 500, req);
+      const { error: ue } = await supabase.storage.from("audios").upload(fn, af, { contentType: mimeBase(af.type), upsert: true });
+      if (ue) { console.error("chunk upload:", ue.message); return json({ error: "Upload do pedaco falhou" }, 500, req); }
       return json({ success: true, seq }, 200, req);
     }
     if (action === "finalize" && req.method === "POST") {
@@ -91,10 +105,9 @@ Deno.serve(async (req: Request) => {
       const junto = new Uint8Array(total);
       let off = 0;
       for (const p of partes) { junto.set(p, off); off += p.length; }
-      const ext = mime.includes("webm") ? "webm" : mime.includes("mp4") ? "m4a" : mime.includes("ogg") ? "ogg" : "wav";
-      const fn = `${uid}/${crypto.randomUUID()}.${ext}`;
-      const { error: ue } = await supabase.storage.from("audios").upload(fn, junto, { contentType: mime || "application/octet-stream" });
-      if (ue) return json({ error: "Upload falhou" }, 500, req);
+      const fn = `${uid}/${crypto.randomUUID()}.${extDe(mime)}`;
+      const { error: ue } = await supabase.storage.from("audios").upload(fn, junto, { contentType: mimeBase(mime) });
+      if (ue) { console.error("finalize upload:", ue.message); return json({ error: "Upload falhou" }, 500, req); }
       const { data: c, error: ie } = await supabase.from("consultas").insert({ usuario_tel: telefone, paciente_nome: pn, paciente_tel: pt, audio_path: fn, audio_size_bytes: total, duracao_seg: dur, status: "uploaded" }).select().single();
       if (ie) return json({ error: "Insert falhou" }, 500, req);
       // limpa os pedaços — melhor esforço; se falhar sobra lixo, não quebra
