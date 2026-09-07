@@ -13,7 +13,8 @@ const BITRATE = 24_000            // voz. Antes o celular escolhia sozinho (~10x
 const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
 const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
 const PRE_ROLL_MS = 500           // o gravador recebe o áudio meio segundo atrasado: ao retomar, o começo da palavra entra
-const AVISOS_FIM_PARA_PARAR = 2   // IA disse "terminou" 2 vezes seguidas (~2 min) sem resposta → para
+const AVISOS_FIM_PARA_PARAR = 2   // IA disse "terminou" 2 vezes seguidas sem resposta → para
+const FIM_SEM_FALA_SEG = 45       // IA disse "terminou" E ninguém fala há 45 s → para (silêncio não vira pedaço, então a 2ª resposta pode nunca vir)
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -55,6 +56,14 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const detectorRef = useRef(null)
   const mimeRef = useRef('')
   const motivoRef = useRef('')
+
+  // A IA disse "terminou" e ninguém fala desde então → para sozinho. Necessário porque
+  // silêncio não vira pedaço (07/09): sem pedaço novo, a IA não responde de novo, e a
+  // regra das "2 respostas seguidas" nunca fecha. (Rodrigo: "ele não parou sozinho".)
+  useEffect(() => {
+    if (!isRec || !fimSugerido || motivoRef.current) return
+    if (semFalaSeg >= FIM_SEM_FALA_SEG) { motivoRef.current = 'conteudo'; setMotivoParada('conteudo'); stopRec() }
+  }, [isRec, fimSugerido, semFalaSeg])
 
   // Ficou gravação de outra vez sem enviar? Oferece enviar.
   useEffect(() => { lerSessoes().then(s => { if (s.length) setSessaoPendente(s[0]) }).catch(() => {}) }, [])
@@ -485,7 +494,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
                 <button onClick={() => { motivoRef.current = 'conteudo'; setMotivoParada('conteudo'); stopRec() }} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: '#fbbf24', color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>Parar agora</button>
                 <button onClick={continuarGravando} style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid rgba(99,179,237,0.2)', background: 'none', color: '#a8c0d8', fontFamily: 'inherit', cursor: 'pointer' }}>Continuar gravando</button>
               </div>
-              <div style={{ fontSize: 11, ...muted, marginTop: 6 }}>Se ninguém responder, paro sozinho em ~1 min.</div>
+              <div style={{ fontSize: 11, ...muted, marginTop: 6 }}>Se ninguém falar nem responder, paro sozinho em {Math.max(0, FIM_SEM_FALA_SEG - semFalaSeg)} s.</div>
             </div>
           )}
         </div>
