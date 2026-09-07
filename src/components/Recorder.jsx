@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { uploadChunk, finalizeRecording, sessionStart, canRecord } from '../lib/api'
+import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, canRecord } from '../lib/api'
 import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
 
@@ -31,7 +31,9 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [sessaoPendente, setSessaoPendente] = useState(null) // gravação antiga sem enviar
   const [motivoParada, setMotivoParada] = useState('')
   const [fimSugerido, setFimSugerido] = useState('')          // IA achou que a consulta terminou (motivo)
-  const [bloqueio, setBloqueio] = useState('')                // IA disse que não é saúde: parou, nada salvo
+  const [bloqueio, setBloqueio] = useState('')                // IA disse que não é saúde: parou
+  const [avisoSaude, setAvisoSaude] = useState('')            // 1ª suspeita: pergunta antes de parar
+  const saudeConfirmadaRef = useRef(false)
 
   const gravRef = useRef(null)       // gravador em pedaços
   const streamRef = useRef(null)
@@ -121,7 +123,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const nota = notaRef.current?.value?.trim() || ''
       const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, nota, inicio: Date.now(), ultimoSeq: -1 }
       sessaoRef.current = sessao
-      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio('')
+      motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio(''); setAvisoSaude('')
+      saudeConfirmadaRef.current = false
       avisosFimRef.current = 0; ignorarFimAteRef.current = -1
       // o servidor precisa conhecer a sessão antes do 1º pedaço (nome + nota viram dica pro Whisper)
       await sessionStart({ sessionId: sessao, pacienteNome: meta.paciente, pacienteTel: meta.pacienteTel, nota, mime })
@@ -161,9 +164,10 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     g.parar().then(async () => {
       streamRef.current?.getTracks().forEach(t => t.stop())
       if (motivoRef.current === 'nao_saude') {
-        // não é consulta: nada vira prontuário. Pedaços que ainda não subiram são descartados.
+        // não é consulta: nada vira prontuário. Mas fica guardado — se a IA errou
+        // (papo de família no meio da consulta), o médico desfaz com "Era consulta, sim".
         filaRef.current?.parar()
-        try { await apagarSessao(sessaoRef.current) } catch {}
+        setSessaoPendente({ sessao: sessaoRef.current, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime: mimeRef.current, inicio: Date.now() - secsRef.current * 1000, ultimoSeq: (gravRef.current?.totalPedacos() || 0) - 1, bloqueada: true })
         return
       }
       handleFinalizar()
@@ -173,6 +177,8 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   // O servidor, a cada ~1 min, diz se a consulta parece ter terminado.
   // 1ª vez: avisa na tela e pergunta. 2ª vez seguida sem resposta: para.
   function tratarResposta(seq, r) {
+    if (r?.aviso_nao_saude && !saudeConfirmadaRef.current) setAvisoSaude(r.aviso_motivo || 'a conversa não parece um atendimento')
+    else if (r && r.nao_saude === false && r.aviso_nao_saude === false && r.terminou != null) setAvisoSaude('')   // avaliou e achou que é consulta
     if (r?.nao_saude && motivoRef.current !== 'nao_saude') {
       // Rodrigo: "se ficar claro que não é consulta, para imediatamente" — não gasta mais nada
       motivoRef.current = 'nao_saude'; setMotivoParada('nao_saude')
@@ -191,6 +197,17 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       avisosFimRef.current = 0
       setFimSugerido('')
     }
+  }
+  async function ehConsulta() {
+    saudeConfirmadaRef.current = true
+    setAvisoSaude('')
+    try { await confirmSaude(sessaoRef.current) } catch {}
+  }
+  // trancou por engano: destranca e envia o que já subiu
+  async function eraConsulta() {
+    try { await confirmSaude(sessaoPendente.sessao) } catch (e) { setPermErr('Não consegui destrancar: ' + e.message); return }
+    setBloqueio('')
+    await enviarPendente()
   }
   function continuarGravando() {
     ignorarFimAteRef.current = (gravRef.current?.totalPedacos() || 0) + 4   // ~2 min sem perguntar de novo
@@ -361,12 +378,15 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           <div style={{ ...card, marginBottom: 6, border: '1px solid rgba(248,113,113,0.4)', background: 'rgba(248,113,113,0.06)' }}>
             <div style={{ fontSize: 14, color: '#f87171', fontWeight: 600, marginBottom: 4 }}>⛔ Parei: isso não parece uma consulta de saúde</div>
             <div style={{ fontSize: 13, color: '#e2b4b4', marginBottom: 6 }}><i>{bloqueio}</i></div>
-            <div style={{ fontSize: 12, ...muted, lineHeight: 1.5 }}>A MarIA grátis documenta só atendimentos clínicos. Nada foi salvo. Pra gravar reuniões, aulas e outros conteúdos, veja os planos.</div>
-            <button onClick={() => setBloqueio('')} style={{ marginTop: 10, background: 'none', border: '1px solid rgba(99,179,237,0.2)', color: '#a8c0d8', fontFamily: 'inherit', fontSize: 13, padding: '8px 14px', borderRadius: 10, cursor: 'pointer' }}>Entendi</button>
+            <div style={{ fontSize: 12, ...muted, lineHeight: 1.5 }}>A MarIA grátis documenta só atendimentos clínicos. Se eu errei — era consulta e vocês estavam só conversando — toca abaixo e eu envio o que já gravei.</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <button onClick={eraConsulta} style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', background: accent, color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>Era consulta, sim — enviar</button>
+              <button onClick={async () => { setBloqueio(''); if (sessaoPendente?.bloqueada) { try { await apagarSessao(sessaoPendente.sessao) } catch {} setSessaoPendente(null) } }} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(248,113,113,0.3)', background: 'none', color: '#f87171', fontFamily: 'inherit', cursor: 'pointer' }}>Descartar</button>
+            </div>
           </div>
         )}
 
-        {sessaoPendente && !isRec && (
+        {sessaoPendente && !isRec && !(bloqueio && sessaoPendente.bloqueada) && (
           <div style={{ ...card, marginBottom: 6, border: '1px solid rgba(251,191,36,0.35)' }}>
             <div style={{ fontSize: 13, color: '#fbbf24', marginBottom: 4 }}>⚠️ Gravação de <b>{sessaoPendente.paciente}</b> não foi enviada</div>
             <div style={{ fontSize: 12, ...muted, marginBottom: 10 }}>{new Date(sessaoPendente.inicio).toLocaleString('pt-BR')} · guardada no celular</div>
@@ -427,6 +447,13 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
             <div style={{ fontSize: 11, ...muted, textAlign: 'center', lineHeight: 1.6 }}>
               {pendentes > 0 ? `☁️ ${pendentes} pedaço(s) aguardando envio` : '☁️ salvo no servidor até agora'}
               {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
+            </div>
+          )}
+          {isRec && avisoSaude && !saudeConfirmadaRef.current && (
+            <div style={{ ...card, width: '100%', border: '1px solid rgba(248,113,113,0.35)', background: 'rgba(248,113,113,0.05)' }}>
+              <div style={{ fontSize: 13, color: '#f87171', marginBottom: 8 }}>⚠️ Isso está parecendo não ser uma consulta — <i>{avisoSaude}</i></div>
+              <button onClick={ehConsulta} style={{ width: '100%', padding: 10, borderRadius: 10, border: 'none', background: accent, color: '#060c14', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>É consulta, pode continuar</button>
+              <div style={{ fontSize: 11, ...muted, marginTop: 6 }}>Se ninguém responder e continuar parecendo outra coisa, paro em ~1 min.</div>
             </div>
           )}
           {isRec && fimSugerido && (

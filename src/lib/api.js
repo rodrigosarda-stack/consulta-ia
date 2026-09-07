@@ -131,3 +131,14 @@ export async function retryConsulta(id) {
   const data = await apiFetch('retry', { id }, { method: 'POST' })
   return data.consulta
 }
+
+// "É consulta, sim" — a IA para de perguntar nesta gravação; destranca se trancou por engano
+export async function confirmSaude(sessionId) {
+  const token = getSessionToken()
+  const fd = new FormData()
+  fd.append('session_id', sessionId)
+  const res = await fetch(`${API_URL}?action=confirm-saude`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `confirm-saude ${res.status}`)
+  return data
+}
