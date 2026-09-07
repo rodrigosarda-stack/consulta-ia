@@ -40,10 +40,17 @@ const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
 const MODELO_FIM = "gemini-3.7-flash"; // o mesmo primeiro da cascata do process-consultation
 
-async function transcreverPedaco(blob: Blob, ext: string, dica: string): Promise<string> {
+// Dois níveis (Rodrigo, 07/09): "as pessoas conversam por dezenas de minutos antes
+// da consulta — transcrição bem barata até perceber que é saúde, aí vai pra
+// análise mais interessante". O turbo custa $0,04/h contra $0,11/h do large-v3
+// (2,8x) e basta pra saber se falam de neto ou de joelho. Na escala planejada
+// (400 médicos), a diferença é ~R$15 mil/mês.
+const WHISPER_BARATO = "whisper-large-v3-turbo";
+const WHISPER_BOM = "whisper-large-v3";
+async function transcreverPedaco(blob: Blob, ext: string, dica: string, modelo = WHISPER_BOM): Promise<string> {
   const fd = new FormData();
   fd.append("file", blob, `pedaco.${ext}`);
-  fd.append("model", "whisper-large-v3");
+  fd.append("model", modelo);
   fd.append("language", "pt");
   fd.append("response_format", "text");
   if (dica) fd.append("prompt", dica.slice(0, 800)); // limite do Whisper: 224 tokens
@@ -163,28 +170,51 @@ Deno.serve(async (req: Request) => {
 
       // transcreve já, com o fim do pedaço anterior como dica
       const { data: ant } = await supabase.from("gravacao_pedacos").select("transcricao").eq("sessao", sid).eq("seq", seq - 1).maybeSingle();
+      const modeloWhisper = sess.modo === "consulta" ? WHISPER_BOM : WHISPER_BARATO;
       let transcricao: string | null = null, erro: string | null = null;
-      try { transcricao = await transcreverPedaco(af, extDe(mime), dicaWhisper(sess, ant?.transcricao || null)); }
+      try { transcricao = await transcreverPedaco(af, extDe(mime), dicaWhisper(sess, ant?.transcricao || null), modeloWhisper); }
       catch (e) { erro = String(e); console.error("chunk whisper:", erro); }
-      await supabase.from("gravacao_pedacos").upsert({ sessao: sid, seq, audio_path: fn, bytes: af.size, duracao_seg: durPed, transcricao, erro });
+      await supabase.from("gravacao_pedacos").upsert({ sessao: sid, seq, audio_path: fn, bytes: af.size, duracao_seg: durPed, transcricao, erro, modelo: modeloWhisper });
       await supabase.from("gravacao_sessoes").update({ ultimo_pedaco_em: new Date().toISOString() }).eq("sessao", sid);
 
       // a cada 2 pedaços (~1 min): é saúde? terminou?
       let fim: { terminou: boolean | null; motivo: string } = { terminou: null, motivo: "" }; // null = não avaliado neste pedaço
       let naoSaude: { motivo: string } | null = null;
       let avisoNaoSaude: { motivo: string } | null = null;
+      let promovido = false;
       if (seq >= 1 && seq % 2 === 1 && GOOGLE_AI_API_KEY) {
         const { data: todos } = await supabase.from("gravacao_pedacos").select("seq,transcricao,duracao_seg").eq("sessao", sid).order("seq");
         const texto = (todos || []).map(x => x.transcricao || "").join(" ").trim();
         if (texto.split(/\s+/).length > 30) {
           const mon = await monitorarConsulta(texto);
           fim = { terminou: mon.terminou, motivo: mon.motivo };
+          // ESPERA → CONSULTA: virou saúde (free) ou virou qualquer coisa definida (pagante grava tudo).
+          // Os 2 últimos pedaços podem ter o começo da parte clínica: refaz com o Whisper bom + dica.
+          if (sess.modo !== "consulta" && mon.saude !== "incerto") {
+            const { data: u0 } = await supabase.from("usuarios").select("plano").eq("telefone", telefone).single();
+            const pago = (u0?.plano || "free") !== "free";
+            if (mon.saude === "sim" || pago) {
+              promovido = true;
+              await supabase.from("gravacao_sessoes").update({ modo: "consulta", modo_consulta_desde_seq: seq }).eq("sessao", sid);
+              const refazer = (todos || []).filter(x => x.seq >= seq - 1);
+              for (const p of refazer) {
+                try {
+                  const { data: blob } = await supabase.storage.from("audios").download(`${uid}/rec/${sid}/${String(p.seq).padStart(5, "0")}.${extDe(mime)}`);
+                  if (!blob) continue;
+                  const antT = (todos || []).find(x => x.seq === p.seq - 1)?.transcricao || null;
+                  const t2 = await transcreverPedaco(blob, extDe(mime), dicaWhisper(sess, antT), WHISPER_BOM);
+                  await supabase.from("gravacao_pedacos").update({ transcricao: t2, modelo: WHISPER_BOM }).eq("sessao", sid).eq("seq", p.seq);
+                } catch (e) { console.error("refazer pedaco", p.seq, String(e)); }
+              }
+              console.log(`sessao ${sid} promovida a consulta no pedaco ${seq}`);
+            }
+          }
           // Rodrigo (07/09): médico e paciente falam de família, política, futebol —
           // isso não pode desligar a MarIA. Então: (a) só decide depois de 3 min de
           // gravação, (b) precisa de dois "nao" seguidos, (c) avisa no primeiro e o
           // médico pode dizer "É consulta" (saude_confirmada) — aí nunca mais pergunta.
           const segGravados = (todos || []).reduce((a, x) => a + (Number((x as { duracao_seg?: number }).duracao_seg) || 30), 0);
-          if (mon.saude === "nao" && !sess.saude_confirmada && segGravados >= 170) {
+          if (mon.saude === "nao" && sess.modo !== "consulta" && !sess.saude_confirmada && segGravados >= 170) {
             // só o plano free é restrito a saúde; pagante grava qualquer coisa
             const { data: u } = await supabase.from("usuarios").select("plano").eq("telefone", telefone).single();
             if ((u?.plano || "free") === "free") {
@@ -204,7 +234,7 @@ Deno.serve(async (req: Request) => {
           if (!naoSaude) await supabase.from("gravacao_sessoes").update(fim.terminou ? { fim_sugerido_em: new Date().toISOString(), fim_sugerido_seq: seq } : { fim_sugerido_em: null, fim_sugerido_seq: null }).eq("sessao", sid);
         }
       }
-      return json({ success: true, seq, transcrito: !!transcricao, terminou: fim.terminou, motivo: fim.motivo, nao_saude: !!naoSaude, nao_saude_motivo: naoSaude?.motivo || "", aviso_nao_saude: !!avisoNaoSaude, aviso_motivo: avisoNaoSaude?.motivo || "" }, 200, req);
+      return json({ success: true, seq, transcrito: !!transcricao, modo: promovido ? "consulta" : sess.modo, terminou: fim.terminou, motivo: fim.motivo, nao_saude: !!naoSaude, nao_saude_motivo: naoSaude?.motivo || "", aviso_nao_saude: !!avisoNaoSaude, aviso_motivo: avisoNaoSaude?.motivo || "" }, 200, req);
     }
     // "É consulta, sim": o médico confirma. Nunca mais pergunta nesta sessão; se
     // já tinha trancado por engano, destranca — finalize volta a funcionar.
@@ -212,7 +242,7 @@ Deno.serve(async (req: Request) => {
       const fd = await req.formData();
       const sid = String(fd.get("session_id") || "");
       if (!/^[0-9a-f-]{36}$/i.test(sid)) return json({ error: "Sessao invalida" }, 400, req);
-      const { data, error } = await supabase.from("gravacao_sessoes").update({ saude_confirmada: true, nao_saude_avisos: 0, bloqueada_em: null, bloqueio_motivo: null }).eq("sessao", sid).eq("usuario_tel", telefone).select("sessao").single();
+      const { data, error } = await supabase.from("gravacao_sessoes").update({ saude_confirmada: true, nao_saude_avisos: 0, bloqueada_em: null, bloqueio_motivo: null, modo: "consulta" }).eq("sessao", sid).eq("usuario_tel", telefone).select("sessao").single();
       if (error || !data) return json({ error: "Sessao desconhecida" }, 404, req);
       return json({ success: true }, 200, req);
     }
@@ -241,7 +271,7 @@ Deno.serve(async (req: Request) => {
         try {
           const { data: blob, error } = await supabase.storage.from("audios").download(p.audio_path);
           if (error || !blob) throw new Error("download");
-          p.transcricao = await transcreverPedaco(blob, extDe(sess.mime || ""), dicaWhisper(sess, usados[i - 1]?.transcricao || null));
+          p.transcricao = await transcreverPedaco(blob, extDe(sess.mime || ""), dicaWhisper(sess, usados[i - 1]?.transcricao || null), WHISPER_BOM);
           await supabase.from("gravacao_pedacos").update({ transcricao: p.transcricao, erro: null }).eq("sessao", sid).eq("seq", p.seq);
         } catch (e) { console.error("finalize retranscrever", p.seq, String(e)); }
       }

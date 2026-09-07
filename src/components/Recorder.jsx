@@ -33,6 +33,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [fimSugerido, setFimSugerido] = useState('')          // IA achou que a consulta terminou (motivo)
   const [bloqueio, setBloqueio] = useState('')                // IA disse que não é saúde: parou
   const [avisoSaude, setAvisoSaude] = useState('')            // 1ª suspeita: pergunta antes de parar
+  const [modo, setModo] = useState('espera')                  // espera (barato) → consulta (Whisper bom)
   const saudeConfirmadaRef = useRef(false)
 
   const gravRef = useRef(null)       // gravador em pedaços
@@ -124,7 +125,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
       const meta = { sessao, paciente: patient.trim(), pacienteTel: patientPhone.replace(/\D/g, ''), mime, nota, inicio: Date.now(), ultimoSeq: -1 }
       sessaoRef.current = sessao
       motivoRef.current = ''; setMotivoParada(''); setPendentes(0); setSemFalaSeg(0); setFimSugerido(''); setBloqueio(''); setAvisoSaude('')
-      saudeConfirmadaRef.current = false
+      saudeConfirmadaRef.current = false; setModo('espera')
       avisosFimRef.current = 0; ignorarFimAteRef.current = -1
       // o servidor precisa conhecer a sessão antes do 1º pedaço (nome + nota viram dica pro Whisper)
       await sessionStart({ sessionId: sessao, pacienteNome: meta.paciente, pacienteTel: meta.pacienteTel, nota, mime })
@@ -177,6 +178,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   // O servidor, a cada ~1 min, diz se a consulta parece ter terminado.
   // 1ª vez: avisa na tela e pergunta. 2ª vez seguida sem resposta: para.
   function tratarResposta(seq, r) {
+    if (r?.modo === 'consulta') setModo('consulta')
     if (r?.aviso_nao_saude && !saudeConfirmadaRef.current) setAvisoSaude(r.aviso_motivo || 'a conversa não parece um atendimento')
     else if (r && r.nao_saude === false && r.aviso_nao_saude === false && r.terminou != null) setAvisoSaude('')   // avaliou e achou que é consulta
     if (r?.nao_saude && motivoRef.current !== 'nao_saude') {
@@ -199,7 +201,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     }
   }
   async function ehConsulta() {
-    saudeConfirmadaRef.current = true
+    saudeConfirmadaRef.current = true; setModo('consulta')
     setAvisoSaude('')
     try { await confirmSaude(sessaoRef.current) } catch {}
   }
@@ -446,6 +448,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           {isRec && (
             <div style={{ fontSize: 11, ...muted, textAlign: 'center', lineHeight: 1.6 }}>
               {pendentes > 0 ? `☁️ ${pendentes} pedaço(s) aguardando envio` : '☁️ salvo no servidor até agora'}
+              {' · '}{modo === 'consulta' ? '🩺 consulta detectada' : '👂 ouvindo'}
               {semFalaSeg >= 30 && <><br />🔇 sem fala há {Math.floor(semFalaSeg / 60)}:{String(semFalaSeg % 60).padStart(2, '0')} — paro sozinho em {Math.max(1, Math.ceil((SILENCIO_MS / 1000 - semFalaSeg) / 60))} min</>}
             </div>
           )}
