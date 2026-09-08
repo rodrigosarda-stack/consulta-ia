@@ -66,6 +66,8 @@ Uma linha por caso, neste formato:
 Inclua tambem o que voce DESCARTOU por nao pertencer a consulta, e o que NAO conseguiu resolver (marque no prontuario com [?]).
 Se nao houve nenhum caso, escreva: "Nenhuma interpretacao relevante."
 
+A transcricao pode vir com falas rotuladas MEDICO: / PACIENTE: / OUTRO:. Use os rotulos pra saber quem disse o que (ex.: alergia negada pelo PACIENTE, conduta dita pelo MEDICO; fala de OUTRO nao e do paciente). Nao copie os rotulos pro prontuario.
+
 REGRAS (valem pra tudo):
 - NUNCA acrescente dado que nao foi dito: idade, sexo, profissao, peso, nome de acompanhante, historico, exame. Se nao foi dito, nao existe.
 - Marque com [?] o que ficou incerto.

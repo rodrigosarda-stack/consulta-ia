@@ -572,3 +572,8 @@ alter table gravacao_pedacos add column if not exists clinico boolean;          
 alter table gravacao_pedacos add column if not exists tema text;                    -- 2-5 palavras
 alter table consultas add column if not exists transcricao_completa text;           -- tudo que foi dito (transcricao_pronta = só o clínico)
 alter table consultas add column if not exists mapa_pedacos jsonb;                  -- [{seq, clinico, tema, seg}]
+
+-- Motor de transcrição por config (08/09/2026). "motor:modelo". Trocar = UPDATE, sem deploy.
+insert into config (chave, valor) values
+  ('transcricao', '{"espera": "gemini:gemini-3.5-flash-lite", "consulta": "gemini:gemini-3.7-flash", "reserva": "whisper:whisper-large-v3", "falantes": true}')
+on conflict (chave) do nothing;
