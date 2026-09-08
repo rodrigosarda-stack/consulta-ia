@@ -134,6 +134,25 @@ O de conteúdo **pergunta** antes de agir. Só para sozinho na 2ª resposta
 positiva seguida (~2 min) sem o médico tocar em nada. "Continuar gravando"
 silencia a pergunta por ~2 min.
 
+### Por que o monitor roda por evento, não por relógio
+
+Rodrigo: *"esse monitor não poderia fazer o trabalho só quando precisa?"* Ele não
+pode ficar pro fim — trancar não-saúde, perceber o fim e trocar de Whisper são
+ações **durante**. Mas não precisa de IA a cada minuto. A IA virou o
+**confirmador**; o vigia é regra de texto e silêncio, de graça:
+
+| pergunta | quando chama a IA |
+|---|---|
+| "é saúde?" | a cada 2 pedaços **só até decidir** (≈3-5 min); 10 min indeciso → vira consulta |
+| "terminou?" | quando o pedaço tem cara de despedida (regex: obrigado, tchau, até a próxima, boa tarde, pode ir…) **ou** quando o celular viu 60 s sem fala em modo consulta (`action=ping-fim`, uma vez por silêncio) |
+| etiquetas | uma vez no fim, no 3.1-flash-lite (6/6 medido, 1/3 do preço) |
+
+Testado: 7 pedaços (papo, clínico, exame, despedida) → **3 chamadas** (decidir saúde,
+despedida, ping). Antes: 4 por cadência, crescendo com a duração. Consulta de
+35 min: 2-3 chamadas em vez de 18. Monitor: R$0,06/h → ~R$0,01/h; etiquetas:
+R$0,09/h → R$0,03/h. Teto da API fica em **~R$0,50/h**; o Whisper (R$0,36) não
+tem truque — é o servidor próprio.
+
 ### Por que a dica pro Whisper
 
 O Whisper aceita até 224 tokens de "prompt" — contexto do que esperar. A MarIA

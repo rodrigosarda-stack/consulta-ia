@@ -45,7 +45,7 @@ const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
 // - etiquetas e prontuário: 1x por consulta, qualidade importa → 3.7-flash SEM pensamento
 //   (medido 08/09: mesma qualidade em 6/6, metade do custo; o lite não declara "de pirona").
 const MODELOS_MONITOR = ["gemini-3.5-flash-lite", "gemini-3.7-flash"]; // reserva: 3.7 com pensamento desligado
-const MODELO_ETIQUETAS = "gemini-3.7-flash";
+const MODELO_ETIQUETAS = "gemini-3.1-flash-lite"; // medido 08/09: 6/6 igual ao 3.7, $0,0005 contra $0,0014 (o 3.5-lite errou 1/6)
 
 // Dois níveis (Rodrigo, 07/09): "as pessoas conversam por dezenas de minutos antes
 // da consulta — transcrição bem barata até perceber que é saúde, aí vai pra
@@ -129,7 +129,7 @@ ${lista}
 ===== =====`;
   const fallback = peds.map(p => ({ seq: p.seq, clinico: true, tema: "" }));
   try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_ETIQUETAS}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } } }) });   // sem pensamento: 6/6 igual, $0,0014 em vez de $0,0021 (medido 08/09)
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_ETIQUETAS}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json" } }) });   // lite não aceita thinkingConfig
     if (!r.ok) { console.error("etiquetas: http", r.status); return fallback; }
     const d = await r.json();
     const bruto = (d.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("");
@@ -246,12 +246,21 @@ Deno.serve(async (req: Request) => {
       await supabase.from("gravacao_pedacos").upsert({ sessao: sid, seq, audio_path: fn, bytes: af.size, duracao_seg: durPed, transcricao, erro, modelo: modeloWhisper });
       await supabase.from("gravacao_sessoes").update({ ultimo_pedaco_em: new Date().toISOString() }).eq("sessao", sid);
 
-      // a cada 2 pedaços (~1 min): é saúde? terminou?
+      // MONITOR POR EVENTO (Rodrigo, 08/09: "esse monitor não poderia fazer o trabalho só
+      // quando precisa?"). A IA é o confirmador, não o vigia. Ela é chamada só quando:
+      //  (a) ainda não se sabe se é saúde — a cada 2 pedaços até decidir (~3-5 min);
+      //  (b) o pedaço tem cara de despedida (regra de texto, custo zero);
+      //  (c) o celular pediu (60 s de silêncio depois que virou consulta → action=ping-fim).
+      // Consulta de 35 min: 2-3 chamadas em vez de 18.
       let fim: { terminou: boolean | null; motivo: string } = { terminou: null, motivo: "" }; // null = não avaliado neste pedaço
       let naoSaude: { motivo: string } | null = null;
       let avisoNaoSaude: { motivo: string } | null = null;
       let promovido = false;
-      if (seq >= 1 && seq % 2 === 1 && GOOGLE_AI_API_KEY) {
+      const DESPEDIDA = /\b(obrigad[ao]|tchau|at[ée]\s+(a\s+)?(pr[óo]xima|logo|mais|breve)|boa\s+(tarde|noite)|se\s+cuid|bom\s+descanso|qualquer\s+coisa\s+me\s+(liga|chama)|nos\s+vemos|(a|na)\s+pr[óo]xima\s+(consulta|sess[ãa]o)|pode\s+ir|est[áa]\s+liberad)/i;
+      const indeciso = sess.modo !== "consulta" && !sess.saude_confirmada;
+      const cadenciaSaude = seq >= 1 && seq % 2 === 1;
+      const pareceFim = sess.modo === "consulta" && !!transcricao && DESPEDIDA.test(transcricao);
+      if (GOOGLE_AI_API_KEY && ((indeciso && cadenciaSaude) || pareceFim)) {
         const { data: todos } = await supabase.from("gravacao_pedacos").select("seq,transcricao,duracao_seg").eq("sessao", sid).order("seq");
         const texto = (todos || []).map(x => x.transcricao || "").join(" ").trim();
         if (texto.split(/\s+/).length > 30) {
@@ -276,6 +285,10 @@ Deno.serve(async (req: Request) => {
                 } catch (e) { console.error("refazer pedaco", p.seq, String(e)); }
               }
               console.log(`sessao ${sid} promovida a consulta no pedaco ${seq}`);
+            } else if (mon.saude === "incerto" && seq >= 19) {
+              // 10 min sem decidir: benefício da dúvida — vira consulta e para de perguntar
+              promovido = true;
+              await supabase.from("gravacao_sessoes").update({ modo: "consulta", modo_consulta_desde_seq: seq }).eq("sessao", sid);
             }
           }
           // Rodrigo (07/09): médico e paciente falam de família, política, futebol —
@@ -307,6 +320,21 @@ Deno.serve(async (req: Request) => {
     }
     // "É consulta, sim": o médico confirma. Nunca mais pergunta nesta sessão; se
     // já tinha trancado por engano, destranca — finalize volta a funcionar.
+    // O celular viu 60 s sem fala depois que virou consulta: avalia se terminou (uma chamada).
+    // Silêncio não vira pedaço, então sem isto o fim nunca seria detectado num consultório quieto.
+    if (action === "ping-fim" && req.method === "POST") {
+      const fd = await req.formData();
+      const sid = String(fd.get("session_id") || "");
+      if (!/^[0-9a-f-]{36}$/i.test(sid)) return json({ error: "Sessao invalida" }, 400, req);
+      const { data: sess } = await supabase.from("gravacao_sessoes").select("*").eq("sessao", sid).eq("usuario_tel", telefone).single();
+      if (!sess) return json({ error: "Sessao desconhecida" }, 404, req);
+      const { data: todos } = await supabase.from("gravacao_pedacos").select("seq,transcricao").eq("sessao", sid).order("seq");
+      const texto = (todos || []).map(x => x.transcricao || "").join(" ").trim();
+      if (!GOOGLE_AI_API_KEY || texto.split(/\s+/).length < 30) return json({ success: true, terminou: null, motivo: "" }, 200, req);
+      const mon = await monitorarConsulta(texto);
+      await supabase.from("gravacao_sessoes").update(mon.terminou ? { fim_sugerido_em: new Date().toISOString(), fim_sugerido_seq: (todos || []).length - 1 } : { fim_sugerido_em: null, fim_sugerido_seq: null }).eq("sessao", sid);
+      return json({ success: true, terminou: mon.terminou, motivo: mon.motivo }, 200, req);
+    }
     if (action === "confirm-saude" && req.method === "POST") {
       const fd = await req.formData();
       const sid = String(fd.get("session_id") || "");

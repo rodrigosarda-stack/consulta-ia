@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, discardSession, canRecord } from '../lib/api'
+import { uploadChunk, finalizeRecording, sessionStart, confirmSaude, discardSession, pingFim, canRecord } from '../lib/api'
 import { criarFila, criarDetectorSilencio, criarGravadorEmPedacos, criarAtraso, salvarSessao, lerSessoes, apagarSessao } from '../lib/gravador'
 import { track, Events } from '../lib/analytics'
 
@@ -14,7 +14,8 @@ const LIMITE_SEG = 2 * 3600       // teto duro: para sozinho
 const SILENCIO_MS = 3 * 60_000    // sem fala por 3 min: para sozinho
 const PRE_ROLL_MS = 500           // o gravador recebe o áudio meio segundo atrasado: ao retomar, o começo da palavra entra
 const AVISOS_FIM_PARA_PARAR = 2   // IA disse "terminou" 2 vezes seguidas sem resposta → para
-const FIM_SEM_FALA_SEG = 45       // IA disse "terminou" E ninguém fala há 45 s → para (silêncio não vira pedaço, então a 2ª resposta pode nunca vir)
+const FIM_SEM_FALA_SEG = 45       // IA disse "terminou" E ninguém fala há 45 s → para
+const PING_FIM_SEG = 60           // virou consulta e ninguém fala há 60 s → pergunta ao servidor se terminou (uma chamada)
 
 function fmt(s) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -40,6 +41,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
   const [modo, setModo] = useState('espera')                  // espera (barato) → consulta (Whisper bom)
   const [mudo, setMudo] = useState(false)                     // pedaço atual sem som: não está sendo enviado nem cobrado
   const saudeConfirmadaRef = useRef(false)
+  const pingFeitoRef = useRef(false)   // um ping por trecho de silêncio
 
   const gravRef = useRef(null)       // gravador em pedaços
   const streamRef = useRef(null)
@@ -64,6 +66,17 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
     if (!isRec || !fimSugerido || motivoRef.current) return
     if (semFalaSeg >= FIM_SEM_FALA_SEG) { motivoRef.current = 'conteudo'; setMotivoParada('conteudo'); stopRec() }
   }, [isRec, fimSugerido, semFalaSeg])
+
+  // Silêncio não vira pedaço, então o servidor não vê que a consulta parou. Depois de
+  // PING_FIM_SEG sem fala em modo consulta, pergunta uma vez "terminou?". Voltou a falar, rearma.
+  useEffect(() => {
+    if (!isRec || modo !== 'consulta' || motivoRef.current) return
+    if (semFalaSeg < 5) { pingFeitoRef.current = false; return }
+    if (semFalaSeg >= PING_FIM_SEG && !pingFeitoRef.current && !fimSugerido) {
+      pingFeitoRef.current = true
+      pingFim(sessaoRef.current).then(r => { if (r?.terminou) { avisosFimRef.current++; setFimSugerido(r.motivo || 'ninguém fala há um tempo') } }).catch(() => {})
+    }
+  }, [isRec, modo, semFalaSeg, fimSugerido])
 
   // Ficou gravação de outra vez sem enviar? Oferece enviar.
   useEffect(() => { lerSessoes().then(s => { if (s.length) setSessaoPendente(s[0]) }).catch(() => {}) }, [])

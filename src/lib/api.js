@@ -153,3 +153,14 @@ export async function discardSession(sessionId) {
   if (!res.ok) throw new Error(data.error || `discard ${res.status}`)
   return data
 }
+
+// 60 s de silêncio depois que virou consulta: pergunta ao servidor se terminou (uma chamada de IA)
+export async function pingFim(sessionId) {
+  const token = getSessionToken()
+  const fd = new FormData()
+  fd.append('session_id', sessionId)
+  const res = await fetch(`${API_URL}?action=ping-fim`, { method: 'POST', headers: { 'X-Session-Token': token || '' }, body: fd })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `ping-fim ${res.status}`)
+  return data
+}
