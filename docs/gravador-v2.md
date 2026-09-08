@@ -245,10 +245,10 @@ recebeu 1.361 dos 2.597 caracteres. Finalize em 2 s.
 | Whisper bom (181 s) | $0,006 |
 | monitor (3 chamadas) | $0,002 → $0,0005 depois do lite |
 | etiquetas (1 chamada) | $0,002 |
-| prontuário (1 chamada) | $0,007 |
-| **total** | **~$0,018 ≈ R$0,10** |
+| prontuário (1 chamada) | $0,013 → $0,006 sem pensamento |
+| **total** | **$0,024 → ~$0,011 ≈ R$0,06** |
 
-Por hora de consulta real (60 % de fala): **~R$0,45** (era R$0,60 antes do lite).
+Por hora de consulta real (60 % de fala): **~R$0,40** (era R$0,60).
 
 ### Modelo por tarefa (medido)
 
@@ -262,11 +262,30 @@ Medido com a mesma pergunta do monitor, tokens reais do `usageMetadata`:
 | **gemini-3.5-flash-lite** | não | $0,0003 | **$0,010** | ✓ |
 | gemini-3.1-flash-lite | não | $0,0002 | $0,007 | ✓ |
 
-Duas surpresas: o **pensamento custava mais que a resposta** numa pergunta de
-sim/não; e o lite (descartado pro prontuário por errar "ergométrica") acerta
+Etiquetas (6 pedaços reais; esperado □0 ■1 ■2 ■3 ■4 □5):
+
+| modelo | pensa? | $/chamada | acertos |
+|---|---|---|---|
+| gemini-3.7-flash | 265 tokens | $0,0021 | 6/6 |
+| **gemini-3.7-flash, sem pensamento** | não | **$0,0014** | 6/6 |
+| gemini-3.5-flash-lite | não | $0,0008 | 5/6 (marcou o papo de família como clínico) |
+| gemini-3.1-flash-lite | não | $0,0005 | 6/6 |
+
+Prontuário (transcrição real do teste 2; 2 rodadas por modelo, 3 extras no 3.7):
+
+| modelo | pensa? | $/chamada | ms | termos | declara consertos | cuidado ([?], reconstrução) |
+|---|---|---|---|---|---|---|
+| gemini-3.7-flash | ~1.600 tokens | $0,013 | 8.100 | 5/5 | 2/2 | igual ao sem pensamento em 3/3 |
+| **gemini-3.7-flash, sem pensamento** | não | **$0,006** | 3.500 | 5/5 | 2/2 | igual |
+| gemini-3.5-flash-lite | não | $0,0037 | 3.600 | 5/5 | 1/2 (não confessa "de pirona") | — |
+| gemini-3.1-flash-lite | não | $0,0019 | 3.400 | 5/5 | 1/2 | — |
+
+Duas surpresas: o **pensamento custava mais que a resposta** — no prontuário,
+1.600 tokens pensando pra 1.500 escrevendo, metade da conta; e o lite (descartado pro prontuário por errar "ergométrica") acerta
 igual na pergunta grosseira. Decisão: monitor → 3.5-flash-lite com 3.7 sem
-pensamento de reserva; etiquetas e prontuário seguem no 3.7 (1x por consulta,
-qualidade importa). O lite **rejeita** `thinkingConfig` (400) — só mandar
+pensamento de reserva; **etiquetas e prontuário → 3.7 sem pensamento** (mesma
+qualidade medida, metade do custo, 2,3x mais rápido). O lite no prontuário
+escreve certo mas confessa menos — a transparência é o produto. O lite **rejeita** `thinkingConfig` (400) — só mandar
 pro 3.7.
 
 Tamanho: o Safari do iPhone **ignora** `audioBitsPerSecond: 24000` e grava a

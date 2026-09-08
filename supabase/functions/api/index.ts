@@ -42,7 +42,8 @@ const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
 // - monitor ("é saúde? terminou?", 30x/hora): pergunta grosseira. O 3.5-flash-lite
 //   acerta igual e custa 4x menos que o 3.7 ($0,010/h contra $0,041/h). O 3.7 pensa
 //   ~160 tokens pra responder 38 — o pensamento custava mais que a resposta.
-// - etiquetas e prontuário: 1x por consulta, qualidade importa → 3.7-flash.
+// - etiquetas e prontuário: 1x por consulta, qualidade importa → 3.7-flash SEM pensamento
+//   (medido 08/09: mesma qualidade em 6/6, metade do custo; o lite não declara "de pirona").
 const MODELOS_MONITOR = ["gemini-3.5-flash-lite", "gemini-3.7-flash"]; // reserva: 3.7 com pensamento desligado
 const MODELO_ETIQUETAS = "gemini-3.7-flash";
 
@@ -128,7 +129,7 @@ ${lista}
 ===== =====`;
   const fallback = peds.map(p => ({ seq: p.seq, clinico: true, tema: "" }));
   try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_ETIQUETAS}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json" } }) });
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_ETIQUETAS}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } } }) });   // sem pensamento: 6/6 igual, $0,0014 em vez de $0,0021 (medido 08/09)
     if (!r.ok) { console.error("etiquetas: http", r.status); return fallback; }
     const d = await r.json();
     const bruto = (d.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("");
