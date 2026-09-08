@@ -31,7 +31,7 @@ dipirona`), idade inventada, markdown, JSON válido. 2 rodadas por modelo.
 | modelo | tok/s | tempo por prontuário | termos | confessa | JSON | veredito |
 |---|---|---|---|---|---|---|
 | Qwen3.5-9B-4bit | 27 | 60 s | 3/5 — não conserta "de pirona" nem "psiculécia" | 2/2 (vê o erro, lista, mas não corrige no texto) | ✓ | não serve |
-| **Qwen3.8-27B-4bit** | 7,5* | 225 s* | **5/5** | **2/2** + declarou "provamento → travamento" e "les → lesão" | ✓ | **passa na mesma régua do Gemini 3.7** (1 rodada; 2ª rodando) |
+| **Qwen3.8-27B-4bit** | 7,5* | 225 s* | **5/5** | **2/2** + declarou "provamento → travamento" e "les → lesão" | ✓ | **passa na mesma régua do Gemini 3.7** — 2 de 2 rodadas (7,5 e 8,1 tok/s) |
 
 *Medido com o Mac no limite de memória (0,1 GB livre, swap). Num Mac mini Pro
 de 32 GB — que o Rodrigo tem, parados — roda sem swap; estimativa 10–15 tok/s,
