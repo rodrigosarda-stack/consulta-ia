@@ -147,6 +147,18 @@ ações **durante**. Mas não precisa de IA a cada minuto. A IA virou o
 | "terminou?" | quando o pedaço tem cara de despedida (regex: obrigado, tchau, até a próxima, boa tarde, pode ir…) **ou** quando o celular viu 60 s sem fala em modo consulta (`action=ping-fim`, uma vez por silêncio) |
 | etiquetas | uma vez no fim, no 3.1-flash-lite (6/6 medido, 1/3 do preço) |
 
+**Vigia contra fraude** (Rodrigo: *"vai ter gente que faz um comecinho de saúde e
+depois todo o resto sem ser"*): depois de virar consulta, a cada 4 pedaços o lite
+recebe **só os 3 últimos pedaços** e responde se continua atendimento (inclusive
+papo social médico-paciente) ou virou aula/reunião/ditado. Mesma régua do
+começo: 1º "não" avisa, 2º seguido tranca (mín. 170 s). ~R$0,01/h. Testado:
+1 min de consulta + reunião → aviso aos 4 min, trava aos 6; 1 min de consulta +
+4 min de família → nenhum aviso.
+
+**Garantia no fim:** o grátis nunca recebe o que não é saúde — as etiquetas tiram
+os pedaços "conversa" do prontuário, e `action=consulta` deixou de devolver
+`transcricao_completa` (vazava na resposta da API, mesmo sem aparecer na tela).
+
 Testado: 7 pedaços (papo, clínico, exame, despedida) → **3 chamadas** (decidir saúde,
 despedida, ping). Antes: 4 por cadência, crescendo com a duração. Consulta de
 35 min: 2-3 chamadas em vez de 18. Monitor: R$0,06/h → ~R$0,01/h; etiquetas:
