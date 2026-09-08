@@ -38,7 +38,13 @@ function extDe(m: string): string { const b = mimeBase(m); return b === "audio/w
 // médico para, o texto já está pronto — o prontuário sai em segundos.
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
-const MODELO_FIM = "gemini-3.7-flash"; // o mesmo primeiro da cascata do process-consultation
+// Modelo por tarefa (medido em 07/09, docs/gravador-v2.md §custo):
+// - monitor ("é saúde? terminou?", 30x/hora): pergunta grosseira. O 3.5-flash-lite
+//   acerta igual e custa 4x menos que o 3.7 ($0,010/h contra $0,041/h). O 3.7 pensa
+//   ~160 tokens pra responder 38 — o pensamento custava mais que a resposta.
+// - etiquetas e prontuário: 1x por consulta, qualidade importa → 3.7-flash.
+const MODELOS_MONITOR = ["gemini-3.5-flash-lite", "gemini-3.7-flash"]; // reserva: 3.7 com pensamento desligado
+const MODELO_ETIQUETAS = "gemini-3.7-flash";
 
 // Dois níveis (Rodrigo, 07/09): "as pessoas conversam por dezenas de minutos antes
 // da consulta — transcrição bem barata até perceber que é saúde, aí vai pra
@@ -122,7 +128,7 @@ ${lista}
 ===== =====`;
   const fallback = peds.map(p => ({ seq: p.seq, clinico: true, tema: "" }));
   try {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_FIM}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json" } }) });
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_ETIQUETAS}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 8192, responseMimeType: "application/json" } }) });
     if (!r.ok) { console.error("etiquetas: http", r.status); return fallback; }
     const d = await r.json();
     const bruto = (d.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("");
@@ -157,11 +163,16 @@ ${inicio}
 ${cauda}
 ===== =====`;
   try {
-    // maxOutputTokens folgado: os modelos 3.x "pensam" antes de responder e o
-    // pensamento conta no limite — com 80 tokens a resposta vinha vazia.
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_FIM}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 2048, responseMimeType: "application/json" } }) });
-    if (!r.ok) { console.error("monitor: http", r.status, (await r.text()).slice(0, 300)); return { saude: "incerto", terminou: false, motivo: `erro ${r.status}` }; }
-    const d = await r.json();
+    let d: { candidates?: { content?: { parts?: { text?: string }[] } }[] } | null = null;
+    for (const model of MODELOS_MONITOR) {
+      // lite não aceita thinkingConfig (400); o 3.7 aceita e sem pensamento custa metade e responde 40% mais rápido
+      const gen: Record<string, unknown> = { maxOutputTokens: 2048, responseMimeType: "application/json" };
+      if (!model.includes("lite")) gen.thinkingConfig = { thinkingBudget: 0 };
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: gen }) });
+      if (r.ok) { d = await r.json(); break; }
+      console.error("monitor:", model, "http", r.status, (await r.text()).slice(0, 200));
+    }
+    if (!d) return { saude: "incerto", terminou: false, motivo: "erro" };
     const bruto = (d.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("").trim();
     const m = bruto.match(/\{[\s\S]*\}/);          // tolera cerca ```json e texto em volta
     if (!m) { console.error("monitor: sem JSON:", bruto.slice(0, 200)); return { saude: "incerto", terminou: false, motivo: "sem resposta" }; }

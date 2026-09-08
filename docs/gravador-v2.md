@@ -237,6 +237,43 @@ recebeu 1.361 dos 2.597 caracteres. Finalize em 2 s.
 | custo Whisper por hora | $0,11 | $0,04 enquanto é papo, $0,11 quando vira consulta |
 | custo detecção de fim | — | ~$0,01/h (Gemini, 60 chamadas curtas) |
 
+## Custo, medido (consulta real de 07/09, 5 min de relógio / 3 min de fala)
+
+| etapa | custo |
+|---|---|
+| Whisper barato (pedaços 0-1, antes de virar consulta) | $0,001 |
+| Whisper bom (181 s) | $0,006 |
+| monitor (3 chamadas) | $0,002 → $0,0005 depois do lite |
+| etiquetas (1 chamada) | $0,002 |
+| prontuário (1 chamada) | $0,007 |
+| **total** | **~$0,018 ≈ R$0,10** |
+
+Por hora de consulta real (60 % de fala): **~R$0,45** (era R$0,60 antes do lite).
+
+### Modelo por tarefa (medido)
+
+Rodrigo: *"quais dessas partes poderia ser feito num modelo mais barato?"*
+Medido com a mesma pergunta do monitor, tokens reais do `usageMetadata`:
+
+| modelo | pensa? | por chamada | por hora (30) | acertou |
+|---|---|---|---|---|
+| gemini-3.7-flash | ~160 tokens | $0,0014 | $0,041 | ✓ |
+| gemini-3.7-flash, `thinkingBudget: 0` | não | $0,0007 | $0,022 | ✓ |
+| **gemini-3.5-flash-lite** | não | $0,0003 | **$0,010** | ✓ |
+| gemini-3.1-flash-lite | não | $0,0002 | $0,007 | ✓ |
+
+Duas surpresas: o **pensamento custava mais que a resposta** numa pergunta de
+sim/não; e o lite (descartado pro prontuário por errar "ergométrica") acerta
+igual na pergunta grosseira. Decisão: monitor → 3.5-flash-lite com 3.7 sem
+pensamento de reserva; etiquetas e prontuário seguem no 3.7 (1x por consulta,
+qualidade importa). O lite **rejeita** `thinkingConfig` (400) — só mandar
+pro 3.7.
+
+Tamanho: o Safari do iPhone **ignora** `audioBitsPerSecond: 24000` e grava a
+~50 kbps (6,1 KB/s). Uma hora de consulta com 40 % de silêncio ≈ 13 MB. Na
+escala planejada (400 × 20/dia) ≈ 100 GB/dia; cada mês de áudio guardado
+custa ~R$350/mês pra sempre — argumento pra decisão de retenção.
+
 ## Armadilhas encontradas (e como não cair de novo)
 
 - **Bucket com `allowed_mime_types` recusa `audio/webm;codecs=opus`** (com
