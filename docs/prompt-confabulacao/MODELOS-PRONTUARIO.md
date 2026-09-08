@@ -33,12 +33,18 @@ dipirona`), idade inventada, markdown, JSON válido. 2 rodadas por modelo.
 | Qwen3.5-9B-4bit | 27 | 60 s | 3/5 — não conserta "de pirona" nem "psiculécia" | 2/2 (vê o erro, lista, mas não corrige no texto) | ✓ | não serve |
 | **Qwen3.8-27B-4bit** | 7,5* | 225 s* | **5/5** | **2/2** + declarou "provamento → travamento" e "les → lesão" | ✓ | **passa na mesma régua do Gemini 3.7** — 2 de 2 rodadas (7,5 e 8,1 tok/s) |
 
+| Qwen3.5-27B "Claude-4.6-Opus-Distilled" | 8,2–8,4 | 208–235 s | 3/5 — **inventou "Piroxicam 1 g a cada 6–8 h"** no lugar de Dipirona; "ciclismo" no lugar de bicicleta | 2/2 e 1/2 — confessa, mas o conserto é ERRADO | ✓ (com markdown) | **reprovado — o pior tipo de erro: remédio trocado com dose absurda** |
+
 *Medido com o Mac no limite de memória (0,1 GB livre, swap). Num Mac mini Pro
 de 32 GB — que o Rodrigo tem, parados — roda sem swap; estimativa 10–15 tok/s,
 ~2 min por prontuário, ~30 prontuários/hora por máquina.
 
-**É o primeiro modelo abaixo do Sonnet 5 que conserta o remédio partido E
-confessa. E roda numa máquina que já existe, sem o dado de paciente sair.**
+**O 27B puro é o primeiro modelo abaixo do Sonnet 5 que conserta o remédio
+partido E confessa. E roda numa máquina que já existe, sem o dado de paciente
+sair.** O "destilado do Claude" — o boato do "Claude copiado" — é um Qwen
+treinado imitando respostas do Claude: escreve mais bonito, com markdown, e
+**trocou dipirona por piroxicam 1 g** (dose 50× a usual) enquanto confessava a
+troca com toda a confiança. Transparência não salva conserto errado.
 
 ## Só preço de tabela (não medidos — sem conta ou sem contrato de dados)
 
