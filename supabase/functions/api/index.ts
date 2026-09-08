@@ -38,6 +38,7 @@ function extDe(m: string): string { const b = mimeBase(m); return b === "audio/w
 // médico para, o texto já está pronto — o prontuário sai em segundos.
 const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
 // Modelo por tarefa (medido em 07/09, docs/gravador-v2.md §custo):
 // - monitor ("é saúde? terminou?", 30x/hora): pergunta grosseira. O 3.5-flash-lite
 //   acerta igual e custa 4x menos que o 3.7 ($0,010/h contra $0,041/h). O 3.7 pensa

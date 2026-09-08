@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 const API = "https://xzknmihhtgwggpndpivb.supabase.co/functions/v1/api?action=lab-audio";
-const TOK = "1e0c868529d1ecd36ecfb635686bdfbca877c0e75e6357a65249a391773282a5";
+const TOK = process.env.MARIA_SESSION_TOKEN;
 const PRECO = { "gemini-3.7-flash": [0.75, 3.75], "gemini-3.5-flash-lite": [0.30, 2.50] };
 const PROMPT = `Transcreva este áudio em português do Brasil, palavra por palavra, exatamente como foi dito — não corrija, não resuma, não omita hesitações. É uma consulta de saúde gravada pelo celular.
 Identifique quem fala. Escreva cada fala numa linha começando com MÉDICO: ou PACIENTE: (ou OUTRO: para terceiros, como uma criança ou alguém ao fundo). Não escreva mais nada além das falas.`;
