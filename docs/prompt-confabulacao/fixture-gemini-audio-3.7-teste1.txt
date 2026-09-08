@@ -1,0 +1,14 @@
+MÉDICO: Bom dia, senhora Ana, pode sentar. Me conte o que tá sentindo.
+PACIENTE: Doutor, faz umas três semanas que eu venho com uma dor no joelho direito. Começou depois que eu voltei a caminhar no parque.
+MÉDICO: Entendi. Essa dor é o dia inteiro ou piora em algum momento?
+PACIENTE: Piora quando eu subo escada e quando eu levanto da cadeira depois de ficar muito tempo sentada. À noite melhora um pouco.
+MÉDICO: A senhora sentiu o joelho inchar ou travar ou falhar em algum momento?
+PACIENTE: Inchar um pouco sim, principalmente no fim do dia, travar não.
+MÉDICO: A senhora está tomando alguma me- eh medicação?
+PACIENTE: Só Losartana para pressão, 50 mg todo dia de manhã.
+MÉDICO: Tem alguma alergia a algum remédio?
+PACIENTE: Não que eu saiba.
+MÉDICO: Deixa eu examinar. Estende a perna pra mim. Tem dor aqui na parte de dentro do joelho?
+PACIENTE: Aí tem sim, bem aí.
+MÉDICO: Certo. Encontrei dor à palpação na região medial, sem derrame articular importante. E a amplitude de de movimento está preservada. O que a senhora tem provavelmente é uma condropatia patelar, que é um desgaste na cartilagem, agravado pelo aumento de carga da caminhada. A segunda hipótese é uma lesão no menisco medial, menos provável porque não teve travamento. Vamos fazer o seguinte, vou pedir uma ressonância magnética do joelho direito, prescrevo dipirona 1 g até 6 em 6 horas se se se tiver dor, e gelo por 20 minutos, duas vezes ao dia. Suspenda a caminhada no parque por duas semanas, pode fazer bicicleta ergométrica sem carga, que não castiga a articulação. Vou encaminhar para a fisioterapia com foco em fortalecimento no quadríceps. Retorno em 21 dias com o exame na mão. Se o joelho inchar muito, travar ou a dor ficar insuportável, procure o pronto-socorro antes. Ficou alguma dúvida, Sra. Ana?
+PACIENTE: Não, doutor, ficou claro. Obrigada.
