@@ -228,6 +228,7 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
   const opts = { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: bitrate }
   const vivos = new Set()
   let atual = null, seq = 0, parando = false, inicioAtual = 0, timerStop = null, houveSomNoAtual = false, mudoAvisado = false
+  const MIN_FALA_MS = 500   // pedaço só sobe se teve ≥ 0,5 s de FALA (não só som): 07/09 um pedaço de 12 s de respiração virou "." e custou 12 s
   const podePausar = typeof MediaRecorder.prototype.pause === 'function'   // Safari 14.1+, Chrome, Firefox
 
   function novo() {
@@ -238,11 +239,12 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
     rec.gravadoMs = 0            // tempo com o gravador rodando (sem as pausas)
     rec.ultimoResume = inicio
     rec.pausado = false
+    rec.msComFala = 0            // ticks em que houve fala (limiar de fala, não de som)
     rec.terminou = new Promise(res => {
       rec.ondataavailable = e => { if (e.data.size > 0) partes.push(e.data) }
       rec.onstop = () => {
         vivos.delete(rec)
-        if (rec.descartar) { res(); return }                    // mudo: não vira pedaço, não sobe, não custa
+        if (rec.descartar || rec.msComFala < MIN_FALA_MS) { res(); return }   // mudo ou só ruído/respiração: não sobe, não custa
         const blob = new Blob(partes, { type: rec.mimeType || mime || 'audio/webm' })
         const meuSeq = seq++                                     // numera só o que é enviado
         const gravado = rec.gravadoMs + (rec.pausado ? 0 : Date.now() - rec.ultimoResume)
@@ -284,6 +286,7 @@ export function criarGravadorEmPedacos(stream, { mime, bitrate, minMs = 20_000, 
     const agora = Date.now()
     const temSom = semSom() < 150
     const comecouAlgo = semSomFraco() < 100        // retomar é mais sensível que pausar
+    if (semFala() < 100 && atual.state === 'recording') atual.msComFala += 50
 
     // pausa/retoma: o silêncio não entra no arquivo
     if (podePausar && atual.state !== 'inactive') {
