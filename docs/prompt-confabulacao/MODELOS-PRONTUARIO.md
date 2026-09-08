@@ -26,6 +26,20 @@ dipirona`), idade inventada, markdown, JSON válido. 2 rodadas por modelo.
 | claude-haiku-4.5 | Anthropic | $0,012 | 17 s | 5/5 | **1/2** | ✓ | escreve certo, não confessa "de pirona"; 5× mais lento |
 | claude-sonnet-5 | Anthropic | $0,035–0,046 | 24–31 s | 5/5 | 2/2 | 1/2 (estourou 4 k tokens) | faz tudo; 6× o preço, 8× o tempo |
 
+## Rodando NO MAC (MLX, M4 Pro 24 GB) — custo zero por consulta
+
+| modelo | tok/s | tempo por prontuário | termos | confessa | JSON | veredito |
+|---|---|---|---|---|---|---|
+| Qwen3.5-9B-4bit | 27 | 60 s | 3/5 — não conserta "de pirona" nem "psiculécia" | 2/2 (vê o erro, lista, mas não corrige no texto) | ✓ | não serve |
+| **Qwen3.8-27B-4bit** | 7,5* | 225 s* | **5/5** | **2/2** + declarou "provamento → travamento" e "les → lesão" | ✓ | **passa na mesma régua do Gemini 3.7** (1 rodada; 2ª rodando) |
+
+*Medido com o Mac no limite de memória (0,1 GB livre, swap). Num Mac mini Pro
+de 32 GB — que o Rodrigo tem, parados — roda sem swap; estimativa 10–15 tok/s,
+~2 min por prontuário, ~30 prontuários/hora por máquina.
+
+**É o primeiro modelo abaixo do Sonnet 5 que conserta o remédio partido E
+confessa. E roda numa máquina que já existe, sem o dado de paciente sair.**
+
 ## Só preço de tabela (não medidos — sem conta ou sem contrato de dados)
 
 | modelo | onde | entrada / saída (por M) | ≈ $/chamada | LGPD |

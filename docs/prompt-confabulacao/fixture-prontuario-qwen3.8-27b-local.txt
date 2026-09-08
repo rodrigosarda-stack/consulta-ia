@@ -1,0 +1,117 @@
+CLASSIFICACAO: consulta_saude
+
+---TRECHOS---
+Doutor, faz umas três semanas Que eu venho com uma dor no joelho direito
+Piora quando subo escada
+Quando eu levanto da cadeira
+Depois de ficar muito tempo sentada
+À noite melhora um pouco
+Inchar um pouco sim, principalmente no fim do dia
+Travar não
+Só losartana para pressão, 50mg todo dia de manhã
+Alergia a algum medicamento? Não que eu saiba
+Tem dor aqui na parte de dentro do joelho? Aí tem sim, bem aí
+Encontrei dor, a palpação na região medial, sem derrame articular importante, e a amplitude do movimento está preservada
+O que a senhora tem provavelmente uma condropatia patelar que um desgaste na cartilagem agravado pelo aumento da carga da caminhada
+A segunda hip uma les no menisco medial
+Menos provável, porque não teve provamento
+Vou pedir uma ressonância magnética do joelho direito
+Prescrevo de pirona 1 grama até de 6 em 6 horas, se tiver dor
+E gelo por 20 minutos, duas vezes ao dia
+Suspenda a caminhada no parque por duas semanas
+Pode fazer psiculécia ergométrica sem carga
+Vou encaminhar para fisioterapia
+Com foco em fortalecimento no quadríceps
+retorno em 21 dias com exames na mão
+se o joelho inchar muito travar ou a dor ficar insuportável procura o pronto-socorro antes
+---FIM-TRECHOS---
+
+RESUMO
+Paciente apresenta dor no joelho direito há 3 semanas, piora com esforço e melhora com repouso, associada a leve edema vespertino.
+Diagnóstico provável de condropatia patelar, com lesão de menisco medial como hipótese secundária.
+Prescrito dipirona, crioterapia, suspensão de caminhada, bicicleta ergométrica sem carga e fisioterapia; solicitada ressonância magnética.
+
+1. QUEIXA PRINCIPAL
+Dor no joelho direito há 3 semanas, iniciada após retorno à prática de caminhada.
+
+2. HISTORIA DA DOENCA ATUAL
+Dor que piora ao subir escadas, levantar da cadeira e após permanecer sentada por muito tempo; melhora à noite. Relata leve inchaço no fim do dia, sem histórico de travamento ou falha articular.
+Medicação em uso: Losartana 50mg, 1x/dia, pela manhã.
+Alergia medicamentosa: Nega.
+
+3. EXAME FISICO
+Dor à palpação na região medial do joelho direito.
+Sem derrame articular importante.
+Amplitude de movimento preservada.
+
+4. HIPOTESES DIAGNOSTICAS
+- Condropatia patelar (desgaste da cartilagem agravado por aumento de carga).
+- Lesão de menisco medial (menos provável, devido à ausência de sinais de bloqueio/travamento).
+
+5. CONDUTA
+- Solicitar ressonância magnética do joelho direito.
+- Prescrever Dipirona 1g, a cada 6 horas, se houver dor.
+- Aplicar gelo por 20 minutos, 2x/dia.
+- Suspender caminhada no parque por 2 semanas.
+- Permitir bicicleta ergométrica sem carga.
+- Encaminhar para fisioterapia com foco em fortalecimento do quadríceps.
+- Retorno em 21 dias com exames.
+- Orientação: procurar pronto-socorro se houver aumento significativo do inchaço, travamento ou dor insuportável.
+
+O QUE EU INTERPRETEI
+- ouvi "condropatia patelar" -> escrevi "Condropatia patelar" (correção de grafia para termo médico padrão)
+- ouvi "les no menisco medial" -> escrevi "Lesão de menisco medial" (completamento de palavra truncada)
+- ouvi "não teve provamento" -> escrevi "ausência de sinais de bloqueio/travamento" (interpretação do contexto clínico, pois "provamento" é erro de transcrição para "travamento" ou "bloqueio")
+- ouvi "pirona" -> escrevi "Dipirona" (correção de nome do medicamento)
+- ouvi "psiculécia ergométrica" -> escrevi "bicicleta ergométrica" (correção de termo de exercício)
+
+---JSON---
+{
+  "classificacao": "consulta_saude",
+  "resumo": "Paciente com dor no joelho direito há 3 semanas, piora com esforço e leve edema. Diagnóstico provável de condropatia patelar. Prescrito dipirona, gelo, suspensão de caminhada, bicicleta sem carga e fisioterapia. Solicitada RM.",
+  "queixa_principal": "Dor no joelho direito há 3 semanas, iniciada após retorno à prática de caminhada.",
+  "historia_doenca_atual": "Dor que piora ao subir escadas, levantar da cadeira e após permanecer sentada; melhora à noite. Relata leve inchaço no fim do dia, sem travamento. Em uso de Losartana 50mg. Nega alergias.",
+  "exame_fisico": "Dor à palpação na região medial do joelho direito. Sem derrame articular importante. Amplitude de movimento preservada.",
+  "hipoteses_diagnosticas": [
+    "Condropatia patelar",
+    "Lesão de menisco medial"
+  ],
+  "conduta": [
+    "Solicitar ressonância magnética do joelho direito",
+    "Prescrever Dipirona 1g, a cada 6 horas, se houver dor",
+    "Aplicar gelo por 20 minutos, 2x/dia",
+    "Suspender caminhada no parque por 2 semanas",
+    "Permitir bicicleta ergométrica sem carga",
+    "Encaminhar para fisioterapia com foco em fortalecimento do quadríceps",
+    "Retorno em 21 dias com exames",
+    "Procurar pronto-socorro se houver aumento de inchaço, travamento ou dor insuportável"
+  ],
+  "interpretacoes": [
+    {
+      "ouvi": "condropatia patelar",
+      "escrevi": "Condropatia patelar",
+      "por_que": "Correção de grafia para termo médico padrão"
+    },
+    {
+      "ouvi": "les no menisco medial",
+      "escrevi": "Lesão de menisco medial",
+      "por_que": "Completamento de palavra truncada"
+    },
+    {
+      "ouvi": "não teve provamento",
+      "escrevi": "ausência de sinais de bloqueio/travamento",
+      "por_que": "Interpretação do contexto clínico, 'provamento' é erro para 'travamento'"
+    },
+    {
+      "ouvi": "pirona",
+      "escrevi": "Dipirona",
+      "por_que": "Correção de nome do medicamento"
+    },
+    {
+      "ouvi": "psiculécia ergométrica",
+      "escrevi": "bicicleta ergométrica",
+      "por_que": "Correção de termo de exercício"
+    }
+  ],
+  "resumo_curto": "Dor no joelho direito, suspeita de condropatia patelar, prescrito repouso relativo, analgésico e fisioterapia, solicitada RM."
+}
