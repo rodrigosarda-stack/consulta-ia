@@ -73,3 +73,18 @@ troca com toda a confiança. Transparência não salva conserto errado.
 
 Scripts: `medir-*.mjs` desta pasta (precisam das actions `lab-*`, removidas —
 estão no histórico do git).
+
+## 08/09/2026 (noite) — MoE de poucos ativos no MacBook: velocidade confirmada, qualidade da versão podada REPROVADA
+
+Motivação: as pesquisas apontaram MoE "A3B" (3B ativos) como 5–10× mais rápido que o denso 27B em Apple Silicon. O oficial `Qwen3.6-35B-A3B` em 4-bit MLX tem **20,4 GB** — não cabe no MacBook de 24 GB. Testei a única variante que cabe: `mlx-community/Qwen3.6-35B-A3B-OptiQ-4bit-REAP-19B` (14,9 GB; REAP = experts podados de 35B → 19B).
+
+| | carga | geração | tok/s | termos | INTERPRETEI | psiculécia | de pirona | JSON |
+|---|---|---|---|---|---|---|---|---|
+| r1 | 7 s | 72,0 s | **40,1** | 2/5 (losartana, condropatia) | ✓ | ✓ | ✗ | ✓ |
+| r2 | 7 s | 71,3 s | **42,1** | 2/5 | ✓ | ✓ | ✗ | ✗ |
+
+**Velocidade: 5× o denso** (40 tok/s vs 7,5–8; 72 s vs ~200 s por prontuário). Isso confirma a tese da pesquisa: 3B ativos leem ~2 GB por token em vez de 15.
+
+**Qualidade: inutilizável.** Escreveu em inglês misturado com português ("Prescrevo of pirona 1 gram until of 6 in 6 hours"), trocou "pirona" por **"Losartana 1 g a cada 6 h"** (r1) e por "pain relief" (r2), "psiculécia ergométrica" virou "psychological ergometrics", "travamento" e "bicicleta" sumiram, e na r2 entrou em loop ("Actually, condropatia might be condropatia…") e estourou o JSON. É colapso de idioma típico de poda de experts: os experts que carregavam o português foram cortados.
+
+**Conclusão honesta:** o resultado **não diz nada sobre o Qwen3.6-35B-A3B completo** — só sobre a versão podada. Diz duas coisas: (1) a velocidade do MoE é real e resolve o gargalo do mini; (2) **terceira variante "derivada" reprovada** (destilado, REAP… só pesos oficiais daqui pra frente). O teste que vale — modelo completo de 20,4 GB, 1/4/8 em lote — precisa de um **Mac de 32 GB**. Saída bruta: `local-qwen3.6-35B-A3B-REAP-19B-r1-2026-09-08.txt`.

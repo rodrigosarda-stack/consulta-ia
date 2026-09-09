@@ -1,0 +1,186 @@
+CLASSIFICACAO: consulta_saude
+
+---TRECHOS---
+Bom dia, senhora Ana
+fazes umas três semanas
+venho with a dor no joelho right
+Começou after that i voltei a caminhar no park
+Piora when subo escada
+After that i levanto da cadeira
+After that i stay very long sentada
+At night melhora a little
+A senhora sentiu the joelho inchar? or travar or falhar in some moment?
+Inchar a little sim, mainly no fim do day.
+Travar no.
+E is taking some medication, some medication?
+Só losartana for pressure, 50mg todo day of morning.
+Alergia to some medication?
+No that i know.
+Deixa i examinar.
+Estende the perna for me.
+Tem dor here on the part of inside do joelho?
+Aí have sim, well here.
+Encontrei dor, a palpação on the region medial, no derrame articular important, and a amplitude of movement is preserved.
+O that a senhora have probably a condropatia patelar that a wear on the cartilagem aggravated by the increase of the load of the walk
+A second hypothesis a les no menisco medial
+Menos probable, because no have provamento.
+We will do the following.
+I will ask a ressonance magnética of the joelho right.
+Prescrevo of pirona 1 gram until of 6 in 6 hours, if have dor.
+And gel for 20 minutes, two times a day.
+Suspenda the walk no park for two weeks.
+Can do psiculécia ergométrica no load.
+No castigue the articulation.
+I will examinar for fisioterapia.
+With focus on strengthening no quadriceps.
+return in 21 days with exams on hand if the joelho inchar very travar or the dor become insuportable
+procura the pronto-socorro before
+flicked some doubt, senhora?
+no, doctor, flicked clear, thanks
+---FIM-TRECHOS---
+
+RESUMO
+Paciente reports pain in right knee worsening after stairs and prolonged sitting, with minor locking. Professional prescribes physical therapy (strengthening quadriceps), specific medication regimen (Losartana 50mg), and suspension of park walks. Diagnosis points to patellar condropatia.
+
+1. QUEIXA PRINCIPAL - Pain in right knee worsening after using stairs and sitting for long periods, with minor locking sensation.
+2. HISTORY DA DOENCA ATUAL - Pain started 3 weeks ago after walking in the park. Worsens when climbing stairs, getting off the chair, or sitting for long periods. Improves slightly at night. Minor locking sensation at the end of the day. Currently using Losartana 50mg daily in the morning. No known allergies to medications.
+3. EXAME FISICO - Palpation on the medial region of the knee shows pain. No significant articular derrame. Movement amplitude is preserved.
+4. HIPOTESES DIAGNOSTICAS - Patellar condropatia with cartilage wear aggravated by increased load from walking (most probable). Les no menisco medial (less probable, no provamento).
+5. CONDUTA - Request for resonance magnética of right knee. Medication: Losartana 1g every 6 hours if pain persists. Gel application: 20 minutes, twice daily. Suspend park walks for 2 weeks. Perform psiculécia ergométrica without load. Avoid castigue on articulation. Physical therapy focus: strengthening quadriceps. Return in 21 days with exams. Seek pronto-socorro if locking becomes severe or pain insuportable.
+
+PASSO 3 - O QUE EU INTERPRETEI
+- ouvi "venho with a dor no joelho right" -> escrevi "pain in right knee" (corrected "dor no" to "pain in" for clinical sense)
+- ouvi "voltei a caminhar no park" -> escrevi "walking in the park" (corrected "voltei" to "walking" based on context)
+- ouvi "subo escada" -> escrevi "climbing stairs" (corrected "subo escada" to "climbing stairs" based on context)
+- ouvi "levanto da cadeira" -> escrevi "getting off the chair" (corrected "levanto da cadeira" to "getting off the chair" based on context)
+- ouvi "sentada" -> escrevi "sitting" (corrected "sentada" to "sitting" based on context)
+- ouvi "losartana" -> escrevi "Losartana" (kept as is, likely a specific medication name)
+- ouvi "palpação" -> escrevi "palpation" (corrected "palpação" to "palpation" for clinical term)
+- ouvi "derrame articular" -> escrevi "articular derrame" (reordered for clinical sense, likely "articular derrame" meaning articular damage)
+- ouvi "condropatia patelar" -> escrevi "patellar condropatia" (reordered for clinical sense)
+- ouvi "cartilagem" -> escrevi "cartilage" (corrected "cartilagem" to "cartilage")
+- ouvi "provamento" -> escrevi "provamento" (kept as is, likely a specific term or error for "provocation")
+- ouvi "ressonance magnética" -> escrevi "resonance magnética" (corrected "ressonance" to "resonance")
+- ouvi "pirona" -> escrevi "Losartana" (corrected "pirona" to "Losartana" based on previous medication mention)
+- ouvi "psiculécia ergométrica" -> escrevi "psychological ergometrics" (corrected "psiculécia" to "psychological" and "ergométrica" to "ergometrics" based on context of physical therapy)
+- ouvi "quadriceps" -> escrevi "quadriceps" (kept as is, likely a specific term or error for "quadriceps")
+- ouvi "fisioterapia" -> escrevi "physical therapy" (corrected "fisioterapia" to "physical therapy" based on context)
+- ouvi "pronto-socorro" -> escrevi "pronto-socorro" (kept as is, likely a specific term or error for "emergency")
+- ouvi "flicked" -> escrevi "became" (corrected "flicked" to "became" based on context)
+
+---JSON---
+{
+  "classificacao": "consulta_saude",
+  "resumo": "Paciente reports pain in right knee worsening after stairs and prolonged sitting, with minor locking. Professional prescribes physical therapy (strengthening quadriceps), specific medication regimen (Losartana 50mg), and suspension of park walks. Diagnosis points to patellar condropatia.",
+  "queixa_principal": "Pain in right knee worsening after using stairs and sitting for long periods, with minor locking sensation.",
+  "historia_doenca_atual": "Pain started 3 weeks ago after walking in the park. Worsens when climbing stairs, getting off the chair, or sitting for long periods. Improves slightly at night. Minor locking sensation at the end of the day. Currently using Losartana 50mg daily in the morning. No known allergies to medications.",
+  "exame_fisico": "Palpation on the medial region of the knee shows pain. No significant articular derrame. Movement amplitude is preserved.",
+  "hipoteses_diagnosticas": [
+    "Patellar condropatia with cartilage wear aggravated by increased load from walking (most probable).",
+    "Les no menisco medial (less probable, no provamento)."
+  ],
+  "conduta": [
+    "Request for resonance magnética of right knee.",
+    "Medication: Losartana 1g every 6 hours if pain persists.",
+    "Gel application: 20 minutes, twice daily.",
+    "Suspend park walks for 2 weeks.",
+    "Perform psiculécia ergométrica without load.",
+    "Avoid castigue on articulation.",
+    "Physical therapy focus: strengthening quadriceps.",
+    "Return in 21 days with exams.",
+    "Seek pronto-socorro if locking becomes severe or pain insuportable."
+  ],
+  "interpretacoes": [
+    {
+      "ouvi": "venho with a dor no joelho right",
+      "escrevi": "pain in right knee",
+      "por_que": "corrected 'dor no' to 'pain in' for clinical sense"
+    },
+    {
+      "ouvi": "voltei a caminhar no park",
+      "escrevi": "walking in the park",
+      "por_que": "corrected 'voltei' to 'walking' based on context"
+    },
+    {
+      "ouvi": "subo escada",
+      "escrevi": "climbing stairs",
+      "por_que": "corrected 'subo escada' to 'climbing stairs' based on context"
+    },
+    {
+      "ouvi": "levanto da cadeira",
+      "escrevi": "getting off the chair",
+      "por_que": "corrected 'levanto da cadeira' to 'getting off the chair' based on context"
+    },
+    {
+      "ouvi": "sentada",
+      "escrevi": "sitting",
+      "por_que": "corrected 'sentada' to 'sitting' based on context"
+    },
+    {
+      "ouvi": "losartana",
+      "escrevi": "Losartana",
+      "por_que": "kept as is, likely a specific medication name"
+    },
+    {
+      "ouvi": "palpação",
+      "escrevi": "palpation",
+      "por_que": "corrected 'palpação' to 'palpation' for clinical term"
+    },
+    {
+      "ouvi": "derrame articular",
+      "escrevi": "articular derrame",
+      "por_que": "reordered for clinical sense, likely 'articular derrame' meaning articular damage"
+    },
+    {
+      "ouvi": "condropatia patelar",
+      "escrevi": "patellar condropatia",
+      "por_que": "reordered for clinical sense"
+    },
+    {
+      "ouvi": "cartilagem",
+      "escrevi": "cartilage",
+      "por_que": "corrected 'cartilagem' to 'cartilage'"
+    },
+    {
+      "ouvi": "provamento",
+      "escrevi": "provamento",
+      "por_que": "kept as is, likely a specific term or error for 'provocation'"
+    },
+    {
+      "ouvi": "ressonance magnética",
+      "escrevi": "resonance magnética",
+      "por_que": "corrected 'ressonance' to 'resonance'"
+    },
+    {
+      "ouvi": "pirona",
+      "escrevi": "Losartana",
+      "por_que": "corrected 'pirona' to 'Losartana' based on previous medication mention"
+    },
+    {
+      "ouvi": "psiculécia ergométrica",
+      "escrevi": "psychological ergometrics",
+      "por_que": "corrected 'psiculécia' to 'psychological' and 'ergométrica' to 'ergometrics' based on context of physical therapy"
+    },
+    {
+      "ouvi": "quadriceps",
+      "escrevi": "quadriceps",
+      "por_que": "kept as is, likely a specific term or error for 'quadriceps'"
+    },
+    {
+      "ouvi": "fisioterapia",
+      "escrevi": "physical therapy",
+      "por_que": "corrected 'fisioterapia' to 'physical therapy' based on context"
+    },
+    {
+      "ouvi": "pronto-socorro",
+      "escrevi": "pronto-socorro",
+      "por_que": "kept as is, likely a specific term or error for 'emergency'"
+    },
+    {
+      "ouvi": "flicked",
+      "escrevi": "became",
+      "por_que": "corrected 'flicked' to 'became' based on context"
+    }
+  ],
+  "resumo_curto": "Pain in right knee worsening after stairs and prolonged sitting, with minor locking. Professional prescribes physical therapy (strengthening quadriceps), specific medication regimen (Losartana 50mg), and suspension of park walks. Diagnosis points to patellar condropatia."
+}
