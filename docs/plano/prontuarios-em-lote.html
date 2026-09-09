@@ -1,0 +1,174 @@
+<title>Prontuários em lote</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.14);--ambar:#c98a1b;--vermelho:#c94f4f;--roxo:#8b6bd1;--modelo:#4c7fb5}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--vermelho:#e07070;--roxo:#ad95e6;--modelo:#7fa9db}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--vermelho:#e07070;--roxo:#ad95e6;--modelo:#7fa9db}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.6}
+  main{max-width:46rem;margin:0 auto;padding:3rem 1.25rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.4rem;line-height:1.1;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.6rem;margin:3rem 0 .75rem;text-wrap:balance}
+  p{margin:0 0 1rem;max-width:65ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.25rem;color:var(--tinta-2);line-height:1.45}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1.1rem 1.25rem;margin:1.25rem 0}
+  /* fato 1: a leitura */
+  .leitura{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin:1rem 0}
+  .bloco{border:1px solid var(--linha);border-radius:8px;padding:.8rem;text-align:center;background:var(--papel)}
+  .bloco .t{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza)}
+  .bloco .g{font-family:"Newsreader",Georgia,serif;font-size:1.6rem;margin:.2rem 0}
+  .seta{font-size:1.6rem;color:var(--cinza);text-align:center}
+  .barra-tempo{display:flex;height:26px;border-radius:6px;overflow:hidden;border:1px solid var(--linha);margin:.75rem 0 .25rem}
+  .barra-tempo span{display:grid;place-items:center;font-size:.75rem;color:#fff;font-weight:600}
+  /* animação */
+  .palco{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1rem 1.1rem 1.25rem;margin:1.25rem 0}
+  .controle{display:grid;grid-template-columns:1fr auto;gap:.5rem 1rem;align-items:center;margin-bottom:.75rem}
+  .controle label{font-weight:500}
+  .controle .val{font-family:"Newsreader",Georgia,serif;font-size:1.8rem;min-width:3ch;text-align:right;font-variant-numeric:tabular-nums}
+  .controle input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--teal)}
+  .faixas{display:grid;gap:6px;margin:.75rem 0}
+  .faixa{display:grid;grid-template-columns:5.5rem 1fr;gap:.6rem;align-items:center;font-size:.82rem;color:var(--tinta-2)}
+  .trilho{position:relative;height:16px;background:var(--papel);border:1px solid var(--linha);border-radius:4px;overflow:hidden}
+  .trilho i{position:absolute;top:0;bottom:0;left:0;width:0;background:var(--teal);opacity:.85}
+  .trilho.leitura i{background:var(--modelo)}
+  .trilho .fim{position:absolute;right:6px;top:0;font-size:.7rem;line-height:16px;color:var(--cinza)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin-top:1rem}
+  .kpis div{background:var(--papel);padding:.7rem .8rem}
+  .kpis .n{font-family:"Newsreader",Georgia,serif;font-size:1.5rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .kpis .n.ruim{color:var(--vermelho)} .kpis .n.aviso{color:var(--ambar)} .kpis .n.bom{color:var(--teal-escuro)}
+  .kpis .l{font-size:.75rem;color:var(--cinza);margin-top:.15rem}
+  @media (max-width:560px){.kpis{grid-template-columns:1fr 1fr}.leitura{grid-template-columns:1fr}.seta{transform:rotate(90deg)}}
+  .aviso{border-left:3px solid var(--ambar);background:var(--papel);padding:.6rem .9rem;border-radius:0 6px 6px 0;font-size:.9rem;color:var(--tinta-2);margin-top:.75rem;min-height:2.4em}
+  .memoria{display:flex;height:22px;border-radius:6px;overflow:hidden;border:1px solid var(--linha);margin:.5rem 0 .25rem}
+  .memoria span{display:grid;place-items:center;font-size:.72rem;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden}
+  .leg{font-size:.8rem;color:var(--cinza)}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.5rem 0 1rem}
+  th{text-align:right;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.3rem .6rem .5rem;border-bottom:1px solid var(--linha)}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:.5rem .6rem;border-bottom:1px solid var(--linha);text-align:right;font-variant-numeric:tabular-nums}
+  tr.atual td{background:var(--teal-fundo);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  .tabela-wrap{overflow-x:auto}
+  button{font:inherit;font-size:.85rem;background:var(--papel);border:1px solid var(--linha);color:var(--tinta-2);border-radius:6px;padding:.35rem .7rem;cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .nota{font-size:.85rem;color:var(--cinza)}
+  @media (prefers-reduced-motion: reduce){.trilho i{transition:none}}
+</style>
+<main>
+  <div class="eyebrow">MarIA · como um Mac mini escreve prontuários</div>
+  <h1>Prontuários em lote</h1>
+  <p class="lead">Por que um Mac que escreve <em>um</em> prontuário em 3 minutos consegue escrever <em>quatro</em> em 3 minutos e meio — e onde isso para de funcionar.</p>
+
+  <h2>1. O que leva tempo não é pensar. É ler.</h2>
+  <p>O modelo (Qwen 27B) é um arquivo de <strong>15 GB</strong> na memória do Mac. Pra escrever <strong>cada palavra</strong>, o processador precisa ler esses 15 GB inteiros — do começo ao fim — e depois fazer uma conta pequena. E repete isso pra próxima palavra. E pra próxima.</p>
+  <div class="caixa">
+    <div class="leitura">
+      <div class="bloco"><div class="t">memória</div><div class="g">15 GB</div><div class="nota">o modelo inteiro</div></div>
+      <div class="seta">→</div>
+      <div class="bloco"><div class="t">processador</div><div class="g">1 palavra</div><div class="nota">"Dipirona"</div></div>
+    </div>
+    <div class="barra-tempo" aria-label="Onde vai o tempo de cada palavra">
+      <span style="width:90%;background:var(--modelo)">ler os 15 GB · ~90 %</span>
+      <span style="width:10%;background:var(--roxo)">pensar</span>
+    </div>
+    <p class="nota" style="margin:0">Num Mac mini Pro de 32 GB, a leitura leva uns 0,08 s. A conta, menos de 0,01 s. O processador passa quase todo o tempo <strong>esperando a leitura</strong>.</p>
+  </div>
+
+  <h2>2. A mesma leitura pode servir pra vários prontuários</h2>
+  <p>Se o Mac está escrevendo 4 prontuários ao mesmo tempo, ele lê os 15 GB <strong>uma vez</strong> e produz <strong>4 palavras</strong> — uma de cada prontuário. A leitura, que era o caro, é a mesma. A conta, que era barata, vira 4 contas baratas.</p>
+  <p>É um ônibus que faz a rota inteira pra levar um passageiro. Cabe mais gente no mesmo trajeto.</p>
+
+  <div class="palco" id="palco">
+    <div class="controle">
+      <label for="lote">Prontuários escritos ao mesmo tempo</label>
+      <span class="val mono" id="v-lote">1</span>
+      <input type="range" id="lote" min="1" max="20" step="1" value="1" aria-describedby="aviso">
+    </div>
+    <div class="faixas" id="faixas"></div>
+    <div class="kpis" aria-live="polite">
+      <div><div class="n mono" id="k-cada"></div><div class="l">cada prontuário leva</div></div>
+      <div><div class="n mono" id="k-hora"></div><div class="l">prontuários por hora, por mini</div></div>
+      <div><div class="n mono" id="k-mem"></div><div class="l">memória usada (de 32 GB)</div></div>
+      <div><div class="n mono" id="k-minis"></div><div class="l">minis pra 1.000 médicos*</div></div>
+    </div>
+    <div class="memoria" id="memoria" role="img" aria-label="Uso de memória"></div>
+    <div class="leg">■ modelo 15 GB &nbsp; ■ rascunho de cada prontuário em andamento &nbsp; ■ sistema</div>
+    <div class="aviso" id="aviso"></div>
+    <p class="nota" style="margin:.75rem 0 0">Toque em <button id="anima">▶ animar 20 palavras</button> pra ver a leitura (azul) e as palavras saindo (verde), com o número de prontuários escolhido.</p>
+  </div>
+
+  <h2>3. Então quanto mais, melhor?</h2>
+  <p>Até dois limites, e o controle acima mostra os dois:</p>
+  <div class="tabela-wrap"><table id="tabela"><thead><tr><th>juntos</th><th>cada um leva</th><th>por hora</th><th>memória</th><th>o que acontece</th></tr></thead><tbody></tbody></table></div>
+  <p><strong>Limite 1 — memória.</strong> Cada prontuário em andamento precisa de um "rascunho" na memória (tudo que já foi lido e escrito dele). Uns 0,8 GB cada. 32 GB − 15 GB do modelo − 4 GB do sistema = ~13 GB de folga → <strong>cabem uns 16</strong>. Passou disso, o Mac começa a usar o disco como memória e tudo despenca.</p>
+  <p><strong>Limite 2 — a conta deixa de ser barata.</strong> Com 1 prontuário a conta é 10 % do tempo; com 8, já é 80 %; com 12, a conta passa a leitura e vira ela o gargalo. A partir daí, juntar mais não acelera — só faz cada um esperar mais.</p>
+  <p>O ponto bom num mini Pro de 32 GB fica em <strong>4 a 8 juntos</strong>: 3,5 a 5× mais prontuários por hora, com cada um demorando só um pouco mais que sozinho.</p>
+
+  <h2>4. Onde isso entra na MarIA</h2>
+  <p>O médico não vê nada disso. Ele grava, aperta Parar, e o prontuário aparece. O que muda é <strong>no servidor</strong>: em vez de um mini escrever um prontuário por vez, ele espera alguns segundos, junta os que chegaram e escreve todos de uma vez. Se chegar mais do que ele dá conta, o excedente vai pro Gemini a R$ 0,03 — ninguém fica esperando.</p>
+  <h2>5. Medido de verdade (08/09, MacBook M4 Pro 24 GB)</h2>
+  <p>Rodei o Qwen3.8-27B escrevendo 1, 2 e 4 prontuários ao mesmo tempo, com a transcrição real e a régua completa.</p>
+  <div class="tabela-wrap"><table><thead><tr><th>juntos</th><th>cada um levou</th><th>por hora</th><th>ganho</th><th>régua</th></tr></thead><tbody>
+    <tr><td>1</td><td class="mono">3,4 min</td><td class="mono">17,8</td><td class="mono">×1,0</td><td style="text-align:left">passou</td></tr>
+    <tr><td>2</td><td class="mono">4,3 min</td><td class="mono">28,0</td><td class="mono">×1,6</td><td style="text-align:left">passou, os 2</td></tr>
+    <tr><td>4</td><td class="mono">6,1 min</td><td class="mono">39,3</td><td class="mono">×2,2</td><td style="text-align:left">passou, os 4</td></tr>
+  </tbody></table></div>
+  <p><strong>O que confirmou:</strong> o ônibus funciona e não piora nenhum prontuário. <strong>O que a teoria errou:</strong> o ganho com 4 foi ×2,2, não ×3,5. Cada passo ficou mais caro do que o simulador acima prevê, porque o Mac de 24 GB tem só 4 GB de folga pra os rascunhos e a leitura deles pesa. Num mini de 32 GB a folga é 17 GB, e com o modelo MoE (lê ~2 GB por palavra em vez de 15) a curva deve chegar mais perto do simulador. Isso ainda é estimativa; o resto desta seção é medição.</p>
+  <p class="nota">*Minis pra 1.000 médicos: 4 h gravadas por dia por médico, consulta de 35 min, ~690 prontuários por hora de pico, um mini escrevendo 10 horas por dia. O simulador das seções 2 e 3 usa o comportamento conhecido dos Macs M-series; a seção 5 tem o que foi medido.</p>
+</main>
+<script>
+(function(){
+  // modelo simples e honesto: tempo por passo = max(leitura, lote × conta) + pequeno custo fixo por prontuário
+  const LEITURA = 0.08, CONTA = 0.009, FIXO = 0.002, PALAVRAS = 1500, MEM_MODELO = 15, MEM_SIS = 4, MEM_RASCUNHO = 0.8, MEM_TOTAL = 32, PICO_H = 690, HORAS_MINI = 10;
+  const $ = id => document.getElementById(id);
+  const fmt = (v, d = 0) => v.toLocaleString('pt-BR', { maximumFractionDigits: d });
+  function calc(n){
+    const mem = MEM_MODELO + MEM_SIS + n * MEM_RASCUNHO;
+    const swap = mem > MEM_TOTAL;
+    let passo = Math.max(LEITURA, n * CONTA) + n * FIXO;
+    if (swap) passo *= 1 + (mem - MEM_TOTAL) * 1.5;   // disco como memória: despenca
+    const cada = passo * PALAVRAS;                     // s
+    const porHora = n * 3600 / cada;
+    const minis = Math.ceil(PICO_H / porHora);
+    return { mem, swap, passo, cada, porHora, minis, gargalo: n * CONTA > LEITURA ? 'conta' : 'leitura' };
+  }
+  function render(){
+    const n = +$('lote').value; const r = calc(n);
+    $('v-lote').textContent = n;
+    $('k-cada').textContent = r.cada >= 60 ? `${fmt(r.cada/60,1)} min` : `${fmt(r.cada)} s`;
+    $('k-hora').textContent = fmt(r.porHora);
+    const km = $('k-mem'); km.textContent = `${fmt(r.mem,1)} GB`; km.className = 'n mono ' + (r.swap ? 'ruim' : r.mem > 28 ? 'aviso' : 'bom');
+    $('k-minis').textContent = fmt(r.minis);
+    const pct = v => `${Math.min(100, 100 * v / MEM_TOTAL)}%`;
+    $('memoria').innerHTML = `<span style="width:${pct(MEM_MODELO)};background:var(--modelo)">modelo</span><span style="width:${pct(n*MEM_RASCUNHO)};background:var(--teal)">${n>2?'rascunhos':''}</span><span style="width:${pct(MEM_SIS)};background:var(--cinza)">sist.</span>${r.swap?`<span style="width:${pct(r.mem-MEM_TOTAL)};background:var(--vermelho)">disco!</span>`:''}`;
+    $('aviso').innerHTML = r.swap ? `<b>Estourou a memória.</b> ${fmt(r.mem,1)} GB não cabem em 32 — o Mac usa o disco como memória e cada prontuário passa a levar ${fmt(r.cada/60,1)} min. Pior que rodar um por vez.`
+      : r.gargalo === 'conta' ? `<b>A conta virou o gargalo.</b> Com ${n} juntos, as ${n} continhas por palavra já demoram mais que ler os 15 GB. Juntar mais não acelera — só faz cada prontuário esperar mais.`
+      : n === 1 ? `Um por vez: a cada palavra o Mac lê 15 GB pra produzir <b>uma</b> palavra. O processador fica ~90 % do tempo esperando.`
+      : `Cada leitura dos 15 GB produz <b>${n} palavras</b>. Cada prontuário demora um pouco mais (${fmt(r.cada/60,1)} min em vez de ${fmt(calc(1).cada/60,1)}), mas saem <b>${n}</b> em vez de 1.`;
+    // faixas
+    const f = $('faixas'); f.innerHTML = `<div class="faixa"><span>leitura 15 GB</span><div class="trilho leitura"><i data-k="L"></i><span class="fim">${fmt(r.passo*1000)} ms por palavra</span></div></div>` + Array.from({length: Math.min(n, 8)}, (_, i) => `<div class="faixa"><span>prontuário ${String.fromCharCode(65+i)}</span><div class="trilho"><i data-k="P"></i><span class="fim">${fmt(r.cada/60,1)} min</span></div></div>`).join('') + (n > 8 ? `<div class="faixa"><span></span><div class="nota">… e mais ${n-8} ao mesmo tempo</div></div>` : '');
+    // tabela
+    const tb = $('tabela').querySelector('tbody'); tb.innerHTML = '';
+    for (const k of [1,2,4,6,8,12,16,20]) { const c = calc(k); const oq = c.swap ? 'estourou a memória — despenca' : c.gargalo === 'conta' ? 'conta virou o gargalo — não acelera mais' : k === 1 ? 'leitura desperdiçada: 1 palavra por 15 GB' : 'mesma leitura, mais palavras'; tb.innerHTML += `<tr class="${k===n?'atual':''}"><td>${k}</td><td class="mono">${fmt(c.cada/60,1)} min</td><td class="mono">${fmt(c.porHora)}</td><td class="mono">${fmt(c.mem,1)} GB</td><td style="text-align:left;color:${c.swap?'var(--vermelho)':c.gargalo==='conta'?'var(--ambar)':'inherit'}">${oq}</td></tr>`; }
+    try { localStorage.setItem('maria-lote', String(n)); } catch {}
+  }
+  $('lote').addEventListener('input', render);
+  // animação: 20 passos; a leitura enche em cada passo; as palavras avançam 1/20 por passo
+  let anim = null;
+  $('anima').addEventListener('click', () => {
+    if (anim) { clearInterval(anim); anim = null; }
+    const n = +$('lote').value; const r = calc(n); const passoMs = Math.max(120, Math.min(600, r.passo * 3000));
+    let passo = 0; const L = document.querySelector('[data-k="L"]'); const Ps = [...document.querySelectorAll('[data-k="P"]')];
+    Ps.forEach(p => p.style.width = '0%'); L.style.transition = `width ${passoMs*0.7}ms linear`;
+    anim = setInterval(() => {
+      L.style.width = '0%'; requestAnimationFrame(() => { L.style.width = '100%'; });
+      setTimeout(() => Ps.forEach(p => { p.style.transition = 'width 120ms'; p.style.width = `${(passo+1) * 5}%`; }), passoMs * 0.7);
+      if (++passo >= 20) { clearInterval(anim); anim = null; }
+    }, passoMs);
+  });
+  let salvo = 1; try { salvo = +(localStorage.getItem('maria-lote') || 1) || 1; } catch {}
+  $('lote').value = Math.min(20, Math.max(1, salvo)); render();
+})();
+</script>

@@ -1,0 +1,663 @@
+<title>Projeto MarIA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--azul:#4c7fb5;--azul-fundo:rgba(76,127,181,.14);--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12);--roxo:#8b6bd1;--roxo-fundo:rgba(139,107,209,.14)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55}
+  main{max-width:62rem;margin:0 auto;padding:3rem 1.25rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.6rem;line-height:1.05;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.7rem;margin:3rem 0 .5rem;text-wrap:balance}
+  h3{font-size:.95rem;font-weight:600;margin:1.25rem 0 .4rem}
+  p{margin:0 0 1rem;max-width:68ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.25rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .num{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);font-weight:600;display:block;margin-top:3rem}
+  .num + h2{margin-top:.2rem}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  .placar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin:1.5rem 0}
+  .placar div{background:var(--papel-2);padding:.8rem .9rem}
+  .placar .n{font-family:"Newsreader",Georgia,serif;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .placar .l{font-size:.75rem;color:var(--cinza);margin-top:.15rem}
+  @media (max-width:700px){.placar{grid-template-columns:1fr 1fr}}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
+  .fig{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1rem;margin:1rem 0;overflow-x:auto}
+  .fig figcaption{font-size:.82rem;color:var(--cinza);margin-top:.6rem}
+  .fig svg{display:block;max-width:100%;height:auto}
+  pre.mermaid{margin:0 auto;background:transparent;font-size:15px;display:flex;justify-content:center}
+  .fig .mermaid svg{max-width:44rem}
+  .dois{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+  @media (max-width:700px){.dois{grid-template-columns:1fr}}
+  .dois .caixa{margin:0}
+  .dois h3{margin-top:0}
+  ul{margin:.25rem 0 1rem;padding-left:1.2rem} li{margin:.3rem 0}
+  .nota{font-size:.85rem;color:var(--cinza)}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px;margin:1rem 0}
+  table{border-collapse:collapse;width:100%;min-width:40rem;font-size:.9rem}
+  th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2)}
+  td{padding:.55rem .8rem;border-bottom:1px solid var(--linha);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.c{text-align:center;font-size:1.1rem;font-weight:600}
+  .sim{color:var(--teal-escuro)} .nao{color:var(--vermelho)} .meio{color:var(--ambar)}
+  .chip{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:.12rem .5rem;border-radius:999px;white-space:nowrap}
+  .c-ok{background:var(--teal-fundo);color:var(--teal-escuro)} .c-pend{background:var(--ambar-fundo);color:var(--ambar)} .c-novo{background:var(--roxo-fundo);color:var(--roxo)} .c-dec{background:var(--vermelho-fundo);color:var(--vermelho)}
+  /* barras */
+  .barras{display:grid;gap:.45rem;margin:.75rem 0}
+  .barra{display:grid;grid-template-columns:13rem 1fr 6rem;gap:.7rem;align-items:center;font-size:.86rem}
+  .barra .t{height:18px;background:var(--linha);border-radius:4px;overflow:hidden}
+  .barra .t i{display:block;height:100%;background:var(--teal)}
+  .barra .t i.v{background:var(--vermelho)} .barra .t i.a{background:var(--ambar)} .barra .t i.z{background:var(--azul)}
+  .barra .r{text-align:right;font-variant-numeric:tabular-nums}
+  /* linha do tempo */
+  .tl{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;margin:1rem 0}
+  @media (max-width:700px){.tl{grid-template-columns:1fr 1fr}}
+  .tl div{border-top:3px solid var(--teal);padding:.5rem .2rem 0;font-size:.85rem}
+  .tl b{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);margin-bottom:.2rem}
+  .fluxo{display:grid;gap:.4rem;margin:.3rem 0}
+  .fluxo div{display:grid;grid-template-columns:1.8rem 1fr;gap:.6rem;align-items:start;font-size:.95rem}
+  .fluxo b{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:999px;background:var(--teal);color:#062a26;font-size:.8rem}
+  .fluxo .seta{grid-template-columns:1.8rem 1fr;color:var(--cinza);padding-left:.35rem}
+  .bolha{max-width:80%;padding:.6rem .9rem;border-radius:14px;margin:.35rem 0;font-size:.92rem;line-height:1.45}
+  .bolha.eu{background:var(--teal-fundo);margin-left:auto;border-bottom-right-radius:4px}
+  .bolha.ia{background:var(--papel);border:1px solid var(--linha);border-bottom-left-radius:4px}
+  .bolha small{display:block;font-size:.7rem;color:var(--cinza);margin-bottom:.15rem;letter-spacing:.05em;text-transform:uppercase}
+  .par2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.5rem 0}
+  @media (max-width:640px){.par2{grid-template-columns:1fr}}
+  .par2 > div{background:var(--papel);border:1px solid var(--linha);border-radius:8px;padding:.7rem .9rem;font-size:.92rem}
+  .par2 b{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);margin-bottom:.3rem}
+  .par2 .ruim{border-color:var(--vermelho)} .par2 .bom{border-color:var(--teal-escuro)}
+  .fig .eixo{stroke:var(--linha);stroke-width:1} .fig svg text{font-family:"IBM Plex Sans",Arial,sans-serif;fill:var(--tinta-2)}
+  .aprov{display:grid;gap:.5rem;margin:1rem 0}
+  .aprov div{display:grid;grid-template-columns:2rem 1fr;gap:.6rem;align-items:start;padding:.6rem .8rem;border:1px solid var(--linha);border-radius:8px;background:var(--papel-2)}
+  .aprov .k{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--teal-escuro)}
+  .fonte{font-size:.8rem;color:var(--cinza)}
+  .laco text{font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;fill:var(--tinta)}
+  .laco .t1{font-size:14px;font-weight:600} .laco .t2{font-size:12px;fill:var(--tinta-2)} .laco .c{font-family:"Newsreader",Georgia,serif;font-size:17px;fill:var(--tinta)} .laco .c2{font-size:12px;fill:var(--cinza)}
+  .laco .no{fill:var(--papel);stroke:var(--linha);stroke-width:1.2} .laco .no.med{stroke:var(--azul)} .laco .no.pac{stroke:var(--teal-escuro)}
+  .laco .num{fill:var(--teal);} .laco .numt{font-size:13px;font-weight:700;fill:#062a26}
+  .laco .arco{fill:none;stroke:var(--teal-escuro);stroke-width:2.5}
+  .laco .anel{fill:none;stroke:var(--linha);stroke-width:1;stroke-dasharray:4 6}
+  .passos{display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.2rem;margin:1rem 0}
+  @media (max-width:700px){.passos{grid-template-columns:1fr}}
+  .passos div{display:grid;grid-template-columns:1.6rem 1fr;gap:.5rem;font-size:.9rem;align-items:start}
+  .passos b{display:inline-grid;place-items:center;width:1.4rem;height:1.4rem;border-radius:999px;background:var(--teal);color:#062a26;font-size:.8rem}
+  .base{display:grid;grid-template-columns:1fr;gap:.6rem;margin:1rem 0}
+  .base .topo{background:var(--teal-fundo);border:1px solid var(--teal-escuro);border-radius:8px;padding:.7rem 1rem;text-align:center;font-weight:600}
+  .base .seta{text-align:center;color:var(--cinza);font-size:1.3rem;line-height:1}
+  .base .quatro{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+  @media (max-width:700px){.base .quatro{grid-template-columns:1fr 1fr}}
+  .base .quatro div{background:var(--papel-2);border:1px solid var(--linha);border-radius:8px;padding:.7rem .8rem;font-size:.86rem}
+  .base .quatro b{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ambar);margin-bottom:.2rem}
+  .base .parede{border-left:3px solid var(--vermelho);padding:.5rem .9rem;font-size:.86rem;color:var(--tinta-2);background:var(--papel-2);border-radius:0 6px 6px 0}
+  .lados text{font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;fill:var(--tinta)}
+  .lados .h{font-size:16px;font-weight:600} .lados .i{font-size:13px;fill:var(--tinta-2)} .lados .k{font-size:11.5px;fill:var(--cinza)} .lados .tag{font-size:11px;font-weight:600;fill:#062a26}
+  .lados .bl{fill:var(--papel);stroke-width:1.4;rx:10} .lados .bl.med{stroke:var(--azul)} .lados .bl.pac{stroke:var(--teal-escuro)} .lados .bl.base{fill:var(--azul-fundo);stroke:var(--azul)}
+  .lados .fl{fill:none;stroke:var(--teal-escuro);stroke-width:2.5} .lados .fl.pont{stroke-dasharray:5 5;stroke:var(--ambar)}
+  .lados .pill{fill:var(--teal)}
+</style>
+<main>
+  <div class="eyebrow">Método 3A · Helena (MarIA) · 09/09/2026 · para aprovação</div>
+  <h1>Projeto MarIA, de ponta a ponta</h1>
+  <p class="lead">O médico grava a consulta no celular. O prontuário sai pronto. O paciente recebe o que o médico disse, e nunca mais perde. De graça. São 30 horas por mês de volta para o médico, um mês de trabalho por ano. A base de médicos e pacientes é o negócio.</p>
+
+  <div class="placar">
+    <div><div class="n">R$ 0</div><div class="l">para o médico, consultas de saúde sem limite</div></div>
+    <div><div class="n">~R$ 1</div><div class="l">custo por médico por mês, no desenho final</div></div>
+    <div><div class="n">30</div><div class="l">pagantes de R$ 47 bancam 1.000 médicos grátis</div></div>
+    <div><div class="n">30 h</div><div class="l">por mês de volta para o médico: 9 min por paciente</div></div>
+  </div>
+
+  <span class="num">1</span>
+  <h2>A ideia em um desenho</h2>
+  <p>Não é um programa de prontuário. É um <strong>laço entre médico e paciente</strong> que gira sozinho. O prontuário é a matéria-prima. O vínculo é o produto. A base é o negócio.</p>
+
+  <figure class="fig">
+    <svg class="laco" viewBox="-20 0 940 640" role="img" aria-label="O laço entre médico e paciente">
+      <defs><marker id="seta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--teal-escuro)"/></marker></defs>
+      <circle cx="450" cy="310" r="200" class="anel"/>
+      <path class="arco" marker-end="url(#seta)" d="M498.4,115.9 A200,200 0 0 1 593.9,171.1"/>
+      <path class="arco" marker-end="url(#seta)" d="M642.3,254.9 A200,200 0 0 1 642.3,365.1"/>
+      <path class="arco" marker-end="url(#seta)" d="M593.9,448.9 A200,200 0 0 1 498.4,504.1"/>
+      <path class="arco" marker-end="url(#seta)" d="M401.6,504.1 A200,200 0 0 1 306.1,448.9"/>
+      <path class="arco" marker-end="url(#seta)" d="M257.7,365.1 A200,200 0 0 1 257.7,254.9"/>
+      <path class="arco" marker-end="url(#seta)" d="M306.1,171.1 A200,200 0 0 1 401.6,115.9"/>
+      <text x="450" y="296" text-anchor="middle" class="c">Uma consulta gravada</text>
+      <text x="450" y="318" text-anchor="middle" class="c2">gira o laço sozinha</text>
+      <text x="450" y="336" text-anchor="middle" class="c2">azul = médico · verde = paciente</text>
+      <rect x="320.0" y="73.0" width="260" height="74" rx="10" class="no med"/>
+      <circle cx="352.0" cy="110" r="13" class="num"/><text x="352.0" y="115" text-anchor="middle" class="numt">1</text>
+      <text x="458" y="108" text-anchor="middle" class="t1">Médico grava a consulta</text>
+      <text x="458" y="125" text-anchor="middle" class="t2">no celular, sem instalar nada</text>
+      <rect x="506.0" y="173.0" width="260" height="74" rx="10" class="no med"/>
+      <circle cx="538.0" cy="210" r="13" class="num"/><text x="538.0" y="215" text-anchor="middle" class="numt">2</text>
+      <text x="644" y="208" text-anchor="middle" class="t1">Prontuário pronto</text>
+      <text x="644" y="225" text-anchor="middle" class="t2">médico revisa e assina em 1 minuto</text>
+      <rect x="506.0" y="373.0" width="260" height="74" rx="10" class="no pac"/>
+      <circle cx="538.0" cy="410" r="13" class="num"/><text x="538.0" y="415" text-anchor="middle" class="numt">3</text>
+      <text x="644" y="402" text-anchor="middle" class="t1">Paciente recebe no WhatsApp</text>
+      <text x="644" y="419" text-anchor="middle" class="t2">o que o médico disse, remédio,</text><text x="644" y="436" text-anchor="middle" class="t2">quando voltar, lembretes</text>
+      <rect x="320.0" y="473.0" width="260" height="74" rx="10" class="no pac"/>
+      <circle cx="352.0" cy="510" r="13" class="num"/><text x="352.0" y="515" text-anchor="middle" class="numt">4</text>
+      <text x="458" y="502" text-anchor="middle" class="t1">Histórico de vida do paciente</text>
+      <text x="458" y="519" text-anchor="middle" class="t2">todas as consultas, todos os</text><text x="458" y="536" text-anchor="middle" class="t2">médicos, um lugar só</text>
+      <rect x="134.0" y="373.0" width="260" height="74" rx="10" class="no pac"/>
+      <circle cx="166.0" cy="410" r="13" class="num"/><text x="166.0" y="415" text-anchor="middle" class="numt">5</text>
+      <text x="272" y="402" text-anchor="middle" class="t1">Paciente puxa o próximo médico</text>
+      <text x="272" y="419" text-anchor="middle" class="t2">“Doutor, o senhor usa a MarIA?”</text><text x="272" y="436" text-anchor="middle" class="t2">ou o médico pede acesso ao histórico</text>
+      <rect x="134.0" y="173.0" width="260" height="74" rx="10" class="no med"/>
+      <circle cx="166.0" cy="210" r="13" class="num"/><text x="166.0" y="215" text-anchor="middle" class="numt">6</text>
+      <text x="272" y="208" text-anchor="middle" class="t1">Novo médico entra</text>
+      <text x="272" y="225" text-anchor="middle" class="t2">e traz todos os pacientes dele</text>
+      <text x="450" y="600" text-anchor="middle" class="t2">cada médico ≈ 150 consultas por mês · cada consulta = um paciente com conta · cada paciente vê vários médicos por ano</text>
+      <text x="450" y="620" text-anchor="middle" class="c2">os números de consulta são a base do plano (4 h/dia, 35 min); o de médicos por paciente é estimativa</text>
+    </svg>
+    <figcaption>O laço. Entra por qualquer ponto: um médico convidado, ou um paciente que ouviu falar. Em uma consulta, vira os dois.</figcaption>
+  </figure>
+
+  <div class="passos">
+    <div><b>1</b><span><strong>Médico grava.</strong> Um link, aperta gravar, atende. A gravação para sozinha quando a consulta acaba.</span></div>
+    <div><b>2</b><span><strong>Prontuário pronto.</strong> Estruturado, sem inventar, com "o que eu interpretei". O médico revisa e copia para o sistema dele.</span></div>
+    <div><b>3</b><span><strong>Paciente recebe.</strong> Pelo WhatsApp, em linguagem simples: o remédio, a dose, o que fazer, quando voltar. E lembretes depois. Nunca mais perde o papel.</span></div>
+    <div><b>4</b><span><strong>Histórico de vida.</strong> Cada consulta se soma. Com o tempo o paciente tem toda a saúde dele num lugar só. É o aplicativo chefe da saúde da pessoa.</span></div>
+    <div><b>5</b><span><strong>O paciente puxa o próximo médico.</strong> Vai ao Dr. Pedro e pergunta. Ou o Dr. Pedro, já dentro, pede acesso ao histórico, e o paciente aceita.</span></div>
+    <div><b>6</b><span><strong>Novo médico entra.</strong> E traz todos os pacientes dele para o passo 1. O laço fecha e cresce a cada volta.</span></div>
+  </div>
+  <h3>Por que gira sem empurrar</h3>
+  <ul>
+    <li><strong>É de graça para os dois.</strong> Nenhum dos dois precisa decidir gastar. Só precisa dizer sim.</li>
+    <li><strong>O médico quer, porque fortalece o vínculo dele.</strong> O paciente lembra do que ele disse, recebe lembrete com o nome dele, sente que é lembrado. Isso é relacionamento, e relacionamento traz o paciente de volta.</li>
+    <li><strong>O paciente quer, porque nunca mais perde nada.</strong> E passa a cobrar dos outros médicos o mesmo.</li>
+  </ul>
+  <h3>Como o médico convida o médico</h3>
+  <div class="caixa">
+    <div class="fluxo">
+      <div><b>1</b><span>Dr. João pede para indicar. A Helena manda a ele uma mensagem pronta. O link dentro dela já carrega o telefone do João.</span></div>
+      <div class="seta"><span></span><span>↓</span></div>
+      <div><b>2</b><span>Ele encaminha para a Dra. Maria pelo WhatsApp. Não precisa explicar nada.</span></div>
+      <div class="seta"><span></span><span>↓</span></div>
+      <div><b>3</b><span>A Maria toca no link, o WhatsApp abre com a mensagem pronta, ela envia. A Helena lê o número no texto e registra o vínculo.</span></div>
+      <div class="seta"><span></span><span>↓</span></div>
+      <div><b>4</b><span>A indicação só conta quando a Maria grava a primeira consulta de saúde de verdade. Sem prêmio em dinheiro nem em Pro: o produto é o motivo. O motor de volume é o paciente.</span></div>
+    </div>
+    <div class="bolha ia" style="margin-top:.8rem"><small>a mensagem</small>🩺 Cansou de perder tempo escrevendo prontuário? Resolva de graça.<br>Teste a Helena: grava a consulta e o prontuário sai pronto em 2 minutos. De graça.<br>👉 [link]</div>
+  </div>
+  <h3>O que a base vira</h3>
+  <div class="base">
+    <div class="topo">Base: médicos validados por CRM/CRO · pacientes com conta · histórico de consultas cruzando médicos</div>
+    <div class="seta">↓</div>
+    <div class="quatro">
+      <div><b>mês 6</b>Serviços da Método 3A vendidos ao médico pelo canal: tráfego, social, marca</div>
+      <div><b>mês 12</b>Canal pharma e educação: a atenção do médico, segmentada por especialidade</div>
+      <div><b>mês 18</b>Dados anonimizados: o maior banco de consultas em português</div>
+      <div><b>mês 24</b>IA própria treinada na base: o valor da empresa</div>
+    </div>
+    <div class="parede"><strong>A parede.</strong> O que se vende é a atenção do médico e o dado anonimizado. O conteúdo identificado do paciente fica dentro, no CRM do médico e no histórico do paciente. Nunca é vendido. Memed e OpenEvidence ficaram grandes exatamente assim.</div>
+  </div>
+
+  <span class="num">2</span>
+  <h2>Os dois lados da mesma consulta</h2>
+  <p>Uma consulta gravada vira duas coisas: o prontuário do médico e a memória do paciente. Mesma base, duas lentes. E a identidade dos dois lados é o telefone, como já é hoje para o médico.</p>
+
+  <figure class="fig">
+    <svg class="lados" viewBox="-10 0 780 900" role="img" aria-label="Os dois lados da mesma consulta">
+      <defs><marker id="seta2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--teal-escuro)"/></marker><marker id="seta3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ambar)"/></marker></defs>
+      <rect x="60" y="20" width="640" height="196" class="bl med"/>
+      <text x="78" y="48" class="h">Médico</text>
+<rect x="550" y="32" width="134" height="20" rx="10" class="pill"/><text x="617" y="46" text-anchor="middle" class="tag">identidade = telefone + CRM</text>
+      <text x="78" y="74" class="i">• Grava no celular e esquece: para sozinho quando a consulta acaba</text>
+      <text x="78" y="94" class="i">• Recebe o prontuário com “o que eu interpretei” e revisa em 1 minuto</text>
+      <text x="78" y="114" class="i">• CRM (pago): linha do tempo, Conexão, Sobre a pessoa</text>
+      <text x="78" y="134" class="i">• Anexa receita, pedido de exame, vídeo de exercício para o paciente</text>
+      <text x="78" y="154" class="i">• Pede acesso ao histórico do paciente com outros médicos</text>
+
+      <path class="fl" marker-end="url(#seta2)" d="M380,216 L380,268"/>
+      <text x="395" y="248" class="k">grava</text>
+      <rect x="60" y="270" width="640" height="190" class="bl base"/>
+      <text x="78" y="298" class="h">Uma consulta, uma base só</text>
+<rect x="550" y="282" width="134" height="20" rx="10" class="pill"/><text x="617" y="296" text-anchor="middle" class="tag">o mesmo dado, dois jeitos de ver</text>
+      <text x="78" y="324" class="i">• Áudio em pedaços · transcrição com quem falou · prontuário</text>
+      <text x="78" y="344" class="i">• Etiqueta por pedaço: clínico ou conversa</text>
+      <text x="78" y="364" class="i">• Guardado: áudio por cota do plano, texto para sempre</text>
+      <text x="78" y="384" class="i">• Nasce ligada ao médico e ao paciente (os dois pelo telefone)</text>
+      <text x="78" y="404" class="i">• Sai anonimizada para o negócio; identificada fica dentro</text>
+
+      <path class="fl" marker-end="url(#seta2)" d="M380,460 L380,512"/>
+      <text x="395" y="492" class="k">vira, em linguagem simples</text>
+      <rect x="60" y="514" width="640" height="216" class="bl pac"/>
+      <text x="78" y="542" class="h">Paciente</text>
+<rect x="550" y="526" width="134" height="20" rx="10" class="pill"/><text x="617" y="540" text-anchor="middle" class="tag">identidade = telefone · grátis</text>
+      <text x="78" y="568" class="i">• Recebe no WhatsApp o que o médico disse: remédio, dose, quando voltar</text>
+      <text x="78" y="588" class="i">• Lembretes: retorno amanhã, pode voltar a caminhar, hora do remédio</text>
+      <text x="78" y="608" class="i">• Histórico de vida: todas as consultas, todos os médicos, um lugar só</text>
+      <text x="78" y="628" class="i">• Traz o exame, a foto do remédio; chega ao médico antes do retorno</text>
+      <text x="78" y="648" class="i">• Decide quem vê o quê: aceita ou recusa cada médico que pedir</text>
+
+      <path class="fl pont" marker-end="url(#seta3)" d="M700,622 C760,622 760,110 700,110"/>
+      <text x="752" y="380" text-anchor="middle" class="k" transform="rotate(90 752 380)">autoriza o médico a ver o histórico</text>
+      <path class="fl pont" marker-end="url(#seta3)" d="M60,110 C0,110 0,622 60,622"/>
+      <text x="8" y="380" text-anchor="middle" class="k" transform="rotate(-90 8 380)">anexa coisas para o paciente</text>
+      <text x="380" y="790" text-anchor="middle" class="i">Azul: lado do médico. Verde: lado do paciente. O bloco do meio é o mesmo prontuário; o que muda é a lente.</text>
+      <text x="380" y="814" text-anchor="middle" class="k">Hoje existe o lado do médico até o prontuário. CRM, anexos e todo o lado do paciente são o que falta construir.</text>
+      <text x="380" y="860" text-anchor="middle" class="k">Sigilo: o prontuário do Dr. João é dele e do paciente. O Dr. Pedro só vê se o paciente aceitar. Fica registrado quem viu o quê e quando.</text>
+    </svg>
+    <figcaption>Os dois lados, de cima para baixo. As setas tracejadas nas laterais são o que liga um lado ao outro além da consulta: o médico manda coisas, o paciente autoriza acesso.</figcaption>
+  </figure>
+
+  <div class="dois">
+    <div class="caixa">
+      <h3>Para o médico</h3>
+      <ul>
+        <li><strong>Grava e esquece.</strong> Link no celular, aperta gravar, atende. Para sozinho quando a consulta acaba.</li>
+        <li><strong>Prontuário estruturado</strong>, sem inventar nada, com a seção <em>"O que eu interpretei"</em>: cada palavra quebrada que a IA consertou ou não entendeu.</li>
+        <li><strong>CRM de pacientes</strong> (pago): linha do tempo, busca, e os campos <em>Conexão</em> e <em>Sobre a pessoa</em>, escritos pela IA a partir da conversa que o prontuário descarta.</li>
+        <li><strong>Anexa</strong> receita, pedido de exame, vídeo de exercício. Vai para o paciente.</li>
+        <li><strong>Pede acesso</strong> ao histórico do paciente com outros médicos. O paciente aceita ou não.</li>
+      </ul>
+    </div>
+    <div class="caixa">
+      <h3>Para o paciente</h3>
+      <ul>
+        <li><strong>O que o médico mandou fazer</strong>, em linguagem simples: remédio, dose, quando voltar. Nunca mais perde o papel.</li>
+        <li><strong>Lembretes</strong> no WhatsApp: retorno amanhã, pode voltar a caminhar, hora do remédio.</li>
+        <li><strong>Histórico de vida</strong>: todas as consultas, com todos os médicos, num lugar só. O aplicativo chefe da saúde dele.</li>
+        <li><strong>Traz</strong> o resultado do exame, a foto do remédio. Chega ao médico antes do retorno.</li>
+        <li><strong>Decide quem vê o quê.</strong> "Dr. Pedro pediu acesso ao seu histórico." Aceitar ou recusar. Fica registrado.</li>
+      </ul>
+    </div>
+  </div>
+
+  <span class="num">3</span>
+  <h2>Uma consulta, do começo ao fim</h2>
+  <p>O que acontece nos 35 minutos de uma consulta e nos 2 minutos seguintes. Tudo isso existe e foi testado no iPhone, menos os passos marcados.</p>
+  <figure class="fig">
+<pre class="mermaid">
+flowchart TB
+  A[Aperta gravar] --> B[Grava em pedaços<br/>cortados na pausa da fala]
+  B --> S{Silêncio?}
+  S -- sim --> S2[Não sobe, não custa]
+  S -- não --> U[Sobe na hora,<br/>fila offline se cair a rede]
+  U --> T[Transcreve cada pedaço<br/>MÉDICO / PACIENTE]
+  T --> V{Vigia: é consulta?<br/>acabou? virou aula?}
+  V -- aula/reunião --> X[Avisa e tranca o grátis]
+  V -- acabou --> F[Para sozinho]
+  F --> E[Etiqueta cada pedaço:<br/>clínico ou conversa]
+  E --> P[Prontuário +<br/>o que eu interpretei]
+  E --> K[Conexão · Sobre a pessoa<br/>a partir da conversa]
+  P --> M[Médico revisa na tela]
+  M --> L[Versão simples<br/>para o paciente]
+  L --> W[WhatsApp do paciente<br/>+ lembretes]
+  style K stroke:#8b6bd1,stroke-dasharray: 4 3
+  style L stroke:#8b6bd1,stroke-dasharray: 4 3
+  style W stroke:#8b6bd1,stroke-dasharray: 4 3
+</pre>
+    <figcaption>Tracejado = ainda não construído. O resto roda hoje em produção.</figcaption>
+  </figure>
+  <div class="caixa">
+    <h3 style="margin-top:0">Regras do gravador que vieram das suas intuições</h3>
+    <ul>
+      <li>Corta só quando encontra pausa de fala; se não encontra, corta com 2 s de sobreposição para não perder palavra.</li>
+      <li>Silêncio de mais de 3 s pausa a gravação; 0,5 s de memória antes de retomar, para pegar o começo da palavra.</li>
+      <li>Silêncio não sobe e não é cobrado. No teste real, 40 % da consulta era silêncio.</li>
+      <li>A IA só é chamada quando há sinal: para decidir se é saúde, quando ouve despedida, ou depois de 60 s calado. Não roda a cada minuto.</li>
+      <li>Papo de família e futebol entre médico e paciente é consulta. Aula, reunião e ditado não são. A primeira gravação que não é consulta vai de presente, como degustação, com o botão do Pro; da segunda em diante, tranca. A cada 4 pedaços a IA confere de novo, contra fraude.</li>
+      <li>Onboarding em 4 mensagens: "salva meu contato, sem isso não funciona"; termos em uma linha; link de gravação. Não avança sem salvar o contato; a primeira gravação acontece na primeira conversa, em menos de 5 minutos.</li>
+    </ul>
+  </div>
+
+  <span class="num">4</span>
+  <h2>Onde roda e quanto custa</h2>
+  <p>Hoje tudo passa pela API do Google. O desenho final tira a transcrição da API, que é 70 % do custo, e leva a redação para máquinas próprias. O dado do paciente passa a ficar no aparelho do médico ou em casa.</p>
+  <figure class="fig">
+<pre class="mermaid">
+flowchart TB
+  subgraph HOJE[Hoje]
+    direction TB
+    C1[Celular] --> S1[Servidor] --> G1[Google: transcreve + escreve]
+  end
+  subgraph FINAL[Desenho final]
+    direction TB
+    C2[Celular ou PC do médico<br/>transcreve no aparelho] --> S2[Servidor: fila com prioridade]
+    S2 --> MM[Mac minis próprios<br/>Gemma 4 31B ou Qwen 27B]
+    S2 -. pico ou pago .-> G2[API com contrato de dados]
+  end
+  style G1 fill:#c94f4f22,stroke:#c94f4f
+  style MM fill:#2dd4bf33,stroke:#1c9a86
+</pre>
+    <figcaption>À esquerda, R$ 0,50 por hora gravada. À direita, perto de zero. A fila decide quem espera: pago não espera.</figcaption>
+  </figure>
+  <h3>Custo por mês para 1.000 médicos, 4 h gravadas por dia</h3>
+  <div class="barras">
+    <div class="barra"><span>Hoje: transcrição na API</span><div class="t"><i class="v" style="width:100%"></i></div><span class="r">R$ 57.000</span></div>
+    <div class="barra"><span>Hoje: redação no Gemini</span><div class="t"><i class="v" style="width:8.6%"></i></div><span class="r">R$ 4.900</span></div>
+    <div class="barra"><span>Final: transcrição no aparelho</span><div class="t"><i style="width:0.3%"></i></div><span class="r">R$ 0</span></div>
+    <div class="barra"><span>Final: redação no Gemma hospedado</span><div class="t"><i style="width:1%"></i></div><span class="r">R$ 570</span></div>
+    <div class="barra"><span>Final: redação nos minis</span><div class="t"><i style="width:0.3%"></i></div><span class="r">~R$ 150 de energia</span></div>
+    <div class="barra"><span>Fixo: Supabase, Vercel, vigia</span><div class="t"><i class="z" style="width:0.9%"></i></div><span class="r">~R$ 500</span></div>
+  </div>
+  <p><strong>Táxi ou academia.</strong> Pagar API é táxi: quanto mais usa, mais custa. Ter a máquina é academia: usa quanto quiser pelo mesmo preço. O plano de janeiro já dizia isso com uma GPU alugada para 55 médicos; esta semana medimos um Mac mini parado em ~60. E a transcrição no aparelho do médico é melhor que academia: é de graça.</p>
+  <h3>Como o custo se forma, por hora gravada</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Parte</th><th>Hoje (API)</th><th>Desenho final</th><th>De onde vem</th></tr></thead>
+    <tbody>
+      <tr><td>Transcrição</td><td>R$ 0,36</td><td>R$ 0</td><td>Gemini ouvindo o áudio, ~US$ 0,12/h; no aparelho do médico não custa nada</td></tr>
+      <tr><td>Redação do prontuário</td><td>R$ 0,06</td><td>R$ 0,007 ou 0</td><td>1,7 prontuário por hora; Gemini US$ 0,006 cada; Gemma US$ 0,0007; minis energia</td></tr>
+      <tr><td>Vigia e etiquetas</td><td>R$ 0,03</td><td>R$ 0,01</td><td>Modelo lite, só quando há sinal</td></tr>
+      <tr><td>Armazenamento</td><td>R$ 0,03</td><td>R$ 0,03</td><td>~13 MB por hora de áudio, R$ 0,02 por GB por mês, acumula</td></tr>
+      <tr><td><strong>Total por hora</strong></td><td><strong>R$ 0,50</strong></td><td><strong>~R$ 0,05</strong></td><td>Por médico com 4 h/dia, 22 dias: R$ 44 hoje, ~R$ 4 no final; ~R$ 1 se a redação for nos minis</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Medido: hoje R$ 0,50 por hora gravada, com 60 % de fala. Desenho final: ~R$ 1.100 por mês no total, ou ~R$ 1 por médico. Cada pagante de R$ 47 banca 55 médicos grátis. Condição: a transcrição no aparelho tem que ser boa em português com ruído. Ainda não foi medida. É o teste do ditado no iPhone.</p>
+
+  <span class="num">5</span>
+  <h2>Qual IA escreve o prontuário</h2>
+  <p>Régua única: uma transcrição real, cinco termos médicos, e dois consertos que têm que ser confessados. "De pirona" tem que virar dipirona <em>e</em> aparecer na confissão. Quem mantém "Pirona" como remédio ou inventa "Piroxicam" reprova. 167 modelos passaram pela régua, 2 rodadas cada.</p>
+  <h3>Custo por prontuário, em dólar, só entre os aprovados</h3>
+  <div class="barras">
+    <div class="barra"><span>Claude Sonnet 5</span><div class="t"><i class="a" style="width:100%"></i></div><span class="r">0,0400</span></div>
+    <div class="barra"><span>Gemini 3.7 Flash (hoje)</span><div class="t"><i class="a" style="width:15%"></i></div><span class="r">0,0060</span></div>
+    <div class="barra"><span>GPT-4.1 mini (contrato pronto)</span><div class="t"><i class="z" style="width:6.5%"></i></div><span class="r">0,0026</span></div>
+    <div class="barra"><span>Gemma 4 31B (aberto, cabe no mini)</span><div class="t"><i style="width:1.8%"></i></div><span class="r">0,0007</span></div>
+    <div class="barra"><span>Qwen 27B nos minis</span><div class="t"><i style="width:0.3%"></i></div><span class="r">0</span></div>
+  </div>
+  <div class="dois">
+    <div class="caixa"><h3>O que o estudo provou</h3><ul>
+      <li>28 passam, 25 oscilam, 110 reprovam.</li>
+      <li>Todo modelo "rápido" de poucos parâmetros ativos reprovou no remédio. Densos de 27 a 31B passam.</li>
+      <li>Modelos derivados (destilado, podado) trocaram remédio com confiança. Só pesos oficiais.</li>
+      <li>Escrever 4 prontuários ao mesmo tempo no Mac dobra a produção sem piorar nenhum. Medido.</li>
+    </ul></div>
+    <div class="caixa"><h3>O que falta medir</h3><ul>
+      <li>Gemma 4 31B num Mac mini de 32 GB, com 4 e 8 em lote.</li>
+      <li>Transcrição do próprio iPhone em português com ruído.</li>
+      <li>Régua com 10 a 20 gravações reais, não uma.</li>
+      <li>Preço do Gemma no Google Cloud com contrato.</li>
+    </ul></div>
+  </div>
+
+  <span class="num">6</span>
+  <h2>Grátis e pago</h2>
+  <p>O grátis é o produto inteiro para a consulta de saúde, sem limite, para sempre. O pago é velocidade, memória e gestão. E o médico prova o Pro em momentos, não em um período: aparece quando vale mais, e some.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Recurso</th><th style="text-align:center">Grátis</th><th style="text-align:center">Pro · R$ 47/mês ou anual</th></tr></thead>
+    <tbody>
+      <tr><td>Gravar consultas de saúde</td><td class="c sim">✓ sem limite</td><td class="c sim">✓ sem limite</td></tr>
+      <tr><td>Prontuário com "o que eu interpretei"</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
+      <tr><td>Prontuário pronto em</td><td class="c meio">fila, até ~1 h</td><td class="c sim">1 minuto</td></tr>
+      <tr><td>Paciente recebe a versão simples e lembretes</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
+      <tr><td>Painel de gestão (atendimentos, queixas, retornos)</td><td class="c meio">congelado nas primeiras 25 consultas</td><td class="c sim">✓ vivo</td></tr>
+      <tr><td>CRM: linha do tempo, Conexão, Sobre a pessoa</td><td class="c nao">só a consulta de hoje</td><td class="c sim">✓ tudo, com busca</td></tr>
+      <tr><td>Pergunte ao histórico, ache o trecho, exporte a prova</td><td class="c nao">✗</td><td class="c sim">✓ (fase 2)</td></tr>
+      <tr><td>Gravar reunião, aula, ditado</td><td class="c meio">a primeira, de presente</td><td class="c sim">✓</td></tr>
+      <tr><td>Áudio guardado</td><td class="c meio">75 consultas</td><td class="c sim">3.800 · 13.000 · +R$ 29,90</td></tr>
+      <tr><td>Receita, pedido de exame, atestado, carta</td><td class="c nao">✗</td><td class="c sim">✓</td></tr>
+      <tr><td>Modelos por especialidade, editar na tela</td><td class="c nao">✗</td><td class="c sim">✓</td></tr>
+      <tr><td>Extensão do Chrome dentro do prontuário eletrônico</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
+      <tr><td>Exportar dados</td><td class="c nao">✗</td><td class="c nao">✗</td></tr>
+    </tbody>
+  </table></div>
+  <div class="dois">
+    <div class="caixa"><h3>Mensal e anual</h3><p class="nota" style="margin:0"><strong>Mensal:</strong> Pro daqui em diante. Tudo que ele grava pagando é dele; três anos de mensal são três anos de painel. O período em que não pagava fica congelado.<br><br><strong>Anual recorrente:</strong> tudo isso e o período sem pagar liberado. "Contrate o ano e libere tudo que você gravou de graça." Quanto mais tempo usou de graça, maior o tesouro atrás da porta. Cancelou, aquele período fecha de novo.</p></div>
+    <div class="caixa"><h3>Espaço: tem ou não tem</h3><p class="nota" style="margin:0">Passou da cota, a gravação nova fica <strong>indisponível para o médico</strong>. Ele sente a perda; ter é R$ 9,90. Não existe tabela de resgate nem "arquivo" na tela. Se um dia precisar, o atendimento diz: "podemos tentar recuperar, sem garantia, com custo". A palavra "apagado" não existe: a Helena guarda tudo, e a política diz isso. Prontuário e transcrição nunca ficam indisponíveis; só o áudio.</p></div>
+  </div>
+  <h3>Os momentos Pro</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Momento</th><th>O que o médico vê de Pro</th><th>Por que aqui</th></tr></thead>
+    <tbody>
+      <tr><td>Primeiras 25 consultas</td><td>Tudo: fila rápida, ficha dos pacientes, painel vivo</td><td>Contar consultas garante que há dado. Ele vê o painel na versão Pro primeiro; depois o painel congela ali.</td></tr>
+      <tr><td>Toda vez que um paciente volta</td><td>A ficha daquele paciente, completa, uma vez</td><td>O momento de maior valor do CRM: reconhecer a pessoa na frente dela.</td></tr>
+      <tr><td>Fim de cada mês</td><td>"Seu mês em números", painel vivo por 24 h</td><td>Ele compara com o painel congelado que tem no resto do tempo.</td></tr>
+      <tr><td>A cada 50 consultas gravadas</td><td>7 dias de Pro</td><td>Ganho por uso. Quem mais usa é quem mais tende a pagar.</td></tr>
+      <tr><td>Todo dia</td><td>A fila: 1 minuto no Pro, até 1 hora no grátis</td><td>O único atrito diário. O grátis não fica confortável demais sem perder nada.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="caixa">
+    <div class="bolha ia"><small>Helena · oferta do Pro, sem eufemismo</small>Você gravou 47 consultas em 10 dias e economizou 7 horas de digitação. Tudo grátis, e continua.<br><br>O que você <strong>não</strong> tem no grátis:<br>• o prontuário em 1 minuto (hoje espera a fila)<br>• a ficha de cada paciente, com o que ele contou e quando voltou<br>• o painel do seu consultório atualizado<br>• espaço para 3.800 consultas com áudio (no grátis, 75)<br><br>Isso é o Pro: R$ 47 por mês. Menos que uma consulta.<br>[QUERO O PRO]</div>
+    <p class="nota" style="margin:.6rem 0 0">Três regras: quando mostra o Pro, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver; e nunca se tira o que é do grátis. Lado do paciente: sempre grátis, e o paciente nunca vê o áudio nem o prontuário técnico. Limite de 3 consultas por dia existe no código, desligado, como saída de emergência.</p>
+  </div>
+
+  <span class="num">7</span>
+  <h2>Dados, consentimento e a parede</h2>
+  <p>Quem diz sim, para o quê, e o que sai de onde. A regra que fecha tudo: <strong>o que o paciente contou entra inteiro no CRM do médico; o que sai para o negócio sai anonimizado</strong>.</p>
+  <figure class="fig">
+<pre class="mermaid">
+flowchart TB
+  subgraph CONS[Quem consente]
+    direction TB
+    A1[Médico aceita os Termos<br/>no cadastro]
+    A2[MarIA fala o aviso<br/>dentro do áudio da consulta]
+    A3[Paciente aceita os Termos<br/>dele ao criar a conta]
+    A4[Paciente autoriza<br/>cada médico que pede acesso]
+  end
+  subgraph DENTRO[Dentro da parede: dado identificado]
+    direction TB
+    C[(Consultas)]
+    CRM[CRM do médico:<br/>tudo que o paciente contou]
+    HV[Histórico do paciente]
+  end
+  AN[Anonimização de verdade:<br/>sem nome, data exata,<br/>cidade pequena, combinação rara]
+  subgraph FORA[Fora da parede: negócio]
+    direction TB
+    B[Banco de consultas<br/>em português]
+    IA[IA própria]
+    PH[Canal pharma =<br/>atenção do médico,<br/>nunca o conteúdo do paciente]
+  end
+  A1 --> C
+  A2 --> C
+  A3 --> HV
+  A4 --> HV
+  C --> CRM
+  C --> HV
+  C --> AN --> B --> IA
+  CRM -. nunca .-> PH
+  style AN fill:#c98a1b22,stroke:#c98a1b
+  style FORA fill:#4c7fb51a,stroke:#4c7fb5
+</pre>
+    <figcaption>Três consentimentos e uma parede. Anonimizado deixa de ser dado pessoal; a lei para de se aplicar. O trabalho é a anonimização ser real.</figcaption>
+  </figure>
+  <div class="dois">
+    <div class="caixa"><h3>Guardamos tudo</h3><p class="nota" style="margin:0">Áudio por cota de plano, "indisponível para o médico" além dela, nunca "apagado"; transcrições e prontuários para sempre. É o produto (espaço vendido como proteção jurídica: "por menos de 1 centavo por consulta você tem a prova") e é o ativo (itens 5 e 6). O Noa apaga em 14 dias porque o negócio dele é a assinatura. O nosso é a base.</p></div>
+    <div class="caixa"><h3>Sigilo entre médicos</h3><p class="nota" style="margin:0">O prontuário do Dr. João é dele e do paciente. O Dr. Pedro pede, o paciente aceita, e aí vê o histórico inteiro. Fica registrado quem viu o quê e quando. Existe desde o dia um.</p></div>
+  </div>
+
+  <span class="num">8</span>
+  <h2>Como ganha dinheiro</h2>
+  <p>Na ordem do plano de abril, com o que as pesquisas confirmaram: a Memed ficou grátis 14 anos, chegou a 150 mil médicos e virou lucrativa com pharma dentro do fluxo. A OpenEvidence é grátis para 40 % dos médicos americanos e fatura US$ 300 milhões por ano com pharma.</p>
+  <div class="tl">
+    <div><b>mês 1</b>Pro e espaço pagam a operação</div>
+    <div><b>mês 6</b>Serviços Método 3A pelo canal</div>
+    <div><b>mês 6</b>Plano Clínica, 2+ médicos</div>
+    <div><b>mês 12</b>Canal pharma e educação, por especialidade</div>
+    <div><b>mês 18</b>Dados anonimizados</div>
+    <div><b>mês 24</b>IA própria, valor da empresa</div>
+  </div>
+  <h3>A dica no prontuário é a mídia</h3>
+  <p>Cada prontuário entregue é um momento de atenção total do médico: ele acabou de pedir. A dica no fim usa os números do consultório dele para dizer algo útil, e nessa dica cabe a oferta. Um terço vende o Pro, um terço serviço da Método 3A ou conteúdo, um terço indústria. Nunca usa o conteúdo do paciente para escolher o que mostrar.</p>
+  <div class="caixa">
+    <div class="bolha ia"><small>Helena · entregando o prontuário</small>✅ Prontuário da Ana pronto. Revisa e copia:<br>[prontuário]<br><br><span style="color:var(--ambar)">💡 Mês passado você atendeu 5 pacientes por dia. Este mês está em 4: caiu 20 %. Um paciente novo de endocrinologia custa em média R$ 300 em mídia. Quer ver como recuperar esses 20 %? [MARCAR UMA CONVERSA]</span></div>
+    <div class="barras" style="margin-top:.8rem">
+      <div class="barra"><span>E-mail marketing</span><div class="t"><i class="v" style="width:3%"></i></div><span class="r">R$ 0,05 · 20 % abre</span></div>
+      <div class="barra"><span>Disparo WhatsApp</span><div class="t"><i class="a" style="width:25%"></i></div><span class="r">R$ 0,50 · 60 % abre</span></div>
+      <div class="barra"><span>Remarketing Meta</span><div class="t"><i class="a" style="width:100%"></i></div><span class="r">R$ 2,00 · interrompe</span></div>
+      <div class="barra"><span>Dica no prontuário</span><div class="t"><i style="width:2%"></i></div><span class="r">R$ 0,02 · 100 % lê</span></div>
+    </div>
+    <p class="nota" style="margin:.6rem 0 0">É por isso que o médico grátis não é custo: é um contato que custa R$ 0,80 por mês e lê a Helena 150 vezes por mês. É o que a Memed vende dentro da receita e o que a Doximity vende a US$ 228 por médico por ano.</p>
+  </div>
+  <h3>O modelo financeiro, refeito com as premissas de hoje</h3>
+  <p>Mesma estrutura de janeiro (cinco cenários, 36 meses, 5 perfis de usuário), com o que mudou: custo de R$ 0,80 por médico em vez de R$ 1,50 (e R$ 1 por pagante em vez de R$ 10), Pro a R$ 47 em vez de R$ 147, espaço a R$ 9,90, e pharma a partir do mês 12. Base inicial: 120 médicos ativos (30 % dos 400 clientes do 3A). Não inclui equipe, suporte, advogado nem marketing.</p>
+  <figure class="fig">
+    <svg viewBox="0 0 640 260" role="img" aria-label="Médicos ativos por cenário, 36 meses">
+<line x1="60" y1="220" x2="620" y2="220" class="eixo"/><text x="54" y="224" text-anchor="end" style="font-size:11px">100</text><line x1="60" y1="153" x2="620" y2="153" class="eixo"/><text x="54" y="157" text-anchor="end" style="font-size:11px">1.000</text><line x1="60" y1="87" x2="620" y2="87" class="eixo"/><text x="54" y="91" text-anchor="end" style="font-size:11px">10.000</text><line x1="60" y1="20" x2="620" y2="20" class="eixo"/><text x="54" y="24" text-anchor="end" style="font-size:11px">100.000</text>
+<text x="60" y="240" style="font-size:11px">mês 1</text><text x="620" y="240" text-anchor="end" style="font-size:11px">mês 36</text>
+<polyline points="60,215 76,214 92,214 108,213 124,212 140,212 156,211 172,211 188,210 204,210 220,209 236,208 252,208 268,207 284,207 300,206 316,206 332,205 348,204 364,204 380,203 396,203 412,202 428,202 444,201 460,200 476,200 492,199 508,199 524,198 540,198 556,197 572,196 588,196 604,195 620,195" style="fill:none;stroke:var(--vermelho);stroke-width:2.5"/>
+<text x="622" y="195" text-anchor="end" style="fill:var(--vermelho);font-size:11px;font-weight:600">Catastrófico</text>
+<polyline points="60,215 76,213 92,212 108,210 124,209 140,208 156,206 172,205 188,203 204,202 220,201 236,199 252,198 268,196 284,195 300,194 316,192 332,191 348,189 364,188 380,186 396,185 412,184 428,182 444,181 460,179 476,178 492,177 508,175 524,174 540,172 556,171 572,170 588,168 604,167 620,165" style="fill:none;stroke:var(--ambar);stroke-width:2.5"/>
+<text x="622" y="165" text-anchor="end" style="fill:var(--ambar);font-size:11px;font-weight:600">Pessimista</text>
+<polyline points="60,215 76,212 92,209 108,206 124,204 140,201 156,198 172,195 188,193 204,190 220,187 236,184 252,182 268,179 284,176 300,173 316,171 332,168 348,165 364,162 380,160 396,157 412,154 428,151 444,148 460,146 476,143 492,140 508,137 524,135 540,132 556,129 572,126 588,124 604,121 620,118" style="fill:none;stroke:var(--teal-escuro);stroke-width:2.5"/>
+<text x="622" y="118" text-anchor="end" style="fill:var(--teal-escuro);font-size:11px;font-weight:600">Base</text>
+<polyline points="60,215 76,211 92,207 108,203 124,199 140,194 156,190 172,186 188,182 204,178 220,174 236,170 252,166 268,162 284,158 300,154 316,150 332,146 348,142 364,138 380,134 396,130 412,126 428,122 444,118 460,114 476,110 492,105 508,101 524,97 540,93 556,89 572,85 588,81 604,77 620,73" style="fill:none;stroke:var(--azul);stroke-width:2.5"/>
+<text x="622" y="73" text-anchor="end" style="fill:var(--azul);font-size:11px;font-weight:600">Otimista</text>
+<polyline points="60,215 76,209 92,204 108,199 124,194 140,188 156,183 172,178 188,172 204,167 220,162 236,157 252,151 268,146 284,141 300,136 316,130 332,125 348,120 364,114 380,109 396,104 412,99 428,93 444,88 460,83 476,77 492,72 508,67 524,62 540,56 556,51 572,46 588,41 604,35 620,30" style="fill:none;stroke:var(--roxo);stroke-width:2.5"/>
+<text x="622" y="30" text-anchor="end" style="fill:var(--roxo);font-size:11px;font-weight:600">Explosivo</text>
+</svg>
+    <figcaption>Médicos ativos por cenário, escala logarítmica. Teto de 100 mil no modelo; existem 600 mil médicos e mais de 2 milhões de profissionais de saúde.</figcaption>
+  </figure>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Cenário</th><th>Cresc./mês</th><th>Conversão</th><th>Ativos M12</th><th>Ativos M36</th><th>Pagantes M36</th><th>Receita/mês M36</th><th>Custo/mês M36</th><th>Lucro 36 m</th></tr></thead>
+    <tbody>
+<tr><td><strong>Catastrófico</strong></td><td>2 %</td><td>3 %</td><td>149</td><td>240</td><td>7</td><td>R$ 457</td><td>R$ 692</td><td>R$ -11.106</td></tr>
+<tr><td><strong>Pessimista</strong></td><td>5 %</td><td>5 %</td><td>205</td><td>662</td><td>33</td><td>R$ 8.830</td><td>R$ 1.030</td><td>R$ 95.206</td></tr>
+<tr><td><strong>Base</strong></td><td>10 %</td><td>7 %</td><td>342</td><td>3.372</td><td>236</td><td>R$ 83.549</td><td>R$ 3.198</td><td>R$ 798.113</td></tr>
+<tr><td><strong>Otimista</strong></td><td>15 %</td><td>8 %</td><td>558</td><td>15.981</td><td>1.278</td><td>R$ 571.163</td><td>R$ 13.285</td><td>R$ 4.147.291</td></tr>
+<tr><td><strong>Explosivo</strong></td><td>20 %</td><td>10 %</td><td>892</td><td>70.880</td><td>7.088</td><td>R$ 3.343.773</td><td>R$ 57.204</td><td>R$ 19.597.392</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Premissas por cenário: espaço assinado por 5 a 25 % dos ativos; pharma de R$ 0 a 40 por médico ativo por mês (Memed: ~R$ 55; Doximity: ~US$ 19). Comparado a janeiro: o cenário base tinha 811 pagantes e R$ 609 mil de lucro em 3 anos com custo de R$ 10 por pagante; hoje o mesmo cenário dá 236 pagantes e R$ 800 mil, porque o custo caiu e a pharma entrou. O que muda o jogo não é a conversão: é a base grátis grande e barata. Tudo é projeção.</p>
+
+  <span class="num">9</span>
+  <h2>Concorrência</h2>
+  <p>Quem já faz isso, quanto cobra, como forma o custo, e onde a MarIA é maior, igual ou menor. O detalhe do Noa, peça por peça, está numa página própria; aqui entra o que decide.</p>
+
+  <h3>O mercado, em uma tabela</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Quem</th><th>Onde</th><th>Preço ao médico</th><th>Escala</th><th>Como faz</th><th>Como ganha</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Noa Notes</strong> (Doctoralia)</td><td>Brasil + 12 países</td><td>R$ 199/mês ilimitado</td><td>30 mil pagantes, 1 milhão de consultas no Brasil</td><td>Whisper em servidores próprios, GPT-4 Turbo via Azure, pedaços de 30 s, modelos por especialidade, extensão do Chrome</td><td>Assinatura; grátis só na literatura e no resumo de exame do paciente</td></tr>
+      <tr><td>ByDoctor</td><td>Brasil</td><td>R$ 147/mês, IA inclusa</td><td>não divulgado</td><td>Dentro do software de gestão; API de terceiros</td><td>Assinatura do software</td></tr>
+      <tr><td>Amplimed</td><td>Brasil</td><td>R$ 89–99 + ~R$ 120 de IA</td><td>não divulgado</td><td>Módulo de IA à parte</td><td>Assinatura + módulo</td></tr>
+      <tr><td>Feegow</td><td>Brasil</td><td>R$ 129–249/mês</td><td>não divulgado</td><td>Embute o Noa Notes</td><td>Assinatura do software</td></tr>
+      <tr><td><strong>Abridge</strong></td><td>EUA</td><td>US$ 200–800/médico/mês, contrato hospitalar</td><td>Mayo, Kaiser, VA; nº 1 no KLAS</td><td>Nota + códigos de faturamento + cada frase ligada ao trecho do áudio</td><td>Contrato com hospital, vendido pelo faturamento</td></tr>
+      <tr><td>Nuance Dragon Copilot (Microsoft)</td><td>EUA</td><td>US$ 369–1.512/usuário/mês</td><td>dentro do Epic</td><td>Receita e exame por voz no prontuário eletrônico</td><td>Licença enterprise</td></tr>
+      <tr><td>Suki · Ambience · DeepScribe</td><td>EUA</td><td>US$ 299–399/mês · ~US$ 2.000/ano</td><td>hospitais</td><td>Comandos de voz, codificação de faturamento</td><td>Assinatura / contrato</td></tr>
+      <tr><td>Freed · Heidi · Nabla</td><td>EUA, Austrália, França</td><td>US$ 39–150/mês; Heidi tem grátis permanente, Nabla 30 consultas grátis</td><td>Nabla 55 mil clínicos, Heidi 20 mil</td><td>Só a nota, API</td><td>Freemium</td></tr>
+      <tr><td>Doximity Scribe</td><td>EUA</td><td>grátis</td><td>100 mil médicos</td><td>Nota simples</td><td>Pharma e recrutamento: US$ 620 milhões/ano, ~US$ 228 por médico</td></tr>
+      <tr><td><strong>Memed</strong></td><td>Brasil</td><td>grátis</td><td>150–210 mil médicos</td><td>Receita digital</td><td>Pharma no fluxo da receita; 14 anos grátis, lucro em 2025, R$ 100 milhões projetados em 2026</td></tr>
+      <tr><td><strong>OpenEvidence</strong></td><td>EUA</td><td>grátis</td><td>40 % dos médicos americanos</td><td>Busca de evidência clínica</td><td>Pharma: US$ 300 milhões/ano, 90 % de margem, ~US$ 124 por médico</td></tr>
+      <tr><td><strong>MarIA</strong></td><td>Brasil</td><td><strong>R$ 0</strong>; pago para CRM, fila e extras</td><td>MVP, 2 testes reais</td><td>Pedaços cortados na pausa, transcrição com falantes, prontuário com "o que interpretei", vigia, lado do paciente</td><td>Base → serviços M3A, pharma, dados, IA própria</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Como cada um forma o custo, e o que sobra</h3>
+  <p>O custo de IA de um scribe tem três partes: transcrever, escrever, guardar. Quem cobra caro não otimiza nenhuma delas. Quem quer dar de graça tem que zerar as duas primeiras.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Quem</th><th>Transcrição</th><th>Redação</th><th>Custo de IA por consulta de 35 min</th><th>Preço por consulta*</th><th>Margem</th></tr></thead>
+    <tbody>
+      <tr><td>Noa Notes</td><td>Whisper próprio na AWS: centavos</td><td>GPT-4 Turbo via Azure: ~US$ 0,01–0,02 <span class="nota">(estimado)</span></td><td>~R$ 0,10–0,15</td><td>R$ 1,30 (R$ 199 ÷ 150)</td><td>~90 %</td></tr>
+      <tr><td>ByDoctor, Amplimed</td><td>API de terceiros: ~R$ 0,20 <span class="nota">(estimado)</span></td><td>API: ~R$ 0,03</td><td>~R$ 0,25</td><td>R$ 0,60–1,60</td><td>60–85 %</td></tr>
+      <tr><td>Abridge, Nuance</td><td>Própria</td><td>Modelo grande, API ou própria</td><td>~R$ 0,30 <span class="nota">(estimado)</span></td><td>R$ 7–50 (US$ 200–1.500 ÷ 150)</td><td>~95 %</td></tr>
+      <tr><td>Doximity, OpenEvidence, Memed</td><td colspan="2">baixo; produto simples ou sem áudio</td><td>~R$ 0,01–0,05</td><td>R$ 0, pharma paga ~US$ 124–228 por médico/ano</td><td>90 %</td></tr>
+      <tr><td><strong>MarIA hoje</strong></td><td>Gemini áudio: R$ 0,21</td><td>Gemini 3.7: R$ 0,03</td><td><strong>R$ 0,29</strong> <span class="nota">(medido)</span></td><td>R$ 0</td><td>negativa</td></tr>
+      <tr><td><strong>MarIA desenho final</strong></td><td>No aparelho: R$ 0</td><td>Gemma hospedado R$ 0,004 · minis ~R$ 0</td><td><strong>~R$ 0,02</strong></td><td>R$ 0 + pagantes + pharma</td><td>positiva com 30 pagantes por 1.000 médicos</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">*Preço por consulta = mensalidade ÷ ~150 consultas por mês (4 h/dia, 35 min, 22 dias). Valores marcados como estimados vêm do modelo e do fornecedor que a empresa divulga, não de custo publicado. Os da MarIA são medidos.</p>
+  <p>A conclusão da tabela: <strong>o Noa tem 90 % de margem e nenhum motivo para baixar preço</strong>. Não vai virar grátis por vontade própria; a Doctoralia vive da assinatura. A MarIA só consegue ser grátis porque zera a transcrição e a redação. Sem isso, o grátis é um buraco de R$ 57 mil por mês para mil médicos.</p>
+
+  <h3>Maior, igual ou menor</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Frente</th><th style="text-align:center">MarIA vs Noa</th><th>Por quê</th></tr></thead>
+    <tbody>
+      <tr><td>Tecnologia de gravar, transcrever, escrever</td><td class="c meio">igual</td><td>Mesma máquina: pedaços de 30 s, Whisper em casa, redação alugada com contrato. É prateleira em 2026.</td></tr>
+      <tr><td>Qualidade da nota</td><td class="c meio">igual, a provar</td><td>Passamos a mesma régua que os modelos que eles usam. A régua ainda tem 1 transcrição; eles têm um time medindo.</td></tr>
+      <tr><td>Transparência ("o que eu interpretei", quem falou, trechos)</td><td class="c sim">maior</td><td>Eles escondem a transcrição. Nós mostramos onde a IA teve dúvida. É segurança para o médico.</td></tr>
+      <tr><td>Lado do paciente</td><td class="c sim">maior</td><td>Eles resumem um exame. Nós entregamos a consulta inteira, todas as consultas, todos os médicos.</td></tr>
+      <tr><td>Preço</td><td class="c sim">maior</td><td>R$ 0 contra R$ 199 avulso. A resposta deles é esconder o preço no pacote da agenda; ver os cenários abaixo.</td></tr>
+      <tr><td>Custo de operar</td><td class="c sim">maior, se o híbrido funcionar</td><td>Transcrição no aparelho e redação em casa. Depende do teste no iPhone e no mini.</td></tr>
+      <tr><td>Distribuição</td><td class="c nao">menor</td><td>Eles têm a Doctoralia com milhões de agendamentos. Nós temos o laço viral, ainda não provado, e 400 clientes da Método 3A.</td></tr>
+      <tr><td>Integração com sistema de clínica</td><td class="c nao">menor</td><td>Extensão do Chrome e integração nativa. Copiável em semanas.</td></tr>
+      <tr><td>Modelos por especialidade, edição, teleconsulta</td><td class="c nao">menor</td><td>Recursos de produto maduro. Entram no pago.</td></tr>
+      <tr><td>Confiança institucional</td><td class="c nao">menor</td><td>ISO 27001, 30 mil pagantes, marca Doctoralia. Só o tempo e o advogado resolvem.</td></tr>
+      <tr><td>Dados</td><td class="c sim">maior, no tempo</td><td>Eles apagam o áudio e não treinam. Nós guardamos e vamos treinar. Em 2 anos é o ativo que ninguém mais tem.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Como o Noa pode reagir ao R$ 0</h3>
+  <p>Hoje o Noa Notes é vendido de três jeitos: avulso por R$ 199, dentro do pacote Doctoralia Pro, e embutido nos planos da Feegow. O avulso é o que fica exposto ao grátis. O pacote é onde eles se defendem.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Cenário</th><th>O que fariam</th><th>Chance</th><th>O que nos custa</th><th>Nossa resposta</th></tr></thead>
+    <tbody>
+      <tr><td>Ignorar</td><td>30 mil pagantes, margem de 90 %. Um grátis pequeno não aparece no gráfico deles por um ano.</td><td class="c sim">alta no início</td><td>nada; é o tempo que temos</td><td>Usar o ano: laço viral, lado do paciente, régua com dezenas de gravações</td></tr>
+      <tr><td>Esconder o preço no pacote</td><td>Matar o avulso e dar o Notes "de graça" para quem tem Doctoralia Pro. O custo de R$ 0,15 por consulta cabe na margem da agenda.</td><td class="c sim">alta</td><td>perdemos o argumento "R$ 199 vs R$ 0" contra quem já paga Doctoralia</td><td>Nosso grátis não exige nada; o deles exige a agenda deles. E o lado do paciente segue nosso.</td></tr>
+      <tr><td>Freemium com limite</td><td>30 consultas por mês grátis, como Nabla e Heidi já fazem.</td><td class="c meio">média</td><td>corrói a diferença para o médico de poucas consultas</td><td>Sem limite, sempre. E prontuário com "o que interpretei", que eles não têm.</td></tr>
+      <tr><td>Levar a consulta ao app do paciente</td><td>A Doctoralia já tem o app do paciente com milhões de usuários e o Noa Summary dentro. Botar "sua consulta" lá é uma feature.</td><td class="c nao">a mais perigosa</td><td>ataca o nosso maior diferencial com a distribuição que não temos</td><td>Chegar primeiro e ir mais fundo: histórico cruzando médicos, lembretes, anexos, compartilhar. E funcionar com qualquer médico, não só os da Doctoralia.</td></tr>
+      <tr><td>Guerra de recursos</td><td>Modelos por especialidade, extensão do Chrome, integração com todo sistema de clínica.</td><td class="c meio">já em curso</td><td>o médico maduro compara lista de recursos</td><td>Copiar o barato (extensão), cobrar pelo caro (modelos, edição)</td></tr>
+      <tr><td>Atacar o modelo</td><td>"Grátis vende os seus dados", LGPD, "quem paga a conta?"</td><td class="c meio">média, se crescermos</td><td>confiança, que já é nosso ponto fraco</td><td>A parede escrita e pública, advogado antes, e o fato de que eles é que apagam o áudio do médico em 14 dias</td></tr>
+      <tr><td>Copiar o custo</td><td>Transcrição no aparelho e modelo aberto em casa, para poder dar de graça.</td><td class="c nao">baixa</td><td>igualaria a estrutura de custo</td><td>É difícil para eles: mudaria arquitetura, política de privacidade e o negócio da Doctoralia, que vive da assinatura</td></tr>
+      <tr><td>Comprar</td><td>Comprar quem ameaça, ou copiar em 6 meses.</td><td class="c meio">se funcionar</td><td>—</td><td>É um dos fins possíveis. A base e o dado são o que se compra.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Leitura: o cenário mais provável é o segundo, esconder o preço no pacote. O mais perigoso é o quarto, porque eles já têm o paciente. A defesa contra os dois é a mesma: o lado do paciente, construído antes de tudo, funcionando com qualquer médico. Sobre a sua pergunta: sozinho, o Notes de R$ 199 não sobrevive a um grátis igual; dentro do pacote, sobrevive bem. Por isso a briga não é pelo médico que já paga Doctoralia. É pelos outros 500 mil.</p>
+
+  <h3>Perspectiva: o que isso pode virar</h3>
+  <p>A comparação certa não é com o Noa. É com a Memed e a OpenEvidence, que ficaram grandes dando de graça. As duas provaram o mesmo número: <strong>um médico ativo numa plataforma grátis vale de US$ 124 a 228 por ano em pharma</strong>. No Brasil, a Memed projeta R$ 100 milhões com 150 mil médicos, uns R$ 650 por médico por ano.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Cenário</th><th>Médicos ativos</th><th>Pacientes com conta</th><th>Custo de operar por mês</th><th>Receita possível por ano</th><th>Comparável</th></tr></thead>
+    <tbody>
+      <tr><td>Beta</td><td>100</td><td>~10 mil</td><td>~R$ 600</td><td>assinaturas: ~R$ 20 mil</td><td>—</td></tr>
+      <tr><td>Ano 1</td><td>1.000</td><td>~100 mil</td><td>~R$ 1.100</td><td>assinaturas ~R$ 200 mil; serviços M3A</td><td>Freed, Tali</td></tr>
+      <tr><td>Ano 2</td><td>10 mil</td><td>~1 milhão</td><td>~R$ 8 mil</td><td>pharma a R$ 300–650 por médico: R$ 3–6 milhões</td><td>Noa no Brasil (30 mil no mundo)</td></tr>
+      <tr><td>Ano 3–4</td><td>50–100 mil</td><td>5–10 milhões</td><td>~R$ 50 mil</td><td>pharma + dados + IA própria: R$ 30–65 milhões</td><td>Memed (150 mil médicos, R$ 100 milhões)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Tudo nesta tabela é projeção. As premissas: ~100 pacientes com conta por médico ativo; custo de operar do desenho final; receita de pharma pelos números publicados de Memed, Doximity e OpenEvidence. O que não está na conta: equipe, suporte, advogado, marketing. Existem ~600 mil médicos no Brasil, e mais de 2 milhões de profissionais que fazem consulta: dentistas, psicólogos, fisioterapeutas, nutricionistas, fonoaudiólogos, enfermeiros. A validação já aceita CRM, CRO e CRP. Área jurídica fica como futuro, com outro tratamento.</p>
+  <div class="caixa">
+    <p style="margin:0"><strong>Em uma frase:</strong> a tecnologia é igual à do líder, o preço é imbatível, o lado do paciente não existe em ninguém, e a base de dados cresce com o tempo. O que falta é o que dinheiro não compra rápido: distribuição e confiança. É por isso que o laço viral e o advogado vêm antes dos extras pagos.</p>
+  </div>
+  <p class="nota">Peça por peça contra o Noa, com o quadro de ✓ e ✗ e a suíte deles: <em>MarIA vs Noa Notes</em>, página própria.</p>
+
+  <span class="num">10</span>
+  <h2>O que existe e o que falta</h2>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Peça</th><th>Situação</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td>Gravador em pedaços, fila offline, silêncio não cobrado, pré-roll</td><td><span class="chip c-ok">pronto</span></td><td>Testado no iPhone 07/09. Pendente: ditado, matar Safari, modo avião</td></tr>
+      <tr><td>Transcrição com falantes, trocável por configuração, Whisper de reserva</td><td><span class="chip c-ok">pronto</span></td><td>8/8 termos nas gravações reais</td></tr>
+      <tr><td>Vigia: é saúde, acabou, virou aula, fraude</td><td><span class="chip c-ok">pronto</span></td><td>Só chama a IA quando há sinal</td></tr>
+      <tr><td>Etiquetas clínico/conversa por pedaço</td><td><span class="chip c-ok">pronto</span></td><td>Tocar para virar: pendente</td></tr>
+      <tr><td>Prontuário com "o que eu interpretei"</td><td><span class="chip c-ok">pronto</span></td><td>Gemini 3.7 sem pensar</td></tr>
+      <tr><td>Painel, linha do tempo, PDF, validação CRM/CRO, planos Asaas</td><td><span class="chip c-ok">pronto</span></td><td>Validação CRM nunca é chamada pelo front</td></tr>
+      <tr><td>Termos, Privacidade, relatório de impacto</td><td><span class="chip c-pend">textos prontos</span></td><td>Links na tela mortos</td></tr>
+      <tr><td>Paciente como entidade (telefone), sugestão de nome</td><td><span class="chip c-novo">novo</span></td><td>Pré-requisito do CRM e do lado do paciente</td></tr>
+      <tr><td>Conexão e Sobre a pessoa no CRM</td><td><span class="chip c-novo">novo</span></td><td>2 dias; matéria-prima já existe</td></tr>
+      <tr><td>Plataforma do paciente: versão simples, lembretes, histórico, anexos, compartilhar</td><td><span class="chip c-novo">novo</span></td><td>Maior peça nova do projeto</td></tr>
+      <tr><td>Fila com prioridade (grátis espera, pago não)</td><td><span class="chip c-novo">novo</span></td><td>Barato: é a mesma fila</td></tr>
+      <tr><td>Convite pelo telefone, onboarding em 4 mensagens, bot de WhatsApp</td><td><span class="chip c-novo">novo</span></td><td>O bot ainda não existe; o gravador é web</td></tr>
+      <tr><td>Painel de gestão, momentos Pro, mensal/anual, espaço "tem ou não tem"</td><td><span class="chip c-novo">novo</span></td><td>Sai do prontuário que já existe</td></tr>
+      <tr><td>A dica no prontuário como mídia</td><td><span class="chip c-novo">novo</span></td><td>Rodízio Pro / M3A / indústria</td></tr>
+      <tr><td>Transcrição no celular ou PC</td><td><span class="chip c-novo">novo</span></td><td>Depende do teste do ditado</td></tr>
+      <tr><td>Mac minis com Gemma/Qwen em lote</td><td><span class="chip c-novo">novo</span></td><td>Depende de um mini ligado</td></tr>
+      <tr><td>Receita, exame, atestado, carta; modelos por especialidade; extensão do Chrome</td><td><span class="chip c-novo">novo</span></td><td>Pacote pago</td></tr>
+      <tr><td>Advogado LGPD/ANVISA; anonimização; lista de fornecedores</td><td><span class="chip c-dec">decisão sua</span></td><td>Antes de pharma e do banco de dados</td></tr>
+    </tbody>
+  </table></div>
+
+  <span class="num">11</span>
+  <h2>Ordem de ataque</h2>
+  <figure class="fig">
+<pre class="mermaid">
+flowchart TB
+  S1[Semana 1<br/>Ditado no iPhone<br/>Gemma no mini em lote] --> S2[Semana 2<br/>Paciente = telefone<br/>Termos ligados<br/>Régua com 10 gravações]
+  S2 --> S3[Semanas 3–4<br/>Versão simples + WhatsApp<br/>do paciente<br/>Fila com prioridade]
+  S3 --> S4[Semanas 5–6<br/>Histórico do paciente<br/>Compartilhar entre médicos<br/>Conexão e Sobre a pessoa]
+  S4 --> S5[Semanas 7–8<br/>Transcrição no aparelho<br/>Minis em produção<br/>Extensão do Chrome]
+  S5 --> B[Beta com médicos reais]
+  style B fill:#2dd4bf33,stroke:#1c9a86
+</pre>
+    <figcaption>Semana 1 é medição, não código: as duas coisas que decidem o custo. Depois, o lado do paciente antes dos extras pagos, porque é ele que gira o laço.</figcaption>
+  </figure>
+
+  <span class="num">12</span>
+  <h2>Para você aprovar</h2>
+  <div class="aprov">
+    <div><span class="k">1</span><span><strong>O laço é o produto.</strong> Lado do paciente sempre grátis, construído antes dos extras pagos.</span></div>
+    <div><span class="k">2</span><span><strong>Grátis sem limite para saúde; pago = velocidade, CRM, extras.</strong> Fila com prioridade, sem atraso artificial. Limite de 3/dia fica desligado.</span></div>
+    <div><span class="k">3</span><span><strong>Paciente e médico são o telefone.</strong> A consulta nasce ligada aos dois.</span></div>
+    <div><span class="k">4</span><span><strong>A parede:</strong> tudo que o paciente contou entra no CRM do médico; para o negócio sai anonimizado; pharma compra atenção do médico, nunca conteúdo do paciente. Sigilo entre médicos por autorização do paciente.</span></div>
+    <div><span class="k">5</span><span><strong>Guardamos tudo.</strong> Áudio por cota, texto para sempre.</span></div>
+    <div><span class="k">6</span><span><strong>Custo:</strong> transcrição sai da API (aparelho do médico), redação vai para Gemma/Qwen nos minis com API de reserva. Gemini fica como reserva e como "pago".</span></div>
+    <div><span class="k">7</span><span><strong>Semana 1 é medição:</strong> ditado no iPhone e Gemma no mini. Depende de você: o iPhone e um mini ligado.</span></div>
+    <div><span class="k">8</span><span><strong>Advogado</strong> antes de pharma e do banco anonimizado, com quatro perguntas: anonimização suficiente, fornecedores de IA, o consentimento do paciente na conta, e a palavra "indisponível" na política de retenção.</span></div>
+    <div><span class="k">9</span><span><strong>Resgate de janeiro, aprovado em 09/09:</strong> convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; espaço tem ou não tem; a dica é a mídia; degustação de uso pessoal; sem exportar dados; paciente não vê áudio.</span></div>
+  </div>
+  <p class="fonte">Fontes: repositório consulta-ia (docs/gravador-v2.md, docs/prompt-confabulacao/*), especificação V4 de 01/04/2026, três pesquisas profundas de 08/09, pesquisas sobre o Noa de 08–09/09, medições desta semana no MacBook e via OpenRouter. Números marcados como medidos foram medidos; os demais são do plano ou estimados.</p>
+</main>

@@ -1,0 +1,467 @@
+<title>Resgate de janeiro</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--azul:#4c7fb5;--azul-fundo:rgba(76,127,181,.14);--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12);--roxo:#8b6bd1;--roxo-fundo:rgba(139,107,209,.14)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:17px;line-height:1.6}
+  main{max-width:46rem;margin:0 auto;padding:3rem 1.5rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.4rem;line-height:1.1;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.8rem;margin:3.5rem 0 .75rem;text-wrap:balance}
+  p{margin:0 0 1rem;max-width:68ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .placar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin:1.5rem 0}
+  .placar div{background:var(--papel-2);padding:.8rem .9rem}
+  .placar .n{font-family:"Newsreader",Georgia,serif;font-size:2rem;line-height:1.1}
+  .placar .l{font-size:.85rem;color:var(--cinza);margin-top:.2rem}
+  @media (max-width:640px){.placar{grid-template-columns:1fr 1fr}}
+  .item{border-top:1px solid var(--linha);padding:1.6rem 0 1.2rem;margin:0}
+  .item .k{font-family:"Newsreader",Georgia,serif;font-size:1.1rem;color:var(--teal-escuro);letter-spacing:.06em;display:block;margin-bottom:.3rem}
+  .item h3{margin:0 0 .9rem;font-size:1.25rem;font-weight:600;line-height:1.3}
+  .item h3 .chip{vertical-align:middle;margin-left:.4rem}
+  .item .par{display:grid;grid-template-columns:1fr;gap:.9rem}
+  .item .par > div{padding:.1rem 0 .1rem 1rem;border-left:3px solid var(--linha);font-size:1rem;line-height:1.6}
+  .item .par > div:last-child{border-left-color:var(--teal)}
+  .item .par b{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);margin-bottom:.3rem}
+  .item .onde{font-size:.9rem;color:var(--cinza);margin-top:.9rem}
+  .chip{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:.12rem .5rem;border-radius:999px;white-space:nowrap}
+  .c-res{background:var(--teal-fundo);color:var(--teal-escuro)} .c-ada{background:var(--ambar-fundo);color:var(--ambar)} .c-novo{background:var(--roxo-fundo);color:var(--roxo)} .c-fora{background:var(--vermelho-fundo);color:var(--vermelho)}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px;margin:1rem 0}
+  table{border-collapse:collapse;width:100%;min-width:34rem;font-size:1rem}
+  th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2)}
+  td{padding:.55rem .8rem;border-bottom:1px solid var(--linha);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  .nota{font-size:.95rem;color:var(--cinza)}
+  .msg{font-family:"IBM Plex Mono",Menlo,monospace;font-size:.92rem;background:var(--papel);border:1px solid var(--linha);border-radius:8px;padding:.7rem .9rem;white-space:pre-wrap;margin:.5rem 0 0}
+  .frase{font-family:"Newsreader",Georgia,serif;font-size:1.15rem;color:var(--tinta);margin:.2rem 0 1rem;line-height:1.4}
+  .vis{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1rem 1.1rem;margin:1rem 0}
+  .vis svg{display:block;max-width:100%;height:auto;margin:0 auto}
+  .vis .leg{font-size:.85rem;color:var(--cinza);margin-top:.5rem}
+  .fluxo{display:grid;gap:.4rem;margin:.3rem 0}
+  .fluxo div{display:grid;grid-template-columns:1.8rem 1fr;gap:.6rem;align-items:start;font-size:.98rem}
+  .fluxo b{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:999px;background:var(--teal);color:#062a26;font-size:.8rem}
+  .fluxo .seta{grid-template-columns:1.8rem 1fr;color:var(--cinza);font-size:1rem;padding-left:.35rem}
+  .bolha{max-width:80%;padding:.6rem .9rem;border-radius:14px;margin:.35rem 0;font-size:.95rem;line-height:1.45}
+  .bolha.eu{background:var(--teal-fundo);margin-left:auto;border-bottom-right-radius:4px}
+  .bolha.ia{background:var(--papel);border:1px solid var(--linha);border-bottom-left-radius:4px}
+  .bolha small{display:block;font-size:.72rem;color:var(--cinza);margin-bottom:.15rem;letter-spacing:.05em;text-transform:uppercase}
+  .barras{display:grid;gap:.45rem;margin:.5rem 0}
+  .barra{display:grid;grid-template-columns:11rem 1fr 5.5rem;gap:.7rem;align-items:center;font-size:.92rem}
+  .barra .t{height:16px;background:var(--linha);border-radius:4px;overflow:hidden}
+  .barra .t i{display:block;height:100%;background:var(--teal)}
+  .barra .t i.v{background:var(--vermelho)} .barra .t i.a{background:var(--ambar)}
+  .barra .r{text-align:right;font-variant-numeric:tabular-nums}
+  .par2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.5rem 0}
+  @media (max-width:640px){.par2{grid-template-columns:1fr}}
+  .par2 > div{background:var(--papel);border:1px solid var(--linha);border-radius:8px;padding:.7rem .9rem;font-size:.95rem}
+  .par2 b{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);margin-bottom:.3rem}
+  .par2 .ruim{border-color:var(--vermelho)} .par2 .bom{border-color:var(--teal-escuro)}
+  .vis text{font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;fill:var(--tinta-2);font-size:12px}
+  .vis .eixo{stroke:var(--linha);stroke-width:1} .vis .lin{fill:none;stroke:var(--teal-escuro);stroke-width:3} .vis .lin2{fill:none;stroke:var(--vermelho);stroke-width:3} .vis .pt{fill:var(--teal-escuro)} .vis .marca{stroke:var(--ambar);stroke-width:2;stroke-dasharray:4 4}
+  .aprov{display:grid;gap:.5rem;margin:1rem 0}
+  .aprov div{display:grid;grid-template-columns:2.2rem 1fr;gap:.8rem;align-items:start;padding:.9rem 1rem;font-size:1rem;border:1px solid var(--linha);border-radius:8px;background:var(--papel-2)}
+  .aprov .k{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--teal-escuro)}
+</style>
+<main>
+  <div class="eyebrow">Helena (MarIA) · o que resgatar da especificação de janeiro/2026 · para aprovação</div>
+  <h1>Resgate de janeiro</h1>
+  <p class="lead">Li os 17 capítulos da especificação de janeiro contra o que decidimos em abril e medimos esta semana. Treze ideias de janeiro voltam e uma nasceu hoje; oito delas levam a sua marca. Seis ficam guardadas como histórico.</p>
+
+  <div class="placar">
+    <div><div class="n">6</div><div class="l">voltam como estavam</div></div>
+    <div><div class="n">8</div><div class="l">mudadas ou criadas pelos seus comentários</div></div>
+    <div><div class="n">6</div><div class="l">ficam como histórico</div></div>
+    <div><div class="n">1</div><div class="l">precisa ser refeito: o modelo financeiro</div></div>
+  </div>
+
+  <h2>O que volta</h2>
+  <p class="nota">Cada item tem uma frase resumo, o que janeiro dizia, o que vira hoje, e um desenho ou exemplo. Os marcados em roxo mudaram com os seus comentários.</p>
+
+  <div class="item"><span class="k">ITEM 1</span><div>
+    <h3>Convite com o telefone como código <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">O médico encaminha uma mensagem. Só isso. O telefone dele é o código.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>O médico encaminha uma mensagem pronta cujo link carrega o número dele. Quando o indicado manda a mensagem, a Helena lê o número no texto e registra o vínculo. Zero sistema de convites.</div>
+      <div><b>Hoje vira</b>Igual, com o texto que você escreveu. Depois, o mesmo mecanismo serve para o paciente convidar o médico dele: o link carrega o telefone do paciente.</div>
+    </div>
+    <div class="vis">
+      <div class="fluxo">
+        <div><b>1</b><span>Dr. João pede para indicar. A Helena manda a ele uma mensagem pronta para encaminhar. O link dentro dela já carrega o telefone do João.</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>2</b><span>Ele encaminha para a Dra. Maria pelo WhatsApp. Não precisa explicar nada.</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>3</b><span>A Maria toca no link. O WhatsApp dela abre já com a mensagem escrita: "Quero testar a Helena. Indicada por 48 99914-4325".</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>4</b><span>Ela envia. A Helena lê o número no texto e registra: Maria foi indicada pelo João.</span></div>
+      </div>
+      <div class="bolha ia" style="margin-top:.8rem"><small>mensagem que o João encaminha · texto seu</small>🩺 Cansou de perder tempo escrevendo prontuário? Resolva de graça.<br>Teste a Helena: grava a consulta e o prontuário sai pronto em 2 minutos. De graça.<br>👉 [link]</div>
+      <div class="leg">Não existe "código de convite" para ninguém digitar. O código é o telefone, que já existe. Zero tela de cadastro, zero sistema de convites.</div>
+    </div>
+    <div class="onde">Entra na seção 1 (o laço) e na 11 (ordem de ataque, semana 3).</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 2</span><div>
+    <h3>Prêmio por indicação <span class="chip c-novo">mudou com o seu comentário</span></h3>
+    <p class="frase">Prêmio em Pro não faz sentido para quem nunca vai pagar. O motor viral é o paciente, não o prêmio.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>"+3 dias ilimitados" por cada indicado que faz a primeira gravação. Como o grátis era limitado a 3 por dia, esse era o motor da indicação.</div>
+      <div><b>Hoje vira</b>Você derrubou o Pro como prêmio, e está certo: quem tem grátis ilimitado não paga R$ 47, e o pago não dá volume. A indicação entre médicos fica sem prêmio, só com o pedido bem feito. O laço com o paciente é que faz o volume.</div>
+    </div>
+    <div class="vis">
+      <div class="par2">
+        <div class="ruim"><b>O que eu tinha proposto</b>Indicou um colega que gravou: ganha 30 dias de Pro. Seu comentário: esse médico não vai pagar nunca, o grátis é bom demais para "doer", e não dá volume. Concordo.</div>
+        <div class="bom"><b>O que muda</b>A indicação médico → médico não precisa de prêmio em dinheiro nem em Pro. O que faz o médico indicar é o produto ser bom e a Helena pedir na hora certa. E o motor de verdade é outro: o <strong>paciente</strong>, que sai da consulta com a Helena no bolso e leva para o próximo médico.</div>
+      </div>
+      <div class="leg" style="margin-top:.8rem"><strong>Se ainda quiser um prêmio</strong>, que seja coisa que o médico sente e não corrói o grátis: consultas guardadas a mais (o backup do item 9), ou o painel de gestão do item 4 liberado antes. Deixo como decisão sua; a página do projeto vai sem prêmio até você bater o martelo.</div>
+    </div>
+    <div class="onde">Seção 1 (o laço). Decisão pendente: prêmio, e qual.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 3</span><div>
+    <h3>Indicação só conta quando o indicado grava de verdade <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">O indicado só conta quando grava a primeira consulta, não quando se cadastra.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>O bônus é creditado quando o indicado faz a primeira transcrição, não no cadastro. Evita conta falsa.</div>
+      <div><b>Hoje vira</b>Igual, mesmo sem prêmio: é o que define "médico ativo" para todo o resto. A régua "é consulta de saúde?" já existe na vigia.</div>
+    </div>
+    <div class="vis">
+      <div class="par2">
+        <div class="ruim"><b>Se contasse no cadastro</b>Alguém cria 20 contas falsas com chips baratos e a base fica cheia de número morto. Métrica errada, dado sujo.</div>
+        <div class="bom"><b>Conta só na primeira gravação real</b>A conta só vira "médico ativo" quando grava uma consulta de saúde de verdade, e a Helena já sabe reconhecer se é consulta. Vale para indicação, para o painel e para a prova social.</div>
+      </div>
+    </div>
+    <div class="onde">Regra de negócio; seção 6.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 4</span><div>
+    <h3>O painel de gestão: ele vê o próprio negócio, e o painel congela <span class="chip c-novo">mudou com o seu comentário</span></h3>
+    <p class="frase">Nas primeiras 25 consultas o médico vê o painel completo, com os dados dele. Depois o painel para no tempo. Atualizar é um clique: o Pro. E o histórico se abre conforme ele fica.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Cortar no dia 3, no pico de empolgação: trial de 3 dias sem limite e depois a trava.</div>
+      <div><b>Hoje vira</b>Sua ideia, e é melhor que "resumo no grátis": o grátis não vê um painel menor, vê o painel <em>inteiro</em>, mas parado nas primeiras semanas dele. Ele sabe o que o produto entrega porque viu com os dados dele. E quer ver o mês seguinte. Com um clique, tem.</div>
+    </div>
+    <div class="vis">
+      <div style="font-size:.85rem;color:var(--cinza);margin-bottom:.6rem">Como o médico grátis vê o painel no dia 40</div>
+      <div style="border:1px dashed var(--ambar);border-radius:8px;padding:.7rem .9rem;margin-bottom:.8rem;font-size:.92rem"><strong style="color:var(--ambar)">Seu painel parou em 24/09.</strong> Estes são os números das suas duas primeiras semanas. Desde então você gravou mais 63 consultas que não estão aqui. <strong>Atualizar agora: Pro.</strong> [ATUALIZAR]</div>
+      <div class="par2">
+        <div><b>Atendimentos até 24/09</b><div style="font-family:Newsreader,Georgia,serif;font-size:1.8rem;line-height:1">47</div><span class="nota">4,7 por dia · 32 h gravadas</span></div>
+        <div><b>Retornos até 24/09</b><div style="font-family:Newsreader,Georgia,serif;font-size:1.8rem;line-height:1">9</div><span class="nota">19 % voltaram · 3 sem retorno marcado</span></div>
+      </div>
+      <div class="barras" style="margin-top:.8rem">
+        <div class="barra"><span>Dor no joelho</span><div class="t"><i style="width:100%"></i></div><span class="r">12</span></div>
+        <div class="barra"><span>Lombalgia</span><div class="t"><i style="width:75%"></i></div><span class="r">9</span></div>
+        <div class="barra"><span>Pós-operatório</span><div class="t"><i style="width:58%"></i></div><span class="r">7</span></div>
+        <div class="barra"><span>Outros</span><div class="t"><i class="a" style="width:100%"></i></div><span class="r">19</span></div>
+      </div>
+      <div class="leg" style="margin-top:.8rem">Tudo sai do prontuário que já existe: queixa, hipótese, conduta, retorno. É gestão que o médico hoje não tem nem em papel.</div>
+    </div>
+    <div class="vis">
+      <div style="font-size:.85rem;color:var(--cinza);margin-bottom:.6rem">Os outros momentos em que o Pro aparece e some, sempre quando vale mais</div>
+      <div class="tabela-wrap" style="margin:0"><table style="min-width:0;font-size:.92rem">
+        <thead><tr><th>Momento</th><th>O que ele vê de Pro</th><th>Por que aqui</th></tr></thead>
+        <tbody>
+          <tr><td>Primeiras 25 consultas (não 14 dias)</td><td>Tudo: fila rápida, ficha dos pacientes, painel vivo</td><td>Seu ponto: em 14 dias ele pode ter gravado 3 consultas e o painel não diz nada. Contar consultas garante que há dado. 25, como você fechou.</td></tr>
+          <tr><td>Toda vez que um paciente volta</td><td>A ficha daquele paciente, completa, uma vez</td><td>É o momento de maior valor do CRM: reconhecer a pessoa na frente dela.</td></tr>
+          <tr><td>Fim de cada mês</td><td>"Seu mês em números", painel vivo por 24 horas</td><td>Ele compara com o painel congelado que tem no resto do tempo.</td></tr>
+          <tr><td>A cada 50 consultas gravadas</td><td>7 dias de Pro</td><td>Ganho por uso, não por indicação. Quem mais usa é quem mais tende a pagar.</td></tr>
+          <tr><td>Todo dia</td><td>A fila: 1 minuto no Pro, até 1 hora no grátis</td><td>O único atrito diário. Faz o grátis não ser confortável demais sem tirar nada.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="leg">Três regras: quando mostra, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver; e nunca se tira o que é do grátis.</div>
+    </div>
+    <div class="vis">
+      <div style="font-size:.85rem;color:var(--cinza);margin-bottom:.6rem">O "malandrão" (paga um mês, abre um ano, exporta, cancela) e a regra simples que fecha isso</div>
+      <div class="par2">
+        <div><b>Mensal · R$ 47</b>Fila rápida, ficha dos pacientes, painel vivo <strong>daqui em diante</strong>. Tudo que ele grava pagando fica dele: três anos de mensal são três anos de painel. O que fica fechado é só o <strong>período em que ele não pagava</strong>, congelado nas primeiras 25 consultas.</div>
+        <div class="bom"><b>Anual · recorrente</b>Tudo isso <strong>e o período sem pagar liberado</strong>. Quem usou um ano de graça e assina o anual leva dois: o que já gravou e o que vem. Cancelou o anual, aquele período fecha de novo; o que gravou pagando continua dele.</div>
+      </div>
+      <div class="leg" style="margin-top:.6rem">Duas portas bastam. A segunda é a oferta irresistível: "contrate o ano e libere tudo que você gravou de graça". Quanto mais tempo ele usou sem pagar, maior o tesouro atrás da porta. O malandrão não existe: o período grátis só abre no anual, e o anual é recorrente. (Sobre "exportar o CRM": era baixar a lista de pacientes e fichas em arquivo. Com essa regra não precisa de trava nenhuma: ele exporta o que tem acesso, e ponto.)</div>
+    </div>
+    <div class="onde">Seção 6 (grátis e pago) e seção 2 (lado do médico). Entra no CRM.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 5</span><div>
+    <h3>A dica no prontuário é a mídia, e fala com os números do próprio médico <span class="chip c-novo">mudou com o seu comentário</span></h3>
+    <p class="frase">Cada prontuário entregue é um momento de atenção total. A dica usa o painel dele para dizer algo útil, e nessa dica cabe a propaganda.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>O usuário grátis como ativo de mídia: um contato com 99 % de abertura, mais barato que disparo e remarketing.</div>
+      <div><b>Hoje vira</b>Seu exemplo fechou a ideia: a dica não é genérica, é gestão. "Você caiu 20 %" vem do painel dele. E o que se oferece na sequência é a mídia: serviço da Método 3A, conteúdo, indústria. Marketing de conteúdo no lugar mais lido que existe.</div>
+    </div>
+    <div class="vis">
+      <div class="bolha ia"><small>Helena · entregando o prontuário</small>✅ Prontuário da Ana pronto. Revisa e copia:<br>[prontuário]<br><br><span style="color:var(--ambar)">💡 Mês passado você atendeu 5 pacientes por dia. Este mês está em 4: caiu 20 %. Um paciente novo de endocrinologia custa em média R$ 300 em mídia. Quer ver como recuperar esses 20 %? [MARCAR UMA CONVERSA]</span></div>
+      <div class="bolha ia" style="margin-top:.6rem"><small>a mesma dica, vendendo o Pro</small><span style="color:var(--ambar)">💡 Suas consultas caíram 20 % este mês. Dá para ver por quê no painel de gestão: que dia da semana esvaziou, quem não voltou. O painel atualizado é do Pro. [VER O PAINEL]</span></div>
+      <div class="bolha ia" style="margin-top:.6rem"><small>a mesma dica, com a indústria</small><span style="color:var(--ambar)">💡 12 dos seus pacientes este mês têm dor no joelho. Conteúdo: o que mudou no tratamento de condropatia em 2026, por [laboratório]. [LER EM 2 MIN]</span></div>
+      <div class="barras" style="margin-top:.8rem">
+        <div class="barra"><span>E-mail marketing</span><div class="t"><i class="v" style="width:3%"></i></div><span class="r">R$ 0,05 · 20 % abre</span></div>
+        <div class="barra"><span>Disparo WhatsApp</span><div class="t"><i class="a" style="width:25%"></i></div><span class="r">R$ 0,50 · 60 % abre</span></div>
+        <div class="barra"><span>Remarketing Meta</span><div class="t"><i class="a" style="width:100%"></i></div><span class="r">R$ 2,00 · interrompe</span></div>
+        <div class="barra"><span>Dica no prontuário</span><div class="t"><i style="width:2%"></i></div><span class="r">R$ 0,02 · 100 % lê</span></div>
+      </div>
+      <div class="leg">Um médico com 150 consultas por mês são 150 momentos de atenção por mês, por R$ 3. A dica faz rodízio: um terço vende o Pro com os números dele, um terço serviço da Método 3A ou conteúdo, um terço indústria. Nunca duas iguais seguidas. A dica usa os números do negócio do médico, que são dele e estão nos termos. Nunca usa o conteúdo do paciente para escolher o anúncio: essa é a parede. É o que a Memed vende dentro da receita e a Doximity vende a US$ 228 por médico por ano.</div>
+    </div>
+    <div class="onde">Seção 8 (como ganha dinheiro) e seção 7 (a parede).</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 6</span><div>
+    <h3>Onboarding em 4 passos, com duas regras duras <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">Do oi à primeira gravação em menos de 5 minutos, sem cadastro.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Boas-vindas e "salva meu contato, sem isso não funciona"; e-mail opcional; termos discretos em uma linha; link de gravação. Não avança sem salvar o contato. Primeira gravação na primeira sessão.</div>
+      <div><b>Hoje vira</b>Igual para o médico. E o mesmo desenho serve para o paciente: salvar o contato da Helena é o que garante que o lembrete e a orientação do médico chegam.</div>
+    </div>
+    <div class="vis">
+      <div class="bolha ia"><small>Helena</small>Oi! 👋 Eu sou a Helena. Gravo suas consultas e entrego o prontuário pronto em minutos.<br><br>🚨 Sem isso não funciona: salva meu contato agora na sua agenda. Me avisa quando salvar.</div>
+      <div class="bolha eu"><small>médico</small>salvei</div>
+      <div class="bolha ia"><small>Helena</small>Para começar, basta concordar com os termos (link) e dizer INICIAR.</div>
+      <div class="bolha eu"><small>médico</small>iniciar</div>
+      <div class="bolha ia"><small>Helena</small>Pronto! 🎉 Clica aqui para gravar a primeira consulta: 👉 [link]<br>É só gravar. Eu devolvo o prontuário em 2 minutos.</div>
+      <div class="leg">Duas regras duras: não avança sem salvar o contato (sem isso o WhatsApp bloqueia as mensagens), e a primeira gravação tem que acontecer na primeira conversa, em menos de 5 minutos.</div>
+      <div style="font-size:.85rem;color:var(--cinza);margin:1rem 0 .4rem">Você perguntou o que separa o Pro do grátis. Hoje está assim na página do projeto:</div>
+      <div class="tabela-wrap" style="margin:0"><table style="min-width:0;font-size:.92rem">
+        <thead><tr><th>Recurso</th><th>Grátis</th><th>Pro</th></tr></thead>
+        <tbody>
+          <tr><td>Gravar consultas de saúde</td><td>sem limite</td><td>sem limite</td></tr>
+          <tr><td>Prontuário pronto em</td><td>fila, até ~1 h</td><td>1 minuto</td></tr>
+          <tr><td>Paciente recebe orientação e lembretes</td><td>sim</td><td>sim</td></tr>
+          <tr><td>Painel de gestão (item 4)</td><td>resumo</td><td>completo, por paciente</td></tr>
+          <tr><td>CRM: linha do tempo, Conexão, Sobre a pessoa</td><td>só a consulta de hoje</td><td>tudo, com busca</td></tr>
+          <tr><td>Pergunte ao histórico (item 13)</td><td>não</td><td>sim</td></tr>
+          <tr><td>Gravar reunião, aula, ditado</td><td>a primeira de presente</td><td>sim</td></tr>
+          <tr><td>Áudio guardado</td><td>~75 consultas</td><td>3.800 ou 13.000 consultas</td></tr>
+          <tr><td>Receita, exame, atestado, carta</td><td>não</td><td>sim</td></tr>
+          <tr><td>Modelos por especialidade, editar na tela</td><td>não</td><td>sim</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="onde">Seção 3 (a consulta) e lado do paciente.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 7</span><div>
+    <h3>Os scripts de conversa <span class="chip c-novo">mudou com o seu comentário</span></h3>
+    <p class="frase">Mensagens curtas, com o número do próprio médico. E, no Pro, dizer na cara o que o grátis não tem.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Oito mensagens prontas: após a primeira transcrição, último dia do trial, acabou a cota, indicado testou, mensagem para encaminhar, boost vencendo, oferta de upgrade.</div>
+      <div><b>Hoje vira</b>O tom fica. Você achou a minha versão suave demais ("só demora um pouco mais"), e é verdade: eufemismo não vende. A oferta do Pro passa a listar o que o médico está perdendo, e o pedido de indicação vem sem prêmio, no momento de orgulho (100 consultas).</div>
+    </div>
+    <div class="vis">
+      <div class="bolha ia"><small>Helena · oferta do Pro, sem eufemismo</small>Você gravou 47 consultas em 10 dias e economizou 7 horas de digitação. Tudo grátis, e continua.<br><br>O que você <strong>não</strong> tem no grátis:<br>• o prontuário em 1 minuto (hoje espera a fila)<br>• a ficha de cada paciente, com o que ele contou e quando voltou<br>• o painel do seu consultório atualizado: o que você mais atende, quem sumiu<br>• perguntar ao seu histórico<br>• espaço para guardar 3.800 consultas com áudio (no grátis, 75)<br><br>Isso é o Pro: R$ 47 por mês. Menos que uma consulta.<br>[QUERO O PRO]</div>
+      <div class="bolha ia"><small>Helena · pedido de indicação, sem prêmio</small>Você já gravou 100 consultas com a Helena. 🎉<br>Conhece um colega que ainda escreve prontuário na mão? Encaminha isso para ele:<br>[mensagem pronta do item 1]</div>
+      <div class="leg">O que fica de janeiro: direto, com o número do próprio médico, uma ação por mensagem. O que muda pelo seu comentário: nada de "só demora um pouquinho mais". A mensagem lista o que ele não tem.</div>
+    </div>
+    <div class="onde">Seção 6 e o bot de WhatsApp, quando existir.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 8</span><div>
+    <h3>Modelo Academia: máquina própria, custo fixo <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">Pagar por consulta é táxi. Ter a máquina é academia: usa quanto quiser pelo mesmo preço.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Táxi (API, paga por corrida) contra Academia (aluguel fixo). Whisper e Llama/Qwen em servidor próprio; RTX 4090 a R$ 300/mês para ~55 médicos.</div>
+      <div><b>Hoje vira</b>Você já tinha decidido isso em janeiro. Esta semana mediu: Qwen 27B num Mac mini dá ~60 médicos. A GPU alugada vira os minis parados.</div>
+    </div>
+    <div class="vis">
+      <svg viewBox="0 0 640 230" role="img" aria-label="Táxi contra Academia: custo conforme o uso">
+        <line x1="50" y1="190" x2="610" y2="190" class="eixo"/><line x1="50" y1="20" x2="50" y2="190" class="eixo"/>
+        <polyline class="lin2" points="50,190 600,30"/>
+        <polyline class="lin" points="50,130 600,130"/>
+        <text x="330" y="212" text-anchor="middle">consultas por mês →</text>
+        <text x="20" y="105" text-anchor="middle" transform="rotate(-90 20 105)">custo por mês</text>
+        <text x="560" y="50" text-anchor="end" style="fill:var(--vermelho);font-weight:600">Táxi (API): cresce com o uso</text>
+        <text x="560" y="122" text-anchor="end" style="fill:var(--teal-escuro);font-weight:600">Academia (máquina própria): fixo</text>
+        <circle cx="240" cy="130" r="5" class="pt"/><text x="240" y="150" text-anchor="middle">a partir daqui a máquina própria é mais barata</text>
+      </svg>
+      <div class="leg">Janeiro: GPU alugada a R$ 300/mês para ~55 médicos. Hoje: os Mac minis parados, medidos em ~60 médicos cada. Mesma ideia, máquina que já existe. E a transcrição vai mais longe: para o celular ou PC do médico, que é custo zero para nós.</div>
+    </div>
+    <div class="onde">Seção 4 (onde roda). Só muda a máquina.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 9</span><div>
+    <h3>Backup de áudio como proteção jurídica <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">O áudio guardado é a prova do médico. Vende-se em consultas guardadas, não em gigabytes.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>"Por menos de 1 centavo por consulta você guarda o áudio original." Vendido em consultas guardadas. Aviso em 90 % do limite. Margem mínima 50 %.</div>
+      <div><b>Hoje vira</b>É a razão de guardar o áudio, e o texto de venda está pronto. Encaixa nas cotas de abril: 1 GB, 50 GB e 175 GB viram ~75, ~3.800 e ~13.000 consultas guardadas.</div>
+    </div>
+    <div class="vis">
+      <div class="bolha ia"><small>Helena · oferta de backup</small>Por menos de 1 centavo por consulta você guarda o áudio original de tudo que gravou.<br>Se algum dia um paciente questionar algo, você tem a prova. Não precisa ser sua palavra contra a dele.<br>Quer ativar?</div>
+      <div class="par2" style="margin-top:.8rem">
+        <div><b>Regras de janeiro que ficam</b>Vender em "consultas guardadas", nunca em GB. Avisar quando chegar a 90 % do limite. Margem mínima de 50 %. Reajuste anual.</div>
+        <div><b>A conta que você fez</b>Um centavo parece nada. Mil consultas guardadas por médico, mil médicos, é R$ 10 mil por mês por um dado que custa R$ 0,02 por GB para guardar. E o médico nunca cancela backup: cancelar é jogar fora a prova.</div>
+      </div>
+    </div>
+    <div class="onde">Seção 6 e 7.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 10</span><div>
+    <h3>Uso pessoal: a primeira é degustação, as próximas não <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">A primeira gravação que não é consulta vai de presente, com o botão do Pro. Da segunda em diante, tranca.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>A IA detecta que não é uso profissional, entrega mesmo assim ("essa foi por nossa conta") e avisa que as próximas custam.</div>
+      <div><b>Hoje vira</b>Hoje a vigia tranca e avisa. A versão de janeiro é mais gentil e converte melhor. Com o botão do Pro no fim, como você pediu, e a conta de quanto custa se todo mundo tentar.</div>
+    </div>
+    <div class="vis">
+      <div class="fluxo">
+        <div><b>1</b><span>Médico grátis grava uma reunião da clínica, ou uma aula.</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>2</b><span>A vigia percebe que não é consulta de saúde.</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>3</b><span>Entrega mesmo assim, uma vez: "Essa foi degustação 🎁. A Helena é grátis para consultas. Reunião, aula e ditado são do Pro." [QUERO O PRO]</span></div>
+        <div class="seta"><span></span><span>↓</span></div>
+        <div><b>4</b><span>Da segunda em diante, tranca e mostra o botão de novo. A vigia contra fraude continua por trás.</span></div>
+      </div>
+      <div class="leg"><strong>Quanto custa, já que todo mundo vai tentar:</strong> uma degustação é uma transcrição mais um prontuário. Hoje, na API, R$ 0,29 por tentativa de 35 min; no desenho final, R$ 0,02. Se 10 mil médicos tentarem uma vez cada, são R$ 2.900 hoje e R$ 200 depois. Uma vez só por médico, para sempre. Cabe.</div>
+    </div>
+    <div class="onde">Seção 3 (vigia) e 6.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 11</span><div>
+    <h3>Nove minutos por paciente, 30 horas por mês <span class="chip c-novo">mudou com o seu comentário</span></h3>
+    <p class="frase">O médico ganha um mês de trabalho por ano. Em dinheiro, só o que dá para defender.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Antes: 20 min de consulta + 10 escrevendo. Com a IA: 20 + 1 revisando. Nove minutos por paciente, 1h30 por dia, 30 horas por mês.</div>
+      <div><b>Hoje vira</b>Volta para a abertura e para o convite. Você derrubou os R$ 25 mil por mês, com razão: ninguém acredita que todo o tempo vira consulta. Fica a versão que se defende: uma hora em quatro.</div>
+    </div>
+    <div class="vis">
+      <div class="barras">
+        <div class="barra"><span>Antes, por paciente</span><div class="t"><i class="v" style="width:100%"></i></div><span class="r">30 min</span></div>
+        <div class="barra"><span>Com a Helena</span><div class="t"><i style="width:70%"></i></div><span class="r">21 min</span></div>
+      </div>
+      <div class="leg">20 minutos de consulta nos dois. A diferença é escrever: 10 minutos antes, 1 minuto revisando. Nove minutos por paciente, 1h30 por dia, 30 horas por mês. Um mês de trabalho por ano.</div>
+      <div class="bolha ia" style="margin-top:.8rem"><small>frase para a abertura e o convite</small>São 30 horas por mês de volta. Mesmo que só uma hora em quatro vire consulta, são uns 13 atendimentos a mais por mês. Faz a conta com o valor da sua consulta. De graça.</div>
+      <div class="leg">Com consulta de R$ 500, esses 13 atendimentos são R$ 6.500 por mês. O número fica com o médico fazer; a Helena dá a conta, não a promessa.</div>
+    </div>
+    <div class="onde">Abertura da página do projeto e mensagem do item 1.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 12</span><div>
+    <h3>Todas as profissões de saúde, não só médicos <span class="chip c-res">resgatar</span></h3>
+    <p class="frase">O mercado não é 600 mil médicos. É mais de 2 milhões de profissionais que fazem consulta. E, no futuro, advogados.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Médicos, dentistas, psicólogos, fisioterapeutas, nutricionistas, fonoaudiólogos, terapeutas ocupacionais, enfermeiros.</div>
+      <div><b>Hoje vira</b>A validação já aceita CRM, CRO e CRP. Faltam os outros conselhos. E o teto do plano deixa de ser 50 mil. Área jurídica anotada como futuro, com tratamento diferente.</div>
+    </div>
+    <div class="vis">
+      <div class="barras">
+        <div class="barra"><span>Médicos</span><div class="t"><i style="width:40%"></i></div><span class="r">~600 mil</span></div>
+        <div class="barra"><span>Dentistas</span><div class="t"><i style="width:27%"></i></div><span class="r">~400 mil</span></div>
+        <div class="barra"><span>Psicólogos</span><div class="t"><i style="width:33%"></i></div><span class="r">~500 mil</span></div>
+        <div class="barra"><span>Fisio, nutri, fono, TO</span><div class="t"><i style="width:30%"></i></div><span class="r">~450 mil</span></div>
+        <div class="barra"><span>Enfermeiros</span><div class="t"><i class="a" style="width:47%"></i></div><span class="r">~700 mil</span></div>
+        <div class="barra"><span>Advogados (futuro)</span><div class="t"><i class="a" style="width:87%"></i></div><span class="r">~1,3 milhão</span></div>
+      </div>
+      <div class="leg">Ordens de grandeza dos conselhos; conferir antes de publicar. O ponto: o mercado é duas a três vezes maior do que "médicos". Psicólogos e psiquiatras são os que precisam da conversa inteira, onde a Conexão brilha. E você lembrou da área jurídica: a mesma máquina, com outro tratamento (reunião com cliente, audiência), sem a parte de saúde. Fica como futuro.</div>
+    </div>
+    <div class="onde">Seção 9 (perspectiva) e cadastro.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 13</span><div>
+    <h3>O Cérebro: perguntar ao próprio histórico, e achar o ponto da conversa <span class="chip c-ada">adaptar</span></h3>
+    <p class="frase">O médico pergunta ao seu histórico e acha o trecho exato. O paciente pergunta ao dele. É o Fathom das consultas.</p>
+    <div class="par">
+      <div><b>Janeiro dizia</b>Plano Cérebro: IA avançada com busca nos seus prontuários, créditos separados da transcrição. Cérebro Pro com o modelo mais caro (Opus).</div>
+      <div><b>Hoje vira</b>Sem "modelo mais caro". Mas a ideia de <strong>perguntar ao histórico</strong> é forte, ganha o lado do paciente, e ganha o "achar o ponto da conversa" que você viu no Fathom. Futuro, não inicial.</div>
+    </div>
+    <div class="vis">
+      <div class="bolha eu"><small>médico, no CRM</small>Quais pacientes com condropatia voltaram em menos de 3 semanas?</div>
+      <div class="bolha ia"><small>Helena</small>Três: Ana (12/08 e 30/08), Carlos (05/09 e 20/09) e Beatriz (01/09 e 16/09). Nos três, a queixa no retorno foi dor ao subir escada.</div>
+      <div class="bolha eu" style="margin-top:.8rem"><small>médico, sobre uma consulta</small>Em que momento eu falei do retorno com a Ana?</div>
+      <div class="bolha ia"><small>Helena</small>Aos 28 min 40 s: "volta em 21 dias com a ressonância". Quer ouvir o trecho? ▶ &nbsp; Quer exportar como prova? Gero um PDF com o trecho da transcrição, a hora, e o link do áudio. [EXPORTAR PROVA]</div>
+      <div class="bolha eu" style="margin-top:.8rem"><small>paciente, no app</small>O que o Dr. João me disse sobre o joelho?</div>
+      <div class="bolha ia"><small>Helena</small>Na consulta de 12/08 ele pediu ressonância, orientou gelo 20 minutos duas vezes ao dia, dipirona 1 g de 6 em 6 horas se doer, e parar a caminhada por 2 semanas. Retorno marcado para 02/09.</div>
+      <div class="leg">É o que o Fathom faz com reunião gravada: você conversa com a IA e ela acha o ponto da conversa, com o trecho do áudio. E, como você usa na Método 3A para mostrar ao cliente "a gente disse, você disse", o médico exporta a prova: trecho, hora, áudio, num PDF. Casa com o backup do item 9. A mesma peça, dois lados: pago para o médico, grátis para o paciente. Você marcou como futuro, não inicial, porque dá trabalho. Concordo. Sem o "modelo mais caro" de janeiro: o estudo de 167 modelos mostrou que não precisa.</div>
+    </div>
+    <div class="onde">Seção 6, como recurso pago do médico e grátis do paciente. Fase 2.</div>
+  </div>
+
+  <div class="item"><span class="k">ITEM 14</span><div>
+    <h3>Espaço: tem ou não tem <span class="chip c-novo">ideia sua, fechada hoje</span></h3>
+    <p class="frase">Passou da cota, o áudio fica indisponível para o médico. Ele sente que perdeu. Ter é baratinho. O resgate existe, mas não se anuncia.</p>
+    <div class="par">
+      <div><b>Como estava</b>Arquivo com preço de resgate na tabela, R$ 149 ou R$ 399. Você derrubou: se a gente diz "eu guardo e você resgata depois", o médico pensa "então pago mais caro no futuro" e não compra espaço agora.</div>
+      <div><b>Como fica</b>Não tem preço de resgate, não tem "arquivo" na tela. Passou da cota, o áudio some do acesso dele. A sensação é de perda, e é isso que vende os R$ 9,90. Se um dia ele precisar de um áudio que sumiu, o atendimento diz: "podemos colocar engenheiros para tentar recuperar; não é garantido e tem um custo". Caso a caso, sem tabela.</div>
+    </div>
+    <div class="vis">
+      <div class="bolha ia"><small>Helena · aos 90 % da cota</small>Você tem 68 das suas 75 consultas com áudio guardado. Depois disso, as gravações novas deixam de ficar disponíveis para você. Garantir 3.800 consultas com áudio: R$ 9,90 por mês. [GARANTIR]</div>
+      <div class="bolha ia" style="margin-top:.6rem"><small>Helena · passou da cota</small>Esta consulta foi transcrita e o prontuário está pronto. O áudio dela não está disponível: sua cota de 75 acabou em 24/09. Para voltar a guardar: [GARANTIR R$ 9,90]</div>
+      <div class="par2" style="margin-top:.8rem">
+        <div class="ruim"><b>A única palavra que não pode</b>"Apagado". A gente guarda tudo, porque é o ativo, e a política de privacidade tem que dizer isso. Dizer "apagado" na tela e guardar por trás é o tipo de contradição que vira processo e manchete.</div>
+        <div class="bom"><b>A palavra que serve</b>"Indisponível para você." É verdade, dá a mesma sensação de perda, e deixa o resgate por atendimento existir sem prometer nada. Nos termos: "áudios além da cota ficam indisponíveis ao usuário; a Helena mantém cópias conforme a política de privacidade".</div>
+      </div>
+    </div>
+    <div class="vis">
+      <div style="font-size:.85rem;color:var(--cinza);margin-bottom:.6rem">Por que o dinheiro está no espaço, por 1.000 médicos por mês</div>
+      <div class="barras">
+        <div class="barra"><span>Espaço a R$ 9,90, se 20 % assinam</span><div class="t"><i style="width:100%"></i></div><span class="r">R$ 1.980</span></div>
+        <div class="barra"><span>Espaço a R$ 9,90, se 10 % assinam</span><div class="t"><i style="width:50%"></i></div><span class="r">R$ 990</span></div>
+        <div class="barra"><span>Resgates por atendimento, raros</span><div class="t"><i class="a" style="width:8%"></i></div><span class="r">~R$ 150</span></div>
+        <div class="barra"><span>Custo de guardar tudo</span><div class="t"><i class="v" style="width:14%"></i></div><span class="r">R$ 280</span></div>
+      </div>
+      <div class="leg" style="margin-top:.6rem">A franquia grátis é curta de propósito: 75 consultas são duas semanas de um médico cheio. Ele sente a perda cedo e assina cedo. Quem passa de 13.000 sobe um degrau, R$ 29,90. Prontuário e transcrição nunca ficam indisponíveis: só o áudio.</div>
+    </div>
+    <div class="vis">
+      <div class="par2">
+        <div class="ruim"><b>Paciente vê o áudio?</b>Não, e fechado. O médico odiaria, e a gravação deixaria de acontecer. O paciente vê a versão simples: o que o médico disse, remédio, quando voltar. Não vê o áudio nem o prontuário técnico.</div>
+        <div class="bom"><b>O que a lei exige</b>Se um paciente pedir formalmente os dados dele, a LGPD obriga a atender, e a cópia do prontuário é direito dele pelo CFM. É raro, e é tratado à mão, pelo médico. Não é funcionalidade do app.</div>
+      </div>
+    </div>
+    <div class="onde">Seção 6 e 7. Passar pelo advogado junto com os termos: a palavra "indisponível" e a política de retenção.</div>
+  </div>
+
+  <h2>Achados menores, explicados</h2>
+  <p>Coisas pequenas do documento de janeiro que não merecem um item, mas que eu usaria.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th style="width:14rem">Ideia</th><th>O que quer dizer</th><th>Onde entra</th></tr></thead>
+    <tbody>
+      <tr><td>Prova social conta usuários, não pagantes</td><td>Quando a gente disser "50 mil profissionais usam a Helena", conta quem grava, pague ou não. O número que impressiona o médico novo é o de colegas, não o de clientes.</td><td>Marketing e página inicial</td></tr>
+      <tr><td>Os 5 perfis de usuário</td><td>Janeiro dividiu a base em: maximizador (40 %, usa tudo, indica muito, decide em 3 a 5 meses), comprador rápido (2 %, paga em 2 semanas), rejeitou (50 %, testa e some), passivo (5 %, usa pouco, paga um dia), quer Cérebro (3 %, quer o avançado). Serve para o modelo financeiro não tratar todo mundo igual: o que se espera de cada grupo é diferente.</td><td>Modelo financeiro</td></tr>
+      <tr><td>Reajuste anual pelo IPCA</td><td>Uma cláusula nos termos: o preço do Pro e do backup sobe uma vez por ano pela inflação, com aviso 30 dias antes. Evita ter que "aumentar o preço" e explicar.</td><td>Termos de uso</td></tr>
+      <tr><td>E-mail como segunda entrega</td><td>Opcional no cadastro. Quem informar recebe o prontuário também por e-mail, o que ajuda quem usa o computador da clínica para copiar.</td><td>Entrega</td></tr>
+      <tr><td>Jurídico: R$ 3 a 6 mil</td><td>O orçamento de janeiro para advogado fazer termos e privacidade. Continua a mesma faixa; agora inclui a parede de dados e o consentimento do paciente.</td><td>Orçamento, decisão sua</td></tr>
+      <tr><td>Próximos passos de janeiro que seguem valendo</td><td>Validar com 10 médicos do 3A; contratar o jurídico; definir modelos de prontuário por especialidade. Os três continuam abertos.</td><td>Seção 11 (ordem de ataque)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>O que fica para trás, guardado como histórico</h2>
+  <p class="nota">Não volta, mas fica registrado no repositório para contar o caminho: o que se pensou, quando e por que mudou.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Janeiro</th><th>Por que não volta</th></tr></thead>
+    <tbody>
+      <tr><td>Gravar pelo WhatsApp</td><td>Decidido em abril: gravação na web, entrega pelo WhatsApp. O gravador de hoje faz coisas que o WhatsApp não deixa: pedaços, silêncio, vigia.</td></tr>
+      <tr><td>3 transcrições por dia depois do trial</td><td>Abril: grátis ilimitado para saúde. O limite existe no código, desligado, como saída de emergência.</td></tr>
+      <tr><td>Preços de R$ 147, 247 e 397</td><td>Abril: R$ 29–47 e 59–97. E o pago deixou de ser o negócio.</td></tr>
+      <tr><td>Apagar o áudio em 24 h sem backup</td><td>Abril: cota por plano. O áudio é produto e ativo.</td></tr>
+      <tr><td>Cérebro Pro com o modelo mais caro (Opus)</td><td>O estudo de 167 modelos mostrou que a régua é passada por modelos 60× mais baratos.</td></tr>
+      <tr><td>RTX 4090 alugada a R$ 300/mês</td><td>Os Mac minis parados fazem o mesmo trabalho, medido.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>O modelo financeiro precisa ser refeito</h2>
+  <p>Os cinco cenários de janeiro usam premissas que mudaram. Não dá para aproveitar os números; dá para aproveitar a estrutura.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Premissa</th><th>Janeiro</th><th>Hoje</th></tr></thead>
+    <tbody>
+      <tr><td>Custo do grátis por mês</td><td>R$ 1,50</td><td>~R$ 0,80 no desenho final (R$ 44 hoje, na API)</td></tr>
+      <tr><td>Custo do pagante por mês</td><td>R$ 10</td><td>~R$ 1</td></tr>
+      <tr><td>Receita</td><td>só assinatura (R$ 147–397)</td><td>assinatura (R$ 47–97) + serviços M3A + pharma + dados</td></tr>
+      <tr><td>Teto de mercado</td><td>50 mil médicos</td><td>600 mil médicos, 1,5 milhão de profissionais de saúde</td></tr>
+      <tr><td>Base inicial</td><td>300 médicos do 3A</td><td>400 clientes do 3A + laço viral com o paciente</td></tr>
+      <tr><td>O que se mantém</td><td colspan="2">churn 3 %, taxa de teste 30 %, conversão 7 %, 5 perfis, CAC viral contra tráfego pago, breakeven acumulado como métrica</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Refaço os cinco cenários com essas premissas assim que a página do projeto for aprovada, e o resultado entra na seção 8.</p>
+
+  <h2>Para você aprovar</h2>
+  <div class="aprov">
+    <div><span class="k">A</span><span>Os 14 itens voltam para a página do projeto, nas seções indicadas, com as suas mudanças. Achados menores: todos.</span></div>
+    <div><span class="k">B</span><span>Indicação entre médicos sem prêmio em Pro. Se houver prêmio, é consultas guardadas ou o painel liberado antes.</span></div>
+    <div><span class="k">C</span><span>Painel completo nas primeiras 25 consultas, depois congelado. Mensal: Pro daqui em diante, e o que grava pagando é dele. Anual recorrente: libera o período em que não pagava. Mais os momentos Pro: paciente que volta, fim do mês por 24 h, 7 dias a cada 50 consultas, e a fila todo dia.</span></div>
+    <div><span class="k">D</span><span>A dica no fim do prontuário é a mídia, escrita com os números do próprio médico. Vende serviço da Método 3A, conteúdo ou indústria. Nunca usa conteúdo do paciente.</span></div>
+    <div><span class="k">E</span><span>Oferta do Pro sem eufemismo, incluindo o espaço de áudio.</span></div>
+    <div><span class="k">F</span><span>Uso pessoal: a primeira é degustação, com o botão do Pro; da segunda em diante, tranca.</span></div>
+    <div><span class="k">G</span><span>Na abertura: 30 horas por mês, "uma hora em quatro", sem os R$ 25 mil.</span></div>
+    <div><span class="k">H</span><span>Cérebro com "achar o trecho" e "exportar prova" em PDF, fase 2. Área jurídica como futuro.</span></div>
+    <div><span class="k">I</span><span>Espaço: tem ou não tem. Além da cota, o áudio fica "indisponível para você" (nunca "apagado"). Resgate só por atendimento, sem tabela, sem garantia. Franquia grátis curta, degrau de R$ 29,90 acima de 13.000. Prontuário nunca fica indisponível. Paciente não vê áudio.</span></div>
+    <div><span class="k">J</span><span>Modelo financeiro refeito com as premissas de hoje, mantendo a estrutura e os 5 perfis de janeiro.</span></div>
+  </div>
+</main>

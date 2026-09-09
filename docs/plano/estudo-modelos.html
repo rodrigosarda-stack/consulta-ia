@@ -1,0 +1,3029 @@
+<title>Estudo de modelos da MarIA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12);--azul:#4c7fb5;--azul-fundo:rgba(76,127,181,.14)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--vermelho:#e07070;--azul:#7fa9db}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--vermelho:#e07070;--azul:#7fa9db}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55}
+  main{max-width:64rem;margin:0 auto;padding:3rem 1.25rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.4rem;line-height:1.1;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.5rem;margin:2.5rem 0 .75rem;text-wrap:balance}
+  p{margin:0 0 1rem;max-width:68ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  .placar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin:1.5rem 0}
+  .placar div{background:var(--papel-2);padding:.8rem .9rem}
+  .placar .n{font-family:"Newsreader",Georgia,serif;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .placar .l{font-size:.75rem;color:var(--cinza);margin-top:.15rem}
+  @media (max-width:700px){.placar{grid-template-columns:1fr 1fr}}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
+  .regua{display:grid;grid-template-columns:auto 1fr;gap:.4rem 1rem;font-size:.92rem;margin:.5rem 0}
+  .regua b{font-family:"IBM Plex Mono",Menlo,monospace;font-weight:500;color:var(--teal-escuro)}
+  .filtros{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0 .75rem}
+  .filtros input[type=search]{font:inherit;padding:.4rem .6rem;border:1px solid var(--linha);border-radius:6px;background:var(--papel);color:var(--tinta);min-width:14rem}
+  .f{font:inherit;font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--linha);border-radius:999px;background:var(--papel);color:var(--tinta-2);cursor:pointer}
+  .f[aria-pressed=true]{background:var(--teal-fundo);border-color:var(--teal);color:var(--teal-escuro);font-weight:600}
+  .f:focus-visible,input:focus-visible,th button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px;max-height:70vh}
+  table{border-collapse:collapse;width:100%;min-width:64rem;font-size:.86rem}
+  th{text-align:right;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.55rem .7rem;border-bottom:1px solid var(--linha);background:var(--papel-2);position:sticky;top:0;white-space:nowrap}
+  th button{all:unset;cursor:pointer;font:inherit;color:inherit}
+  th:nth-child(1),th:nth-child(2),th:nth-child(8),th:nth-child(9),td:nth-child(1),td:nth-child(2),td:nth-child(8),td:nth-child(9){text-align:left}
+  td{padding:.5rem .7rem;border-bottom:1px solid var(--linha);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.modelo{font-family:"IBM Plex Mono",Menlo,monospace;font-size:.82rem}
+  .chip{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:.12rem .5rem;border-radius:999px;white-space:nowrap}
+  .passa{background:var(--teal-fundo);color:var(--teal-escuro)} .meio{background:var(--ambar-fundo);color:var(--ambar)} .reprova{background:var(--vermelho-fundo);color:var(--vermelho)} .erro{background:var(--papel);color:var(--cinza);border:1px solid var(--linha)}
+  .dpa{background:var(--azul-fundo);color:var(--azul)}
+  .nota{font-size:.85rem;color:var(--cinza)}
+  .conta{font-size:.82rem;color:var(--cinza);margin:.5rem 0 0}
+  ul{margin:.25rem 0 1rem;padding-left:1.2rem} li{margin:.3rem 0}
+  .grade3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0}
+  @media (max-width:700px){.grade3{grid-template-columns:1fr}}
+  .grade3 .caixa{margin:0}
+  .grade3 .t{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza)}
+  .grade3 .g{font-family:"Newsreader",Georgia,serif;font-size:1.4rem;margin:.2rem 0}
+</style>
+<main>
+  <div class="eyebrow">MarIA · 07 a 09 de setembro de 2026</div>
+  <h1>Estudo de modelos da MarIA</h1>
+  <p class="lead">Qual modelo escreve o prontuário certo, e a que preço. Todos os modelos passaram pela mesma transcrição real, pela mesma régua e pelo mesmo script. Nada aqui é opinião ou benchmark de terceiro.</p>
+
+  <div class="placar" id="placar"></div>
+
+  <h2>A régua</h2>
+  <p>Uma transcrição real, gravada no iPhone no domingo, com duas vozes e criança ao fundo. O transcritor quebrou palavras de propósito úteis para o teste. O modelo tem que escrever o prontuário e, na seção "O que eu interpretei", confessar cada conserto.</p>
+  <div class="caixa">
+    <div class="regua">
+      <b>termos 5/5</b><span>losartana, dipirona, travamento, bicicleta, condropatia aparecem certos no prontuário</span>
+      <b>de pirona</b><span>a transcrição diz "de pirona 1 grama". Tem que virar <em>dipirona</em> no texto <em>e</em> aparecer na confissão. Quem mantém "Pirona" como remédio ou inventa "Piroxicam" reprova</span>
+      <b>psiculécia</b><span>"psiculécia ergométrica" tem que ser confessada, virando bicicleta ou ficando com "[?]", nunca inventando um remédio</span>
+      <b>JSON</b><span>o bloco final tem que ser JSON válido, e o texto sem markdown</span>
+      <b>2 de 2</b><span>duas rodadas a temperatura 0,2; passa quem acerta tudo nas duas</span>
+    </div>
+  </div>
+  <p class="nota">Por que essa régua: quase todo modelo escreve prontuário bonito. O que separa é consertar o erro do transcritor <strong>e</strong> confessar. Um modelo que conserta errado com confiança é o pior caso: o médico vê "Piroxicam 1 g" e, se não souber que isso não existe, assina.</p>
+
+  <h2>Método</h2>
+  <div class="grade3">
+    <div class="caixa"><div class="t">Rodada 0 · 07–08/09</div><div class="g">10 modelos</div><p class="nota" style="margin:0">Gemini, Claude, Groq e 4 locais no MacBook. Escolhidos à mão.</p></div>
+    <div class="caixa"><div class="t">Rodada 1 · 08/09</div><div class="g">14 modelos</div><p class="nota" style="margin:0">OpenRouter, escolhidos pelas pesquisas: MoE de poucos ativos, densos até 31B, APIs baratas.</p></div>
+    <div class="caixa"><div class="t">Varredura · 09/09</div><div class="g">141 modelos</div><p class="nota" style="margin:0">Todo o catálogo de texto até US$ 2,50 por milhão de tokens de saída. Sem escolher. US$ 0,58 e 40 minutos.</p></div>
+  </div>
+
+  <h2>Todos os modelos</h2>
+  <div class="filtros">
+    <input type="search" id="busca" placeholder="buscar modelo…" aria-label="Buscar modelo">
+    <button class="f" data-f="veredito:passa" aria-pressed="true">passa 2/2</button>
+    <button class="f" data-f="veredito:1/2" aria-pressed="false">1 de 2</button>
+    <button class="f" data-f="veredito:reprova" aria-pressed="false">reprova</button>
+    <button class="f" data-f="dpa:1" aria-pressed="false">contrato de dados pronto</button>
+    <button class="f" data-f="pais:China" aria-pressed="false">empresa chinesa</button>
+    <button class="f" data-f="local:1" aria-pressed="false">rodou no Mac</button>
+    <span class="nota" id="contagem"></span>
+  </div>
+  <div class="tabela-wrap"><table id="tab">
+    <thead><tr>
+      <th><button data-s="modelo">modelo</button></th><th>veredito</th>
+      <th><button data-s="custo">US$/prontuário ▲</button></th><th><button data-s="mes">R$/mês · 1.000 médicos</button></th>
+      <th><button data-s="ms">tempo</button></th><th>termos</th><th>confessa</th>
+      <th>empresa</th><th>servido por</th>
+    </tr></thead><tbody></tbody>
+  </table></div>
+  <p class="conta">R$/mês = US$/prontuário × 151 mil prontuários (1.000 médicos × 4 h/dia × 22 dias, consulta de 35 min) × 5,40. Só a redação; a transcrição é conta à parte. "Contrato de dados pronto" = empresa que assina contrato de tratamento de dados sem negociação (OpenAI, Google, Anthropic, Mistral, Microsoft, Amazon). "Servido por" é quem respondeu à chamada no OpenRouter; empresa chinesa servida por host americano pode ser legal se o host tiver contrato — a verificar caso a caso.</p>
+
+  <h2>O que rodou no próprio Mac</h2>
+  <div class="tabela-wrap"><table style="min-width:40rem">
+    <thead><tr><th style="text-align:left">modelo · MacBook M4 Pro 24 GB</th><th>velocidade</th><th>por prontuário</th><th style="text-align:left">régua</th></tr></thead>
+    <tbody>
+      <tr><td style="text-align:left">Qwen3.8-27B 4-bit, 1 por vez</td><td>8,1 tok/s</td><td>202 s</td><td style="text-align:left"><span class="chip passa">passa 9/9</span></td></tr>
+      <tr><td style="text-align:left">Qwen3.8-27B, 2 juntos</td><td>13,3 tok/s</td><td>257 s (28/h)</td><td style="text-align:left"><span class="chip passa">passa 2/2</span></td></tr>
+      <tr><td style="text-align:left">Qwen3.8-27B, 4 juntos</td><td>17,6 tok/s</td><td>366 s (39/h)</td><td style="text-align:left"><span class="chip passa">passa 4/4</span></td></tr>
+      <tr><td style="text-align:left">Qwen3.6-35B-A3B podado (MoE)</td><td>41 tok/s</td><td>72 s</td><td style="text-align:left"><span class="chip reprova">reprova</span> <span class="nota">inglês misturado, "Losartana 1 g"</span></td></tr>
+      <tr><td style="text-align:left">Qwen3.5-9B</td><td>~25 tok/s</td><td>60 s</td><td style="text-align:left"><span class="chip reprova">reprova</span> <span class="nota">vê o erro, não corrige</span></td></tr>
+      <tr><td style="text-align:left">Qwen3.5-27B "destilado do Claude"</td><td>8,3 tok/s</td><td>190 s</td><td style="text-align:left"><span class="chip reprova">reprova</span> <span class="nota">Piroxicam 1 g, com confiança</span></td></tr>
+      <tr><td style="text-align:left">Gemma 4 31B 4-bit (18,4 GB)</td><td colspan="2">não cabe em 24 GB</td><td style="text-align:left"><span class="chip meio">a medir no mini de 32 GB</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>O que o estudo diz</h2>
+  <div class="caixa">
+    <ul>
+      <li><strong>Tamanho importa mais que marca.</strong> Todo MoE de poucos parâmetros ativos reprovou no remédio (Qwen A3B, Gemma A4B, Nemotron A3B, e o podado): mantém "Pirona" ou inventa. Todo denso de 27 a 31B passou. A velocidade 5× do MoE não vem de graça.</li>
+      <li><strong>Para rodar em casa, sobraram dois:</strong> Gemma 4 31B e Qwen3.8-27B. Nenhum outro aberto que caiba em 32 GB apareceu entre 165 modelos. Os abertos que passam têm de 120 bilhões a 1 trilhão de parâmetros.</li>
+      <li><strong>Para API com contrato pronto, hoje:</strong> GPT-4.1 mini (US$ 0,0026) e Mistral Medium 3.1 (US$ 0,004), abaixo do Gemini 3.7 (US$ 0,006). Gemma 4 31B no Google Cloud deve ficar em US$ 0,0007; preço lá a confirmar.</li>
+      <li><strong>Os mais baratos absolutos são chineses:</strong> DeepSeek V3.2 e V4 Flash, MiniMax M3, Tencent HY3, todos em torno de US$ 0,001. Alguns têm pesos abertos e são servidos por hosts americanos. Vira questão de contrato do host, não de modelo.</li>
+      <li><strong>Modelos derivados são perigosos.</strong> Destilado, podado, "versão nova" do V4 Flash: três derivados, três reprovas, duas delas trocando remédio com confiança. Só pesos oficiais.</li>
+      <li><strong>Custo por prontuário deixou de ser o problema.</strong> Entre R$ 570 e R$ 2.100 por mês para mil médicos, em qualquer opção aprovada. O elefante é a transcrição, que é outro estudo.</li>
+    </ul>
+  </div>
+
+  <h2>Ressalvas</h2>
+  <ul class="nota">
+    <li>Uma transcrição, duas rodadas. É filtro, não veredito. Entre 28 aprovados haverá falsos positivos; entre os "1 de 2", falsos negativos. O próximo passo é a régua de 10 a 20 gravações reais nos 5 ou 6 finalistas.</li>
+    <li>Tempos de resposta dependem do host e da hora; não compare modelo por tempo.</li>
+    <li>Custo é o cobrado pelo OpenRouter na chamada; direto no fornecedor pode ser diferente.</li>
+    <li>Na rodada 1 a régua exigia a string literal "de pirona" na confissão; o DeepSeek V4 Flash confessou como "ouvi pirona → dipirona" e foi corrigido à mão após leitura. Da varredura em diante a régua aceita as duas formas.</li>
+  </ul>
+  <p class="nota">Dados brutos, scripts e saídas de cada modelo: <span class="mono">consulta-ia/docs/prompt-confabulacao/</span> (MODELOS-PRONTUARIO.md, medir-openrouter.mjs, medir-lote-mlx.py, varredura-openrouter-2026-09-09.txt).</p>
+</main>
+<script>
+const DADOS = [
+{
+"modelo": "google/gemini-3.7-flash (sem pensar)",
+"rodadas": 5,
+"passou": 5,
+"veredito": "passa",
+"custo": 0.006,
+"ms": 3500,
+"termos": 5,
+"confessa": "5/5",
+"psic": 5,
+"jsonok": 5,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+],
+"nota": "produção hoje"
+},
+{
+"modelo": "google/gemini-3.5-flash-lite",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.0037,
+"ms": 3000,
+"termos": 5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+]
+},
+{
+"modelo": "google/gemini-3.1-flash-lite",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0019,
+"ms": 2500,
+"termos": 5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+],
+"nota": "não confessa"
+},
+{
+"modelo": "anthropic/claude-sonnet-5",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.04,
+"ms": 25000,
+"termos": 5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Anthropic"
+]
+},
+{
+"modelo": "anthropic/claude-haiku-4.5",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.008,
+"ms": 9000,
+"termos": 5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Anthropic"
+],
+"nota": "não confessa"
+},
+{
+"modelo": "openai/gpt-oss-120b (Groq)",
+"rodadas": 4,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.001,
+"ms": 4000,
+"termos": 4,
+"confessa": "0/4",
+"psic": 4,
+"jsonok": 4,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Groq"
+],
+"nota": "não conserta o remédio"
+},
+{
+"modelo": "LOCAL mlx: Qwen3.8-27B-4bit",
+"rodadas": 9,
+"passou": 9,
+"veredito": "passa",
+"custo": 0.0,
+"ms": 202000,
+"termos": 5,
+"confessa": "9/9",
+"psic": 9,
+"jsonok": 9,
+"pais": "China",
+"dpa": true,
+"provs": [
+"MacBook M4 Pro 24 GB"
+],
+"nota": "7,5–8 tok/s; lote 4 → 39/h; cabe em mini 32 GB"
+},
+{
+"modelo": "LOCAL mlx: Qwen3.5-9B-4bit",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0,
+"ms": 60000,
+"termos": 4,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": true,
+"provs": [
+"MacBook"
+],
+"nota": "confessa mas não corrige no texto"
+},
+{
+"modelo": "LOCAL mlx: Qwen3.5-27B 'destilado do Claude'",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0,
+"ms": 190000,
+"termos": 4,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": true,
+"provs": [
+"MacBook"
+],
+"nota": "trocou por Piroxicam 1 g — perigoso"
+},
+{
+"modelo": "LOCAL mlx: Qwen3.6-35B-A3B podado (REAP-19B)",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0,
+"ms": 72000,
+"termos": 2,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "China",
+"dpa": true,
+"provs": [
+"MacBook"
+],
+"nota": "40 tok/s mas colapso de idioma"
+},
+{
+"modelo": "qwen/qwen3.6-35b-a3b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00179,
+"ms": 38049,
+"termos": 4.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Parasail"
+]
+},
+{
+"modelo": "deepseek/deepseek-v4-flash",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00089,
+"ms": 20643,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba",
+"AtlasCloud"
+]
+},
+{
+"modelo": "qwen/qwen3.8-27b",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00346,
+"ms": 23172,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Darkbloom",
+"Reka"
+]
+},
+{
+"modelo": "google/gemma-4-26b-a4b-it",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00048,
+"ms": 17263,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Darkbloom",
+"SiliconFlow"
+]
+},
+{
+"modelo": "google/gemma-4-31b-it",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00069,
+"ms": 133634,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"DeepInfra",
+"Novita"
+]
+},
+{
+"modelo": "nvidia/nemotron-3.5-lightning",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00047,
+"ms": 10522,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"CoreWeave",
+"DeepInfra"
+]
+},
+{
+"modelo": "nvidia/nemotron-3-nano-30b-a3b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00085,
+"ms": 22528,
+"termos": 1.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 1,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "mistralai/mistral-small-2603",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00143,
+"ms": 11335,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 0,
+"jsonok": 1,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Venice"
+]
+},
+{
+"modelo": "deepseek/deepseek-v4-flash-0731",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00038,
+"ms": 66531,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"OpenInference",
+"Relace"
+]
+},
+{
+"modelo": "openai/gpt-5-nano",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00103,
+"ms": 17428,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "openai/gpt-5-mini",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00476,
+"ms": 28324,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "z-ai/glm-5.3-flash",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00068,
+"ms": 17269,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"StreamLake",
+"Z.AI"
+]
+},
+{
+"modelo": "mistralai/mistral-nemo",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00017,
+"ms": 29493,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"DeepInfra",
+"Io Net"
+]
+},
+{
+"modelo": "gryphe/mythomax-l2-13b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00162,
+"ms": 25769,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Mancer 2"
+]
+},
+{
+"modelo": "inclusionai/ling-3.0-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00014,
+"ms": 15976,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "meta-llama/llama-3.1-8b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00022,
+"ms": 17854,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Groq"
+]
+},
+{
+"modelo": "mistralai/mistral-small-24b-instruct-2501",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00018,
+"ms": 41538,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "França",
+"dpa": true,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "google/gemma-3-4b-it",
+"rodadas": 0,
+"passou": 0,
+"veredito": "erro",
+"custo": null,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": []
+},
+{
+"modelo": "mistralai/ministral-3b-2512",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00022,
+"ms": 7337,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "rekaai/reka-edge",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00026,
+"ms": 6265,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Reka"
+]
+},
+{
+"modelo": "ibm-granite/granite-4.0-h-micro",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00016,
+"ms": 31172,
+"termos": 1.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Cloudflare"
+]
+},
+{
+"modelo": "upstage/solar-pro4",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00032,
+"ms": 49107,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "Coreia",
+"dpa": false,
+"provs": [
+"Upstage"
+]
+},
+{
+"modelo": "poolside/laguna-xs-2.1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00025,
+"ms": 7442,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Poolside"
+]
+},
+{
+"modelo": "openai/gpt-oss-20b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00018,
+"ms": 16271,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Darkbloom",
+"DeepInfra"
+]
+},
+{
+"modelo": "qwen/qwen3.7-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00026,
+"ms": 12239,
+"termos": 4.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "amazon/nova-micro-v1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00024,
+"ms": 8639,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Amazon Bedrock"
+]
+},
+{
+"modelo": "microsoft/phi-4",
+"rodadas": 1,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00037,
+"ms": 86112,
+"termos": 3.0,
+"confessa": "0/1",
+"psic": 1,
+"jsonok": 1,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "cohere/command-r7b-12-2024",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00026,
+"ms": 15748,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Cohere"
+]
+},
+{
+"modelo": "inception/mercury-2.5",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00024,
+"ms": 1912,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Inception"
+]
+},
+{
+"modelo": "google/gemma-3-12b-it",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00029,
+"ms": 25357,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "qwen/qwen3.5-9b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0004,
+"ms": 47503,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"SiliconFlow"
+]
+},
+{
+"modelo": "mistralai/ministral-8b-2512",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00038,
+"ms": 17684,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "~deepseek/deepseek-v4-flash-latest",
+"rodadas": 1,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0008,
+"ms": 13354,
+"termos": 4.0,
+"confessa": "0/1",
+"psic": 1,
+"jsonok": 1,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Inceptron"
+]
+},
+{
+"modelo": "openai/gpt-oss-120b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00032,
+"ms": 38018,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"CoreWeave"
+]
+},
+{
+"modelo": "tencent/hy-mt2-1.8b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00015,
+"ms": 2493,
+"termos": 1.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Tencent"
+]
+},
+{
+"modelo": "inclusionai/ling-3.0-flash-fin",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00038,
+"ms": 10138,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "poolside/laguna-s-2.1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00049,
+"ms": 15746,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Poolside"
+]
+},
+{
+"modelo": "qwen/qwen3-30b-a3b-instruct-2507",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00064,
+"ms": 64650,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Nebius",
+"StreamLake"
+]
+},
+{
+"modelo": "mistralai/mistral-small-3.2-24b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00036,
+"ms": 28731,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "bytedance/ui-tars-1.5-7b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00046,
+"ms": 19067,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 0,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Parasail"
+]
+},
+{
+"modelo": "meta/muse-spark-1.2-contributor",
+"rodadas": 0,
+"passou": 0,
+"veredito": "erro",
+"custo": null,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": []
+},
+{
+"modelo": "meta/muse-spark-1.3-contributor",
+"rodadas": 0,
+"passou": 0,
+"veredito": "erro",
+"custo": null,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": []
+},
+{
+"modelo": "qwen/qwen-2.5-7b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00039,
+"ms": 13621,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Phala"
+]
+},
+{
+"modelo": "rekaai/reka-flash-3",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00098,
+"ms": 50951,
+"termos": 0.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Reka"
+]
+},
+{
+"modelo": "mistralai/ministral-14b-2512",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00051,
+"ms": 16609,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "meta-llama/llama-3.2-1b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00085,
+"ms": 20625,
+"termos": 0.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Cloudflare"
+]
+},
+{
+"modelo": "amazon/nova-lite-v1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00038,
+"ms": 7175,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Amazon Bedrock"
+]
+},
+{
+"modelo": "ibm-granite/granite-4.2-8b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00107,
+"ms": 25236,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "~z-ai/glm-flash-latest",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00131,
+"ms": 68210,
+"termos": 2.0,
+"confessa": "1/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "?",
+"dpa": false,
+"provs": [
+"StreamLake",
+"Wafer"
+]
+},
+{
+"modelo": "qwen/qwen3.5-flash-02-23",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00052,
+"ms": 12648,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen3-32b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00081,
+"ms": 71497,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"SiliconFlow"
+]
+},
+{
+"modelo": "xiaomi/mimo-v2.5",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00131,
+"ms": 35071,
+"termos": 2.5,
+"confessa": "1/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "tencent/hy-mt2-30b-a3b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0007,
+"ms": 12879,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Tencent"
+]
+},
+{
+"modelo": "tencent/hy-mt2-7b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00044,
+"ms": 8769,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Tencent"
+]
+},
+{
+"modelo": "bytedance-seed/seed-1.6-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00064,
+"ms": 16030,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Seed"
+]
+},
+{
+"modelo": "meta-llama/llama-4-scout",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00049,
+"ms": 28164,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "mistralai/voxtral-small-24b-2507",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00046,
+"ms": 8111,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "stepfun/step-3.5-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00138,
+"ms": 43570,
+"termos": 0.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"SiliconFlow"
+]
+},
+{
+"modelo": "meta-llama/llama-3.3-70b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00069,
+"ms": 42915,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Parasail"
+]
+},
+{
+"modelo": "meta-llama/llama-3.2-3b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0003,
+"ms": 6086,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Cloudflare",
+"Parasail"
+]
+},
+{
+"modelo": "z-ai/glm-4.7-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00119,
+"ms": 32168,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Cloudflare"
+]
+},
+{
+"modelo": "nvidia/nemotron-3-super-120b-a12b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00096,
+"ms": 34285,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "bytedance-seed/seed-2.0-mini",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00089,
+"ms": 16353,
+"termos": 4.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Seed"
+]
+},
+{
+"modelo": "google/gemini-2.5-flash-lite",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00133,
+"ms": 7862,
+"termos": 3.5,
+"confessa": "2/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+]
+},
+{
+"modelo": "openai/gpt-4.1-nano",
+"rodadas": 1,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00063,
+"ms": 8362,
+"termos": 3.0,
+"confessa": "1/1",
+"psic": 0,
+"jsonok": 1,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "deepseek/deepseek-v3.2",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00073,
+"ms": 50861,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"StreamLake"
+]
+},
+{
+"modelo": "qwen/qwen-2.5-72b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00113,
+"ms": 71273,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "meta-llama/llama-3.1-70b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00111,
+"ms": 25384,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "qwen/qwen3-vl-32b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00111,
+"ms": 33506,
+"termos": 4.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "google/gemma-3-27b-it",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0004,
+"ms": 43176,
+"termos": 4.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"DeepInfra",
+"Parasail"
+]
+},
+{
+"modelo": "qwen/qwen3-8b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00142,
+"ms": 45107,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen3-vl-8b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00113,
+"ms": 14940,
+"termos": 4.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen3.8-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00061,
+"ms": 14495,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen3-30b-a3b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00108,
+"ms": 21079,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "tencent/hy3",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00129,
+"ms": 22324,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"GMICloud",
+"Tencent"
+]
+},
+{
+"modelo": "qwen/qwen3-235b-a22b-2507",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00069,
+"ms": 62873,
+"termos": 4.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"GMICloud"
+]
+},
+{
+"modelo": "mistralai/mistral-small-3.1-24b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0,
+"ms": 2398,
+"termos": 0.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Cloudflare"
+]
+},
+{
+"modelo": "tencent/hunyuan-a13b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00061,
+"ms": 21651,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"SiliconFlow"
+]
+},
+{
+"modelo": "cohere/command-r-08-2024",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00081,
+"ms": 27737,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Cohere"
+]
+},
+{
+"modelo": "openai/gpt-4o-mini",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00068,
+"ms": 13216,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Azure"
+]
+},
+{
+"modelo": "openai/gpt-4o-mini-2024-07-18",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00088,
+"ms": 7707,
+"termos": 3.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "qwen/qwen3-vl-30b-a3b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00196,
+"ms": 76105,
+"termos": 4.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba",
+"DeepInfra"
+]
+},
+{
+"modelo": "upstage/solar-pro-3",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00152,
+"ms": 15096,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "Coreia",
+"dpa": false,
+"provs": [
+"Upstage"
+]
+},
+{
+"modelo": "mistralai/mistral-saba",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.001,
+"ms": 8091,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "microsoft/wizardlm-2-8x22b",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00215,
+"ms": 100590,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "google/gemma-2-27b-it",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00207,
+"ms": 28858,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"NextBit"
+]
+},
+{
+"modelo": "meta-llama/llama-4-maverick",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0011,
+"ms": 44001,
+"termos": 3.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DigitalOcean"
+]
+},
+{
+"modelo": "inception/mercury-2",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00131,
+"ms": 2663,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"Inception"
+]
+},
+{
+"modelo": "mancer/weaver",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.0021,
+"ms": 36315,
+"termos": 2.0,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 0,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Mancer 2"
+]
+},
+{
+"modelo": "qwen/qwen-plus",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00214,
+"ms": 43494,
+"termos": 4.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen-plus-2025-07-28",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00186,
+"ms": 23604,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "z-ai/glm-4.5-air",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00194,
+"ms": 32140,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Z.AI"
+]
+},
+{
+"modelo": "xiaomi/mimo-v2.5-pro",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00183,
+"ms": 32382,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Xiaomi"
+]
+},
+{
+"modelo": "deepseek/deepseek-chat",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00169,
+"ms": 87207,
+"termos": 3.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00125,
+"ms": 8487,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Venice"
+]
+},
+{
+"modelo": "z-ai/glm-4.6v",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00198,
+"ms": 50450,
+"termos": 4.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "qwen/qwen3-14b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00061,
+"ms": 28759,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"NextBit"
+]
+},
+{
+"modelo": "deepseek/deepseek-chat-v3.1",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00224,
+"ms": 58738,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "deepseek/deepseek-v3.1-terminus",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00217,
+"ms": 64900,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita",
+"SiliconFlow"
+]
+},
+{
+"modelo": "qwen/qwen2.5-vl-72b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00228,
+"ms": 37170,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Parasail"
+]
+},
+{
+"modelo": "minimax/minimax-m2",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00384,
+"ms": 25771,
+"termos": 2.0,
+"confessa": "1/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Google",
+"Minimax"
+]
+},
+{
+"modelo": "minimax/minimax-m2.5",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00254,
+"ms": 15062,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Friendli",
+"Minimax"
+]
+},
+{
+"modelo": "qwen/qwen3-next-80b-a3b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00296,
+"ms": 10236,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Novita"
+]
+},
+{
+"modelo": "minimax/minimax-01",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00177,
+"ms": 47274,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Minimax"
+]
+},
+{
+"modelo": "meta/muse-glimmer-30b",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00313,
+"ms": 10186,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Phala"
+]
+},
+{
+"modelo": "qwen/qwen3.6-flash",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00219,
+"ms": 10583,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "deepseek/deepseek-chat-v3-0324",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00182,
+"ms": 43924,
+"termos": 3.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"GMICloud"
+]
+},
+{
+"modelo": "stepfun/step-3.7-flash",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00446,
+"ms": 33069,
+"termos": 0.0,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 0,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"StepFun"
+]
+},
+{
+"modelo": "openai/gpt-5.6-luna",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00206,
+"ms": 12030,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "openai/gpt-5.6-luna-pro",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00738,
+"ms": 15027,
+"termos": 4.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "meituan/longcat-2.0",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00271,
+"ms": 42115,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"AtlasCloud"
+]
+},
+{
+"modelo": "minimax/minimax-m2-her",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00095,
+"ms": 3411,
+"termos": 1.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 1,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Minimax"
+]
+},
+{
+"modelo": "minimax/minimax-m2.1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00553,
+"ms": 23101,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Minimax"
+]
+},
+{
+"modelo": "minimax/minimax-m2.7",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00194,
+"ms": 39833,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"GMICloud"
+]
+},
+{
+"modelo": "minimax/minimax-m3",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00088,
+"ms": 22760,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"GMICloud"
+]
+},
+{
+"modelo": "openai/gpt-5.4-nano",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00252,
+"ms": 17420,
+"termos": 2.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "anthropic/claude-3-haiku",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00222,
+"ms": 12481,
+"termos": 4.5,
+"confessa": "0/2",
+"psic": 0,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Amazon Bedrock"
+]
+},
+{
+"modelo": "qwen/qwen3.5-35b-a3b",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00254,
+"ms": 15090,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"AtlasCloud",
+"Parasail"
+]
+},
+{
+"modelo": "baidu/ernie-4.5-vl-424b-a47b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00249,
+"ms": 34374,
+"termos": 3.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "relace/relace-apply-3",
+"rodadas": 0,
+"passou": 0,
+"veredito": "erro",
+"custo": null,
+"pais": "?",
+"dpa": false,
+"provs": []
+},
+{
+"modelo": "qwen/qwen3.7-plus",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00251,
+"ms": 28366,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "aion-labs/aion-3.0-mini",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00684,
+"ms": 44501,
+"termos": 2.0,
+"confessa": "1/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"AionLabs"
+]
+},
+{
+"modelo": "perceptron/perceptron-mk1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00362,
+"ms": 47928,
+"termos": 4.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "?",
+"dpa": false,
+"provs": [
+"Perceptron"
+]
+},
+{
+"modelo": "google/gemini-3.1-flash-lite",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00195,
+"ms": 4516,
+"termos": 5.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+]
+},
+{
+"modelo": "mistralai/mistral-large-2512",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00185,
+"ms": 13088,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "openai/gpt-3.5-turbo",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00242,
+"ms": 8564,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "qwen/qwen3.5-27b",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00359,
+"ms": 31680,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba",
+"Phala"
+]
+},
+{
+"modelo": "qwen/qwen3.5-plus-02-15",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00317,
+"ms": 31711,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "openai/gpt-4.1-mini",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00262,
+"ms": 11095,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"OpenAI"
+]
+},
+{
+"modelo": "aion-labs/aion-2.0",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00834,
+"ms": 56177,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"AionLabs"
+]
+},
+{
+"modelo": "deepseek/deepseek-v4-pro-0813",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00577,
+"ms": 26137,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Baidu",
+"GMICloud"
+]
+},
+{
+"modelo": "z-ai/glm-4.7",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00369,
+"ms": 25038,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"AtlasCloud",
+"Novita"
+]
+},
+{
+"modelo": "z-ai/glm-4.6",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00328,
+"ms": 28125,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Venice",
+"Z.AI"
+]
+},
+{
+"modelo": "qwen/qwen3.5-plus-20260420",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00373,
+"ms": 10952,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "z-ai/glm-4.5v",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00382,
+"ms": 75703,
+"termos": 4.5,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "qwen/qwen3-235b-a22b",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00375,
+"ms": 47825,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "qwen/qwen3-vl-235b-a22b-instruct",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00369,
+"ms": 47793,
+"termos": 3.5,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba",
+"Parasail"
+]
+},
+{
+"modelo": "deepseek/deepseek-v4-pro",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00553,
+"ms": 27506,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra"
+]
+},
+{
+"modelo": "z-ai/glm-5",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.0044,
+"ms": 67503,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"DeepInfra",
+"Venice"
+]
+},
+{
+"modelo": "qwen/qwen3.6-plus",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00374,
+"ms": 29614,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba"
+]
+},
+{
+"modelo": "bytedance-seed/seed-1.6",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00389,
+"ms": 39967,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Seed"
+]
+},
+{
+"modelo": "bytedance-seed/seed-2.0-lite",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00421,
+"ms": 22209,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Seed"
+]
+},
+{
+"modelo": "qwen/qwen3.6-27b",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00406,
+"ms": 52525,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Chutes",
+"Phala"
+]
+},
+{
+"modelo": "mistralai/devstral-2512",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00394,
+"ms": 9804,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 1,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "mistralai/mistral-medium-3",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00421,
+"ms": 10472,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 0,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "mistralai/mistral-medium-3.1",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00402,
+"ms": 10096,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "França",
+"dpa": true,
+"provs": [
+"Mistral"
+]
+},
+{
+"modelo": "x-ai/grok-build-0.1",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.01296,
+"ms": 61316,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": false,
+"provs": [
+"xAI"
+]
+},
+{
+"modelo": "minimax/minimax-m1",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00443,
+"ms": 17347,
+"termos": 4.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Minimax"
+]
+},
+{
+"modelo": "z-ai/glm-4.5",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00357,
+"ms": 34253,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Z.AI"
+]
+},
+{
+"modelo": "moonshotai/kimi-k2.5",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00637,
+"ms": 45115,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "moonshotai/kimi-k2",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00781,
+"ms": 67403,
+"termos": 2.0,
+"confessa": "1/2",
+"psic": 1,
+"jsonok": 1,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+},
+{
+"modelo": "qwen/qwen3.5-122b-a10b",
+"rodadas": 2,
+"passou": 2,
+"veredito": "passa",
+"custo": 0.00379,
+"ms": 13470,
+"termos": 5.0,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Alibaba",
+"AtlasCloud"
+]
+},
+{
+"modelo": "amazon/nova-2-lite-v1",
+"rodadas": 2,
+"passou": 0,
+"veredito": "reprova",
+"custo": 0.00449,
+"ms": 7479,
+"termos": 3.0,
+"confessa": "0/2",
+"psic": 1,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Amazon Bedrock"
+]
+},
+{
+"modelo": "google/gemini-2.5-flash",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00376,
+"ms": 6221,
+"termos": 5.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+]
+},
+{
+"modelo": "google/gemini-3.5-flash-lite",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00318,
+"ms": 4590,
+"termos": 5.0,
+"confessa": "1/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "EUA/Canadá",
+"dpa": true,
+"provs": [
+"Google"
+]
+},
+{
+"modelo": "bytedance-seed/seed-2-1-turbo",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00586,
+"ms": 28066,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Seed"
+]
+},
+{
+"modelo": "moonshotai/kimi-k2-0905",
+"rodadas": 2,
+"passou": 1,
+"veredito": "1/2",
+"custo": 0.00565,
+"ms": 45690,
+"termos": 4.5,
+"confessa": "2/2",
+"psic": 2,
+"jsonok": 2,
+"pais": "China",
+"dpa": false,
+"provs": [
+"Novita"
+]
+}
+];
+const N = 151000, FX = 5.40;
+const fmt = (v, d = 0) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const $ = s => document.querySelector(s);
+const filtros = { veredito: new Set(['passa']), dpa: false, pais: false, local: false };
+let ordem = { k: 'custo', asc: true };
+function chip(v){ return v === 'passa' ? '<span class="chip passa">passa 2/2</span>' : v === '1/2' ? '<span class="chip meio">1 de 2</span>' : v === 'reprova' ? '<span class="chip reprova">reprova</span>' : '<span class="chip erro">erro</span>'; }
+function render(){
+  const q = $('#busca').value.trim().toLowerCase();
+  let rows = DADOS.filter(d => {
+    if (filtros.veredito.size && !filtros.veredito.has(d.veredito)) return false;
+    if (filtros.dpa && !d.dpa) return false;
+    if (filtros.pais && d.pais !== 'China') return false;
+    if (filtros.local && !d.modelo.startsWith('LOCAL')) return false;
+    if (q && !d.modelo.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  rows.sort((a, b) => { const k = ordem.k; let va = a[k], vb = b[k]; if (k === 'mes') { va = a.custo; vb = b.custo; } if (va == null) return 1; if (vb == null) return -1; if (typeof va === 'string') return ordem.asc ? va.localeCompare(vb) : vb.localeCompare(va); return ordem.asc ? va - vb : vb - va; });
+  $('#tab tbody').innerHTML = rows.map(d => `<tr>
+    <td class="modelo">${d.modelo}${d.nota ? `<div class="nota">${d.nota}</div>` : ''}</td>
+    <td>${chip(d.veredito)}</td>
+    <td>${d.custo == null ? '—' : d.custo === 0 ? '0 (próprio)' : fmt(d.custo, 4)}</td>
+    <td>${d.custo == null ? '—' : d.custo === 0 ? '~150 (energia)' : fmt(d.custo * N * FX)}</td>
+    <td>${d.ms ? (d.ms >= 60000 ? fmt(d.ms/60000,1) + ' min' : fmt(d.ms/1000,1) + ' s') : '—'}</td>
+    <td>${d.termos != null ? fmt(d.termos,1) + '/5' : '—'}</td>
+    <td>${d.confessa || '—'}</td>
+    <td>${d.pais}${d.dpa ? ' <span class="chip dpa">contrato</span>' : ''}</td>
+    <td class="nota">${(d.provs || []).join(', ')}</td>
+  </tr>`).join('');
+  $('#contagem').textContent = `${rows.length} de ${DADOS.length}`;
+}
+document.querySelectorAll('.f').forEach(b => b.addEventListener('click', () => {
+  const [k, v] = b.dataset.f.split(':'); const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on);
+  if (k === 'veredito') { on ? filtros.veredito.add(v) : filtros.veredito.delete(v); } else filtros[k] = on;
+  render();
+}));
+$('#busca').addEventListener('input', render);
+document.querySelectorAll('th button').forEach(b => b.addEventListener('click', () => { const k = b.dataset.s; ordem = { k, asc: ordem.k === k ? !ordem.asc : true }; document.querySelectorAll('th button').forEach(x => x.textContent = x.textContent.replace(/ [▲▼]$/, '')); b.textContent += ordem.asc ? ' ▲' : ' ▼'; render(); }));
+const c = { passa: 0, '1/2': 0, reprova: 0, erro: 0 }; DADOS.forEach(d => c[d.veredito]++);
+$('#placar').innerHTML = `<div><div class="n">${DADOS.length}</div><div class="l">modelos medidos</div></div><div><div class="n" style="color:var(--teal-escuro)">${c.passa}</div><div class="l">passam 2 de 2</div></div><div><div class="n" style="color:var(--ambar)">${c['1/2']}</div><div class="l">passam 1 de 2</div></div><div><div class="n" style="color:var(--vermelho)">${c.reprova}</div><div class="l">reprovam</div></div><div><div class="n">US$ 0,58</div><div class="l">custo da varredura de 141</div></div>`;
+render();
+</script>

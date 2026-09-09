@@ -1,0 +1,205 @@
+<title>MarIA vs Noa Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--azul:#4c7fb5;--azul-fundo:rgba(76,127,181,.14);--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.55}
+  main{max-width:60rem;margin:0 auto;padding:3rem 1.25rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.4rem;line-height:1.1;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.5rem;margin:2.5rem 0 .75rem;text-wrap:balance}
+  p{margin:0 0 1rem;max-width:68ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .placar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin:1.5rem 0}
+  .placar div{background:var(--papel-2);padding:.8rem .9rem}
+  .placar .n{font-family:"Newsreader",Georgia,serif;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .placar .l{font-size:.75rem;color:var(--cinza);margin-top:.15rem}
+  @media (max-width:640px){.placar{grid-template-columns:1fr 1fr}}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px}
+  table{border-collapse:collapse;width:100%;min-width:52rem;font-size:.9rem}
+  th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2);position:sticky;top:0}
+  td{padding:.65rem .8rem;border-bottom:1px solid var(--linha);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td:first-child{font-weight:500;width:12rem}
+  td:nth-child(2),td:nth-child(3){width:20rem}
+  .chip{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.03em;padding:.15rem .5rem;border-radius:999px;white-space:nowrap}
+  .igual{background:var(--azul-fundo);color:var(--azul)}
+  .eles{background:var(--ambar-fundo);color:var(--ambar)}
+  .nos{background:var(--teal-fundo);color:var(--teal-escuro)}
+  .pend{background:var(--vermelho-fundo);color:var(--vermelho)}
+  .legenda{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;font-size:.85rem;color:var(--tinta-2);margin:.75rem 0 1.25rem}
+  .nota{font-size:.85rem;color:var(--cinza)}
+  .fonte{font-size:.8rem;color:var(--cinza)}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:8px;padding:1rem 1.2rem;margin:1rem 0}
+  ul{margin:.25rem 0 1rem;padding-left:1.2rem}
+  li{margin:.25rem 0}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace}
+  .quadro{border-collapse:collapse;width:100%;min-width:38rem;font-size:.92rem}
+  .quadro th{text-align:center;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2);position:sticky;top:0}
+  .quadro th:first-child{text-align:left}
+  .quadro td{padding:.5rem .8rem;border-bottom:1px solid var(--linha);vertical-align:middle}
+  .quadro td:first-child{font-weight:400;width:auto}
+  .quadro td.v{text-align:center;width:9rem;font-size:1.15rem;font-weight:600}
+  .quadro tr:last-child td{border-bottom:0}
+  .quadro tr.grupo td{background:var(--papel-2);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.45rem .8rem}
+  .sim{color:var(--teal-escuro)} .nao{color:var(--vermelho)} .meio{color:var(--ambar)}
+  .quadro .obs{display:block;font-size:.78rem;color:var(--cinza);font-weight:400}
+</style>
+<main>
+  <div class="eyebrow">Comparativo · 09/09/2026 · atualizado com a suíte Noa</div>
+  <h1>MarIA vs Noa Notes</h1>
+  <p class="lead">O Noa é a suíte de IA da Doctoralia e o Noa Notes é o líder de prontuário por voz no Brasil. A MarIA é um MVP com dois testes reais. A máquina por baixo é quase a mesma. As diferenças estão no que cada um cobra, dá de graça e faz com ela.</p>
+
+  <div class="placar">
+    <div><div class="n">30 mil</div><div class="l">médicos pagando o Noa, 13 países</div></div>
+    <div><div class="n">1 milhão</div><div class="l">consultas do Noa só no Brasil</div></div>
+    <div><div class="n">R$ 199</div><div class="l">por mês, Noa Notes avulso, ilimitado</div></div>
+    <div><div class="n">R$ 0</div><div class="l">MarIA, consultas de saúde sem limite</div></div>
+  </div>
+
+
+  <h2>Resumo em uma tabela</h2>
+  <div class="tabela-wrap"><table style="min-width:46rem">
+    <thead><tr><th style="width:14rem">&nbsp;</th><th>Noa Notes (Doctoralia)</th><th>MarIA (Método 3A)</th></tr></thead>
+    <tbody>
+      <tr><td>Preço ao médico</td><td>R$ 199/mês ilimitado, ou pacote Doctoralia Pro</td><td>R$ 0 para consultas de saúde; pago para histórico, fila rápida e extras</td></tr>
+      <tr><td>Escala hoje</td><td>30 mil pagantes, 13 países, 1 milhão de consultas no Brasil</td><td>MVP, 2 testes reais</td></tr>
+      <tr><td>Transcrição</td><td>Whisper aberto em servidores próprios (AWS)</td><td>Gemini ouvindo o áudio hoje; plano: no celular ou PC do médico</td></tr>
+      <tr><td>Redação</td><td>GPT-4 Turbo via Azure (2025)</td><td>Gemini 3.7 Flash hoje; Gemma 4 31B ou Qwen 27B em Mac minis próprios</td></tr>
+      <tr><td>Custo de IA por prontuário</td><td>~US$ 0,01–0,02 <span class="nota">(estimado pelo modelo)</span></td><td>US$ 0,006 hoje → US$ 0,0007 no Gemma → ~0 nos minis <span class="nota">(medido)</span></td></tr>
+      <tr><td>Quem falou</td><td>não divulgado</td><td>MÉDICO / PACIENTE / OUTRO, 7/7</td></tr>
+      <tr><td>O que o médico vê</td><td>só o resumo; transcrição escondida</td><td>prontuário + "o que eu interpretei" + fileira dos pedaços</td></tr>
+      <tr><td>Edição e modelos</td><td>editável na tela; 50+ especialidades, modelos do médico</td><td>estrutura fixa; sem edição na tela</td></tr>
+      <tr><td>Entrega</td><td>agenda Doctoralia, app web, extensão do Chrome em qualquer prontuário</td><td>app web; plano: WhatsApp do médico</td></tr>
+      <tr><td>Áudio</td><td>apagado em até 14 dias</td><td>guardado, por cota de plano; é o ativo</td></tr>
+      <tr><td>Treina IA com os dados</td><td>não</td><td>sim, anonimizado, no plano (itens 5 e 6)</td></tr>
+      <tr><td>Consentimento</td><td>médico pede antes</td><td>MarIA avisa dentro do áudio + aviso na tela</td></tr>
+      <tr><td>Certificação</td><td>ISO 27001</td><td>nenhuma</td></tr>
+      <tr><td>Uso indevido</td><td>irrelevante, é pago</td><td>vigia por IA tranca aula, reunião, fraude</td></tr>
+      <tr><td>Grátis como isca</td><td>Evidence (literatura) e Summary (paciente)</td><td>o próprio prontuário</td></tr>
+      <tr><td>Como ganha dinheiro</td><td>assinatura</td><td>base de médicos → serviços M3A, pharma, dados</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Nas 26 peças detalhadas abaixo: <span class="chip igual">igual</span> 9 · <span class="chip eles">eles têm</span> 8 · <span class="chip nos">nós temos</span> 7 · <span class="chip pend">pendente nosso</span> 2.</p>
+
+
+  <h2>Quadro: tem ou não tem</h2>
+  <div class="tabela-wrap"><table class="quadro">
+    <thead><tr><th>Recurso</th><th>Noa</th><th>MarIA</th></tr></thead>
+    <tbody>
+      <tr class="grupo"><td colspan="3">Gravar</td></tr>
+      <tr><td>Grava pelo celular, sem instalar app</td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Grava pelo computador</td><td class="v sim">✓</td><td class="v meio">◐<span class="obs">MarIA Fone, produto irmão</span></td></tr>
+      <tr><td>Celular como microfone do PC (QR code)</td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Teleconsulta</td><td class="v sim">✓</td><td class="v meio">◐<span class="obs">não testado</span></td></tr>
+      <tr><td>Envio em tempo real, em pedaços</td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Corta nos silêncios e não cobra o silêncio</td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr><td>Continua se cair a internet e sobe depois</td><td class="v meio">◐<span class="obs">não divulgado</span></td><td class="v sim">✓</td></tr>
+      <tr class="grupo"><td colspan="3">Transcrever</td></tr>
+      <tr><td>Transcrição com vocabulário médico</td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Separa quem falou (médico / paciente)</td><td class="v meio">◐<span class="obs">não divulgado</span></td><td class="v sim">✓</td></tr>
+      <tr><td>Transcrição na própria infraestrutura</td><td class="v sim">✓</td><td class="v meio">◐<span class="obs">planejado: celular, PC ou mini</span></td></tr>
+      <tr class="grupo"><td colspan="3">Prontuário</td></tr>
+      <tr><td>Prontuário estruturado ao final</td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Mostra o que a IA interpretou ou não entendeu</td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr><td>Mostra quais trechos entraram e quais eram conversa</td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr><td>Modelos por especialidade, personalizáveis</td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Edita o prontuário na própria tela</td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Marcar trecho como clínico ou conversa e refazer</td><td class="v nao">✗</td><td class="v meio">◐<span class="obs">etiqueta automática pronta; toque, não</span></td></tr>
+      <tr><td>Receita, pedido de exame, carta ao paciente<span class="obs">nenhum dos dois; é o pacote que os líderes dos EUA vendem</span></td><td class="v nao">✗</td><td class="v nao">✗</td></tr>
+      <tr class="grupo"><td colspan="3">Entregar e guardar</td></tr>
+      <tr><td>Dentro do prontuário eletrônico (extensão do Chrome)</td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Integração nativa com sistema de clínica<span class="obs">Doctoralia e Feegow</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Histórico por paciente (CRM)</td><td class="v meio">◐<span class="obs">dentro da Doctoralia</span></td><td class="v meio">◐<span class="obs">linha do tempo existe; pago no plano</span></td></tr>
+      <tr><td>Entrega pelo WhatsApp</td><td class="v nao">✗</td><td class="v meio">◐<span class="obs">no plano, não construído</span></td></tr>
+      <tr><td>Guarda o áudio<span class="obs">Noa apaga em 14 dias; MarIA guarda por cota de plano</span></td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr class="grupo"><td colspan="3">Confiança</td></tr>
+      <tr><td>Aviso ao paciente antes de gravar<span class="obs">MarIA fala o aviso dentro do áudio</span></td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Termos de uso aceitos pelo médico</td><td class="v sim">✓</td><td class="v meio">◐<span class="obs">textos prontos, links mortos</span></td></tr>
+      <tr><td>Contrato de dados com o fornecedor de IA</td><td class="v sim">✓</td><td class="v sim">✓</td></tr>
+      <tr><td>Não usa dado de paciente para treinar<span class="obs">MarIA: treino anonimizado está no plano</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Certificação ISO 27001</td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Vigia contra uso indevido (aula, reunião, fraude)</td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr class="grupo"><td colspan="3">Negócio</td></tr>
+      <tr><td>Prontuário de graça, sem limite</td><td class="v nao">✗</td><td class="v sim">✓</td></tr>
+      <tr><td>Algo grátis para o paciente<span class="obs">Noa Summary: resumo de exame</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Busca de literatura médica<span class="obs">Noa Evidence, grátis</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Atendimento telefônico por IA<span class="obs">Noa Booking</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+      <tr><td>Escala comprovada<span class="obs">30 mil pagantes vs 2 testes</span></td><td class="v sim">✓</td><td class="v nao">✗</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota"><span class="sim">✓</span> tem &nbsp; <span class="nao">✗</span> não tem &nbsp; <span class="meio">◐</span> parcial, planejado ou não divulgado. O que o Noa não divulga está marcado, não presumido.</p>
+
+  <h2>Peça por peça</h2>
+  <div class="legenda">
+    <span><span class="chip igual">igual</span> mesma peça nos dois</span>
+    <span><span class="chip eles">eles têm</span> o Noa tem e a MarIA não</span>
+    <span><span class="chip nos">nós temos</span> a MarIA tem e o Noa não</span>
+    <span><span class="chip pend">pendente nosso</span> existe no projeto, falta ligar</span>
+  </div>
+
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Peça</th><th>Noa Notes</th><th>MarIA</th><th>Situação</th></tr></thead>
+    <tbody>
+      <tr><td>Captura</td><td>App web ou celular. Médico liga por consulta, pede consentimento.</td><td>App web no celular. Link, grava, prontuário na tela. Wake lock, fila offline.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>Envio do áudio</td><td>Blocos de 30 s, em tempo real.</td><td>Pedaços de 20–60 s cortados na pausa da fala, em tempo real; silêncio não sobe nem é cobrado.</td><td><span class="chip igual">igual</span> <span class="nota">o corte na pausa é nosso</span></td></tr>
+      <tr><td>Celular como microfone do PC</td><td>QR code liga o celular como microfone do computador.</td><td>Não existe. O MarIA Fone (desktop) grava, mas sem o celular como mic.</td><td><span class="chip eles">eles têm</span></td></tr>
+      <tr><td>Transcrição</td><td>Whisper aberto, na infraestrutura deles (AWS), não na API da OpenAI.</td><td>Gemini ouvindo o áudio, com Whisper de reserva, trocável por configuração. Medido: 8/8 termos médicos nas 2 gravações reais.</td><td><span class="chip igual">igual</span> <span class="nota">eles já em casa; nós ainda em API</span></td></tr>
+      <tr><td>Quem falou</td><td>Não divulgado como é feito.</td><td>MÉDICO / PACIENTE / OUTRO por conteúdo, 7/7 nas gravações reais.</td><td><span class="chip nos">nós temos</span> <span class="nota">até prova em contrário</span></td></tr>
+      <tr><td>Onde a redação roda</td><td>Azure OpenAI, com contrato de dados, processado na União Europeia; EUA só como reserva.</td><td>Google, com contrato de dados. Plano: Mac minis próprios, com API de reserva.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>O que o médico vê</td><td>Só o resumo clínico. Transcrição existe, mas não é mostrada. Conversa informal descartada (psiquiatras podem manter).</td><td>Prontuário + seção "O que eu interpretei": cada trecho quebrado que a IA consertou ou não entendeu, com "[?]". Fileira verde/cinza dos pedaços clínicos e de conversa.</td><td><span class="chip nos">nós temos</span></td></tr>
+      <tr><td>Marcar "esse pedaço sim, esse não"</td><td>Não.</td><td>Etiqueta automática por pedaço está pronta; tocar para virar a etiqueta e refazer, não.</td><td><span class="chip pend">pendente nosso</span></td></tr>
+      <tr><td>Vigia contra uso indevido</td><td>Não há indício. Cobram, então não precisam.</td><td>IA decide se é consulta e se acabou, tranca o grátis se virar aula ou reunião, vigia contra fraude a cada 4 pedaços.</td><td><span class="chip nos">nós temos</span> <span class="nota">porque somos grátis</span></td></tr>
+      <tr><td>Dois modelos versionados e testados separados</td><td>Sim. Cada versão do transcritor e do redator testada sozinha, depois juntas, com revisão humana constante.</td><td>Sim, mas com 1 transcrição de teste e 2 gravações reais. Régua: 5 termos, 2 confissões, JSON.</td><td><span class="chip eles">eles têm</span> <span class="nota">a régua precisa de 10–20 gravações</span></td></tr>
+      <tr><td>Como medem qualidade</td><td>70 % do peso em termo médico, 30 % em erro geral de palavra. Números só em conteúdo patrocinado.</td><td>Termo médico primeiro (dipirona, losartana, condropatia) e a confissão do conserto. Números públicos no repositório.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>Ajuste de modelo com dados próprios</td><td>Sim, "modelos abertos com fine-tuning" (engenheiro do projeto, 2024). Qual etapa, não divulgado.</td><td>Não. É o passo seguinte quando houver dezenas de gravações.</td><td><span class="chip eles">eles têm</span></td></tr>
+      <tr><td>Áudio e transcrição</td><td>Áudio apagado em até 14 dias. Transcrição guardada 1 ano. Nota fica só até o médico revisar.</td><td>Guarda tudo. Áudio por cota de plano (1 GB grátis, 50 GB, 175 GB). Transcrições e prontuários para sempre.</td><td><span class="chip nos">nós temos</span> <span class="nota">é o ativo do plano, não uma falta</span></td></tr>
+      <tr><td>Dados para treinar IA</td><td>Explicitamente não usa dado de paciente para treinar.</td><td>É o item 5 e 6 do plano: banco de consultas em português e IA própria, com anonimização.</td><td><span class="chip nos">nós temos</span> <span class="nota">exige advogado antes</span></td></tr>
+      <tr><td>Consentimento do paciente</td><td>Médico pede antes de gravar.</td><td>MarIA fala "Gravação iniciada, consulta documentada por inteligência artificial" dentro do áudio, e a tela lembra o médico de informar o paciente.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>Aceite dos termos pelo médico</td><td>Sim.</td><td>Textos prontos (Termos, Privacidade, relatório de impacto). Links na tela ainda mortos.</td><td><span class="chip pend">pendente nosso</span></td></tr>
+      <tr><td>"Não é dispositivo médico"</td><td>Declarado. Decisão é sempre do médico.</td><td>Declarado nos Termos e no relatório de impacto.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>Certificação de segurança</td><td>ISO 27001, equivalente ao BSI C5 alemão.</td><td>Nenhuma. Auditoria interna com o security-scanner.</td><td><span class="chip eles">eles têm</span></td></tr>
+      <tr><td>Infraestrutura</td><td>AWS hospeda, Azure processa a IA. Servidores na Europa para europeus.</td><td>Supabase + Vercel + Google. Plano: transcrição no celular ou PC do médico, redação em Mac minis próprios.</td><td><span class="chip igual">igual</span> <span class="nota">o nosso plano vai mais longe: dado nunca sai do aparelho</span></td></tr>
+      <tr><td>Modelo de redação</td><td>GPT-4 Turbo via Azure (confirmado em 05/2025; pode ter mudado). Um modelo caro de uma geração atrás.</td><td>Gemini 3.7 Flash hoje. Estudo de 167 modelos na mesma régua: GPT-4.1 mini e Gemma 4 31B passam por 5–9× menos.</td><td><span class="chip nos">nós temos</span> <span class="nota">eles não precisam otimizar; nós precisamos</span></td></tr>
+      <tr><td>Modelos por especialidade</td><td>Mais de 50 especialidades. O médico cria quantos modelos quiser, define campos, pode pedir falas literais do paciente, troca com um clique.</td><td>Uma estrutura fixa de prontuário para todos.</td><td><span class="chip eles">eles têm</span> <span class="nota">candidato a recurso pago</span></td></tr>
+      <tr><td>Resumo editável antes de salvar</td><td>Sim, revisa e ajusta antes de copiar.</td><td>Mostra o prontuário; não edita na tela.</td><td><span class="chip eles">eles têm</span></td></tr>
+      <tr><td>Teleconsulta</td><td>Sim, desde a versão 2.</td><td>Grava o que o microfone ouve; não testado em chamada de vídeo.</td><td><span class="chip eles">eles têm</span> <span class="nota">a medir</span></td></tr>
+      <tr><td>Dentro do prontuário eletrônico</td><td>Extensão do Chrome abre o Noa dentro de qualquer sistema. Integração nativa com Doctoralia e Feegow.</td><td>Tela própria; o médico copia e cola.</td><td><span class="chip eles">eles têm</span> <span class="nota">extensão é barata de fazer</span></td></tr>
+      <tr><td>Entrega</td><td>Na agenda da Doctoralia ou no app web avulso (notes.br.noa.ai), sem instalar nada.</td><td>Tela do app web. Plano original: WhatsApp do médico.</td><td><span class="chip igual">igual</span></td></tr>
+      <tr><td>Modelo de negócio</td><td>Assinatura: Notes R$ 199/mês ilimitado, ou pacote com Doctoralia Pro. 30 mil pagantes.</td><td>Grátis para saúde. Base de médicos → serviços M3A, canal pharma, dados. Trinta pagantes de R$ 47 bancam mil grátis no híbrido.</td><td><span class="chip nos">nós temos</span> <span class="nota">aposta, ainda não provada</span></td></tr>
+    </tbody>
+  </table></div>
+
+
+  <h2>A suíte Noa: o que é grátis e o que é pago</h2>
+  <p>O Noa Notes é um de quatro módulos. Olhar a suíte inteira mostra a estratégia deles: <strong>dão de graça o que traz médico e paciente para a Doctoralia, e cobram pelo prontuário</strong>. A MarIA faz o inverso.</p>
+  <div class="tabela-wrap"><table style="min-width:44rem">
+    <thead><tr><th>Módulo</th><th>Para quem</th><th>O que faz</th><th>Preço</th><th>MarIA</th></tr></thead>
+    <tbody>
+      <tr><td>Noa Notes</td><td>médico</td><td>Prontuário por voz, ilimitado, modelos por especialidade.</td><td>R$ 199/mês</td><td><span class="chip nos">grátis</span></td></tr>
+      <tr><td>Noa Booking</td><td>clínica</td><td>Atende 100 % das ligações 24 h, agenda, remarca, confirma por SMS e WhatsApp. Twilio por baixo. Reportam 10 % a mais de faturamento e 70 % menos telefone.</td><td>planos Plus e VIP</td><td><span class="chip erro">fora do escopo</span> <span class="nota">é serviço, e a Método 3A vende serviço</span></td></tr>
+      <tr><td>Noa Evidence</td><td>médico</td><td>Busca literatura médica e diretrizes, resumo com fonte e link. Não dá conselho clínico.</td><td>grátis, até para quem não é cliente</td><td><span class="chip erro">não existe</span> <span class="nota">o Cérebro do plano é parecido</span></td></tr>
+      <tr><td>Noa Summary</td><td>paciente</td><td>Paciente fotografa exame ou laudo e recebe resumo em segundos, guardado no app.</td><td>grátis</td><td><span class="chip erro">não existe</span> <span class="nota">o plano tem "resumo leigo ao paciente" como futuro</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Leitura: o Noa usa grátis como isca para a plataforma Doctoralia, onde o médico paga agenda, perfil e o Notes. A MarIA usa o próprio Notes como isca. É a mesma jogada, com a peça cara do lado oposto do balcão.</p>
+  <h2>Leitura</h2>
+  <div class="caixa">
+    <p><strong>A máquina é a mesma.</strong> Pedaços de 30 s, Whisper em casa, redação alugada com contrato, dois modelos testados separados, régua com peso em termo médico. Não estamos inventando arquitetura. Estamos um ano atrás em escala e à frente em duas coisas: mostrar o que a IA interpretou, e dar de graça.</p>
+    <p><strong>O que copiar deles, em ordem:</strong></p>
+    <ul>
+      <li>Celular como microfone do PC via QR code. Resolve bateria, resolve microfone ruim, e é a sua ideia do computador.</li>
+      <li>Régua com 10 a 20 gravações reais, cada versão de modelo testada sozinha e depois junta.</li>
+      <li>Transcrição em casa. Eles já fizeram. É onde o custo deles cai.</li>
+      <li>Fine-tuning com dados próprios. Depois da régua, não antes.</li>
+      <li>Modelos por especialidade e prontuário editável na tela. Os dois são pagáveis.</li>
+      <li>Extensão do Chrome. Entrega dentro de qualquer prontuário eletrônico sem integração.</li>
+      <li>Alguma coisa grátis para o paciente, como o resumo de exame. É a porta que o Noa usa para chegar ao médico pelo outro lado.</li>
+    </ul>
+    <p><strong>O que não copiar:</strong> apagar áudio (o negócio deles é a assinatura, o nosso é a base e o dado) e o modelo de redação caro (GPT-4 Turbo; o estudo mostrou opções 5–9× mais baratas na mesma régua).</p>
+    <p class="nota" style="margin:0"><strong>Pendências nossas que já existem no projeto:</strong> ligar os links de Termos e Privacidade, tocar na etiqueta para virar, e o teste do ditado no iPhone.</p>
+  </div>
+  <p class="fonte">Fontes do Noa: documentos de privacidade da Jameda (Alemanha) e FAQ do Docplanner (Polônia), apresentação do engenheiro Michal Przadka no AI Summit Warsaw 2024, entrevista do VP de IA do Docplanner (05/2026), páginas noa.ai (preço, Notes v2, Booking), central de ajuda Docplanner/Feegow, Chrome Web Store, Mexico Business News sobre Azure GPT-4 Turbo (05/2025), Twilio/ITBrief sobre o Booking, conteúdo patrocinado em Medicina S/A. Fontes da MarIA: repositório consulta-ia, docs/gravador-v2.md, docs/prompt-confabulacao/MODELOS-PRONTUARIO.md, security-scanner/lgpd/. Números do Noa vêm da própria empresa; os da MarIA são medições em 2 gravações reais.</p>
+</main>
