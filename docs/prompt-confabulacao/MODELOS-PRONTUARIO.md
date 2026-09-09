@@ -88,3 +88,18 @@ Motivação: as pesquisas apontaram MoE "A3B" (3B ativos) como 5–10× mais rá
 **Qualidade: inutilizável.** Escreveu em inglês misturado com português ("Prescrevo of pirona 1 gram until of 6 in 6 hours"), trocou "pirona" por **"Losartana 1 g a cada 6 h"** (r1) e por "pain relief" (r2), "psiculécia ergométrica" virou "psychological ergometrics", "travamento" e "bicicleta" sumiram, e na r2 entrou em loop ("Actually, condropatia might be condropatia…") e estourou o JSON. É colapso de idioma típico de poda de experts: os experts que carregavam o português foram cortados.
 
 **Conclusão honesta:** o resultado **não diz nada sobre o Qwen3.6-35B-A3B completo** — só sobre a versão podada. Diz duas coisas: (1) a velocidade do MoE é real e resolve o gargalo do mini; (2) **terceira variante "derivada" reprovada** (destilado, REAP… só pesos oficiais daqui pra frente). O teste que vale — modelo completo de 20,4 GB, 1/4/8 em lote — precisa de um **Mac de 32 GB**. Saída bruta: `local-qwen3.6-35B-A3B-REAP-19B-r1-2026-09-08.txt`.
+
+## 08/09/2026 (noite, 2) — O "ônibus" MEDIDO: Qwen3.8-27B escrevendo 1, 2 e 4 prontuários ao mesmo tempo (MacBook M4 Pro 24 GB)
+
+`mlx_lm.batch_generate`, mesmo prompt real (1.590 tokens), temp 0,2, `prefill_batch_size=1, prefill_step_size=256` (sem isso o lote 2 estoura a memória da GPU: o Mac de 24 GB dá 19 GB pra GPU e o modelo ocupa 15). Script: `medir-lote-mlx.py`.
+
+| juntos | tempo | tok/s total | tok/s cada | **prontuários/h** | régua (termos, de-pirona, JSON) |
+|---|---|---|---|---|---|
+| 1 | 202 s | 8,1 | 8,1 | **17,8** | 5/5 ✓ ✓ |
+| 2 | 257 s | 13,3 | 6,7 | **28,0** | 5/5 ✓ ✓ · 5/5 ✓ ✓ |
+| 4 | 366 s | 17,6 | 4,4 | **39,3** | 5/5 ✓ ✓ ×4 |
+
+- **Lote funciona e não degrada nada**: 7 de 7 prontuários passaram inteiros (termos, confissão de "de pirona", JSON).
+- **×2,2 com 4 juntos** — abaixo dos ×3,5 que eu estimava. O custo por passo cresce mais que o previsto: 0,123 s (1) → 0,150 s (2) → 0,228 s (4). Culpa provável: atenção sobre KV cache maior + máquina de 24 GB no limite (só 4 GB de folga pra cache). Num mini de 32 GB (17 GB de folga) e com o MoE (2 GB de pesos por passo em vez de 15) a curva deve ser bem melhor — **a medir lá**.
+- Não tentei 8: não cabe em 24 GB.
+- Com este número conservador: 1 mini ≈ 40 prontuários/h com o denso 27B → ~400/dia em 10 h → cobre ~60 médicos (4 h/dia, 35 min/consulta ≈ 7 consultas/dia). 1.000 médicos ≈ 17 minis só com o que está medido hoje; o MoE deve cortar isso em 3–5×.
