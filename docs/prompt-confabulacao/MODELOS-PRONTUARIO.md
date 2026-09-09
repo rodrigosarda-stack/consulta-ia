@@ -126,3 +126,45 @@ Régua da confissão corrigida: antes exigia a string literal "de pirona"; agora
 **Padrão que fechou (4 de 4):** todo MoE de poucos parâmetros ativos (Qwen A3B, Gemma A4B, Nemotron A3B ×2) **reprova exatamente no conserto do remédio** — ou mantém "Pirona" como se fosse fármaco, ou inventa um. Todo denso ≥ 27B testado (Qwen 27B, Gemma 31B) passa. A velocidade 5× do MoE não vem de graça: os 3B ativos não carregam o "cuidado" que a tarefa exige. **Para os minis, o candidato passa a ser o Gemma 4 31B denso** (mesma classe de velocidade do Qwen 27B, ~40 prontuários/h por mini com lote de 4, a medir).
 
 **Para a API (enquanto não há mini):** Gemma 4 31B hospedado a US$ 0,0007 = **9× mais barato que o Gemini 3.7** com a mesma régua. Falta checar DPA do provedor (Novita/DeepInfra) — ou hospedar em Vertex/Together com contrato.
+
+
+## 09/09/2026 (madrugada) — VARREDURA: 141 modelos de texto ≤ US$ 2,50/M do OpenRouter, 2 rodadas cada, mesma régua (US$ 0,58 no total)
+
+Filtro: todo modelo de texto do catálogo com saída ≤ US$ 2,5/M e entrada ≤ US$ 1/M, sem os já testados, sem código/roleplay/imagem/free/batch. 4 processos em paralelo, ~40 min. Régua automática: 5/5 termos + dipirona no texto com "pirona" citado no INTERPRETEI + psiculécia citada + JSON válido, nas 2 rodadas. Lista completa: `varredura-openrouter-2026-09-09.txt`.
+
+**Passaram 2/2: 22 de 141.** Base da coluna R$/mês: 1.000 médicos × 4 h/dia × 22 dias, consulta de 35 min ≈ 151 mil prontuários/mês, dólar 5,40.
+
+| modelo | US$/prontuário | R$/mês p/ 1.000 médicos | onde roda |
+|---|---|---|---|
+| deepseek/deepseek-v3.2 | 0.0007 | 595 | pesos abertos (671B MoE) — só nuvem; hosts EUA existem |
+| minimax/minimax-m3 | 0.0009 | 713 | API MiniMax (China) |
+| tencent/hy3 | 0.0013 | 1.048 | API Tencent (China) |
+| microsoft/wizardlm-2-8x22b | 0.0022 | 1.757 | pesos abertos. 141B — só nuvem |
+| deepseek/deepseek-v3.1-terminus | 0.0022 | 1.769 | pesos abertos. 671B — só nuvem |
+| deepseek/deepseek-chat-v3.1 | 0.0022 | 1.822 | pesos abertos. 671B — só nuvem |
+| qwen/qwen3.7-plus | 0.0025 | 2.047 | API Alibaba |
+| openai/gpt-4.1-mini | 0.0026 | 2.132 | API OpenAI/Azure — **tem DPA** |
+| meituan/longcat-2.0 | 0.0027 | 2.210 | API Meituan (China) |
+| qwen/qwen3.5-plus-02-15 | 0.0032 | 2.589 | API Alibaba |
+| z-ai/glm-4.6 | 0.0033 | 2.675 | pesos abertos. 355B — só nuvem |
+| z-ai/glm-4.7 | 0.0037 | 3.009 | pesos abertos. 355B — só nuvem |
+| qwen/qwen3.6-plus | 0.0037 | 3.050 | API Alibaba |
+| qwen/qwen3.5-122b-a10b | 0.0038 | 3.094 | pesos abertos. 122B — não cabe em 32 GB |
+| mistralai/mistral-medium-3.1 | 0.0040 | 3.278 | API Mistral (UE) — **tem DPA** |
+| bytedance-seed/seed-2.0-lite | 0.0042 | 3.429 | API ByteDance (China) |
+| z-ai/glm-5 | 0.0044 | 3.588 | pesos abertos. grande — só nuvem |
+| deepseek/deepseek-v4-pro | 0.0055 | 4.509 | API DeepSeek |
+| deepseek/deepseek-v4-pro-0813 | 0.0058 | 4.701 | API DeepSeek |
+| moonshotai/kimi-k2.5 | 0.0064 | 5.194 | pesos abertos. 1T — só nuvem |
+| aion-labs/aion-2.0 | 0.0083 | 6.796 | API |
+| x-ai/grok-build-0.1 | 0.0130 | 10.564 | API xAI |
+
+Referências na mesma base: Gemini 3.7 Flash 0.0060 → R$ 4.892/mês · **Gemma 4 31B 0.0007 → R$ 571/mês** (medido na rodada anterior. passa 2/2. cabe num mini) · Sonnet 5 0.04 → R$ 32.616/mês.
+
+**1/2 (22 modelos):** qwen3.5-flash, mimo-v2.5, qwen-plus, minimax-m2.x, gpt-5.6-luna, qwen3.6-flash, qwen3.5-35b-a3b, gemini-3.5-flash-lite, gemini-2.5-flash, glm-4.5, qwen3.5-27b, qwen3.6-27b, kimi-k2-0905, seed-2-1-turbo… — instáveis na régua; não servem sem mais rodadas.
+
+**Leitura:**
+- **Nenhum modelo aberto que caiba num Mac mini de 32 GB apareceu além dos que já tínhamos** (Gemma 4 31B e Qwen3.8-27B). Os abertos que passam (DeepSeek V3.x, GLM 4.6/4.7, Kimi, WizardLM 8x22B, Qwen 122B) são de 120 B a 1 T de parâmetros — só nuvem.
+- **Para API com contrato de dados hoje:** `gpt-4.1-mini` (US$ 0,0026, OpenAI/Azure) e `mistral-medium-3.1` (US$ 0,004, UE). Ambos mais baratos que o Gemini 3.7 e com DPA de prateleira. Gemma 4 31B na Vertex é 4× mais barato ainda — a confirmar preço lá.
+- **Os mais baratos absolutos (DeepSeek V3.2 US$ 0,0007, MiniMax M3, Tencent HY3)** são servidos por empresas chinesas ou por hosts americanos sem contrato verificado. DeepSeek V3.2 tem pesos abertos: um host com DPA (Together/Fireworks/Azure) o torna legal — a verificar.
+- A régua com n=2 é filtro, não veredito: 22 aprovados com 2 rodadas cada terão falsos positivos. O passo seguinte é a régua de 10–20 gravações nos 5–6 finalistas.
