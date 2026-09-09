@@ -103,3 +103,26 @@ Motivação: as pesquisas apontaram MoE "A3B" (3B ativos) como 5–10× mais rá
 - **×2,2 com 4 juntos** — abaixo dos ×3,5 que eu estimava. O custo por passo cresce mais que o previsto: 0,123 s (1) → 0,150 s (2) → 0,228 s (4). Culpa provável: atenção sobre KV cache maior + máquina de 24 GB no limite (só 4 GB de folga pra cache). Num mini de 32 GB (17 GB de folga) e com o MoE (2 GB de pesos por passo em vez de 15) a curva deve ser bem melhor — **a medir lá**.
 - Não tentei 8: não cabe em 24 GB.
 - Com este número conservador: 1 mini ≈ 40 prontuários/h com o denso 27B → ~400/dia em 10 h → cobre ~60 médicos (4 h/dia, 35 min/consulta ≈ 7 consultas/dia). 1.000 médicos ≈ 17 minis só com o que está medido hoje; o MoE deve cortar isso em 3–5×.
+
+## 08/09/2026 (noite, 3) — 14 modelos baratos via OpenRouter (chave do Rodrigo), mesma régua, 2 rodadas, temp 0,2, sem raciocínio (ou `effort: low` quando obrigatório)
+
+Régua da confissão corrigida: antes exigia a string literal "de pirona"; agora = escreveu **dipirona** no texto E citou "pirona" na seção O QUE EU INTERPRETEI. Script: `medir-openrouter.mjs`. Custo real por chamada vem do `usage.cost` do OpenRouter.
+
+| modelo | tipo | US$/prontuário | termos | confissão pirona | veredito |
+|---|---|---|---|---|---|
+| **google/gemma-4-31b-it** | denso 31B, **pesos abertos** | **0,0007** | 5/5 · 5/5 | ✓ ✓ ("de pirona → dipirona, correção ortográfica de medicamento") | **PASSA 2/2** ⭐ cabe num mini de 32 GB |
+| qwen/qwen3.8-27b (hospedado) | denso 27B, aberto | 0,0035 | 5/5 · 5/5 | ✓ ✓ | PASSA 2/2 (igual ao local) |
+| deepseek/deepseek-v4-flash | MoE 277B (6 ativos), aberto mas gigante | 0,0006–0,0011 | 5/5 · 5/5 | ✓ ✓ (r1 até avisa "pode ser piroxicam [?]") | PASSA 2/2 — **só API; servidor chinês/sem DPA nos provedores testados** |
+| z-ai/glm-5.3-flash | ? | 0,0007 | 5/5 · 4/5 (perdeu bicicleta) | ✓ ✓ | 1/2 — host Z.AI (China) |
+| openai/gpt-5-mini (effort low) | API | 0,0050 | 4/5 (perdeu travamento) · 5/5 | ✓ ✓ | 1/2 — e não é mais barato que o Gemini |
+| qwen/qwen3.6-35b-a3b | **MoE 3B ativos** | 0,0018 | 4/5 · 4/5 | ✗ ✗ — **inventou** "Pirona = condroitina" (r1) e "Pirrona = diclofenaco" (r2) | REPROVADO (perigoso) |
+| google/gemma-4-26b-a4b-it | **MoE 4B ativos** | 0,0003–0,0006 | 4/5 · 3/5 | ✗ ✗ — manteve "Pirona" como remédio | REPROVADO |
+| nvidia/nemotron-3.5-lightning | MoE 3B ativos | 0,0005 | 3/5 · 3/5 | ✗ ✗ (nem seção INTERPRETEI) | REPROVADO |
+| nvidia/nemotron-3-nano-30b-a3b | MoE 3B ativos | 0,0008 | 0/5 · 2/5 | ✗ ✗ | REPROVADO |
+| mistralai/mistral-small-2603 | denso 24B | 0,0014 | 4/5 · 3/5 | ✓ ✗ | REPROVADO |
+| openai/gpt-5-nano (effort low) | API | 0,0008–0,0013 | 3/5 · 3/5 | ✗ ✗ | REPROVADO |
+| deepseek/deepseek-v4-flash-0731 | versão nova | 0,0003–0,0004 | 4/5 · 4/5 | ✗ ✗ | REPROVADO (regrediu vs. o Flash original) |
+
+**Padrão que fechou (4 de 4):** todo MoE de poucos parâmetros ativos (Qwen A3B, Gemma A4B, Nemotron A3B ×2) **reprova exatamente no conserto do remédio** — ou mantém "Pirona" como se fosse fármaco, ou inventa um. Todo denso ≥ 27B testado (Qwen 27B, Gemma 31B) passa. A velocidade 5× do MoE não vem de graça: os 3B ativos não carregam o "cuidado" que a tarefa exige. **Para os minis, o candidato passa a ser o Gemma 4 31B denso** (mesma classe de velocidade do Qwen 27B, ~40 prontuários/h por mini com lote de 4, a medir).
+
+**Para a API (enquanto não há mini):** Gemma 4 31B hospedado a US$ 0,0007 = **9× mais barato que o Gemini 3.7** com a mesma régua. Falta checar DPA do provedor (Novita/DeepInfra) — ou hospedar em Vertex/Together com contrato.
