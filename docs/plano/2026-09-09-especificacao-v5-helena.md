@@ -1,4 +1,4 @@
-# Helena (ex-MarIA) — Especificação v5.1
+# Helena (ex-MarIA) — Especificação v5.2
 
 > **v5.1 (09/09, noite):** emendas 24–33 após o parecer de sete especialistas independentes (`docs/plano/parecer-dos-sete.html`, `docs/plano/pareceres/`). Onde esta versão contradiz o texto original abaixo, valem as emendas, marcadas com **[v5.1]**.
 
@@ -6,7 +6,7 @@
 **Substitui:** Especificação V4 (01/04/2026) e a Especificação Unificada v2 (janeiro/2026), que fica em `docs/plano/2026-01-especificacao-unificada-v2.md` como histórico.
 **Nome:** o produto passa a se chamar **Helena**. Código, repositório e URLs ainda dizem MarIA; a troca é tarefa separada.
 
-> Páginas visuais desta versão: `projeto-helena.html` (o projeto de ponta a ponta), `resgate-janeiro.html` (o que voltou de janeiro), `helena-vs-noa.html` (concorrência), `estudo-modelos.html` (167 modelos medidos), `prontuarios-em-lote.html` (por que o lote funciona). Todas nesta pasta.
+> **Este é o documento mestre da Helena.** Páginas visuais desta versão, todas nesta pasta: `projeto-helena.html` (o projeto de ponta a ponta), `potencial-helena.html` (as 12 portas de receita, rampa, equipe, comparáveis), `mundo-da-helena.html` (o ecossistema em 5 desenhos), `parecer-dos-sete.html` + `pareceres/` (revisão por 7 especialistas), `resgate-janeiro.html` (o que voltou de janeiro), `helena-vs-noa.html` (concorrência), `estudo-modelos.html` (167 modelos medidos), `prontuarios-em-lote.html` (por que o lote funciona). Decisões numeradas em `docs/decisoes/2026-09-09-decisoes-produto.md` (1–35). Versão: **v5.2, 10/09/2026** (8b e 13 novas; porta 12).
 
 ---
 
@@ -98,6 +98,8 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 
 **Limite de 3 consultas/dia:** existe no código, desligado; saída de emergência.
 
+**Agenda e pagamento da consulta pela Helena [v5.2, decisões 34–35]:** o paciente agenda o retorno pela Helena e pode pagar antes; o Theo recebe; a Helena fica com 3 % líquido. **Opcional por médico**, liga e desliga quando quiser, sem trava contratual (a Doctoralia prende quem contrata pacote com Pagamentos). O médico configura um **desconto** (0 / 5 / 10 %) apresentado ao paciente como benefício: "garanta o horário e ganhe 5 % pagando agora"; com falta de 20–30 %, 5 % de desconto rende R$ 30–60 a mais por horário. **Pix como padrão** (Asaas R$ 1,99), cartão como opção com a taxa mostrada (2,99 % + R$ 0,49); reembolso claro (24 h devolve tudo; depois, regra do médico); repasse no dia seguinte; comprovante e nota pelo Theo; taxa pública antes de ligar. Advogado: CFM veda anunciar preço/desconto em publicidade; dentro da agenda, ao próprio paciente, a linha é fina.
+
 ## 7. Dados, consentimento e a parede
 
 **Quem consente [v5.1]:** médico aceita os Termos no cadastro; a Helena fala o aviso dentro do áudio ("gravação em curso; detalhes em [link]") — **aviso não é consentimento**; o paciente consente **em camadas** na conta dele: prontuário (tutela da saúde, só informação) → histórico e lembretes (consentimento) → anonimização e treino (consentimento destacado, revogável); paciente autoriza cada médico que pede acesso. **Sem conta do paciente, a gravação serve ao médico e ponto:** não entra em anonimização, dataset nem treino. Controlador por fluxo: o médico no prontuário; a Helena no histórico cruzado, CRM, anonimização e treino. DPAs (Vertex, Supabase, Meta) antes do piloto; DeepSeek fora. RIPD e encarregado.
@@ -126,6 +128,48 @@ Ordem: Pro e espaço pagam a operação (mês 1) → serviços M3A (mês 6) → 
 | Explosivo | 20 % | 10 % | 70.880 | 7.088 | R$ 19,6 mi |
 
 Vs. janeiro (custo R$ 10/pagante, Pro R$ 147, só assinatura): o base tinha 811 pagantes e R$ 609 mil; hoje tem menos pagantes e mais lucro. O jogo não é conversão; é base grátis grande e barata.
+
+
+## 8b. As portas da receita, quem compra, e o potencial (v3.1)
+
+Detalhe visual em `potencial-helena.html`. Doze portas; cada uma rotulada **medida** (nenhuma ainda), **benchmark** (tem comparável de mercado) ou **chute** (ninguém mediu). Valores por médico ativo por ano, no regime (todas as portas ligadas), cenário base; conservador e agressivo mudam só as taxas de adoção.
+
+| Porta | Rótulo | Base do número | R$/médico/ano (base) |
+|---|---|---|---|
+| Rápido (R$ 27) | benchmark | 7 % pagam só pela velocidade; cadastra o cartão | 23 |
+| Pro (R$ 77; anual R$ 770) | benchmark | 3 % pagam por gestão | 28 |
+| Espaço (R$ 9,90) | benchmark | 10 % assinam | 12 |
+| Réguas (R$ 29,90) | chute | 5 %; depende do lado do paciente | 18 |
+| Painel de pesquisa para a indústria | benchmark | metade da base é de especialidades pesquisadas; 2/ano, 30 % respondem, R$ 150 de margem | 45 |
+| Encaminhamento e leads | emenda 26 | sem comissão por encaminhamento (CEM 69); valor zero até existir como serviço | 0 |
+| Agenda e pagamento da consulta (Theo) | chute | 10 % das consultas pagas pela Helena, R$ 300, 3 % líquido | 162 |
+| Médico vende pelo app (Theo) | chute | 15 % vendem R$ 5 mil/mês; 3 % líquido; plano contínuo depende da ANS | 270 |
+| Receita vira compra | emenda 26 | sem comissão por receita; PSP escolhido pelo paciente; só após assinatura digital | 0 |
+| Exame vira agendamento | emenda 26 | idem; laboratório como assinante de plataforma | 0 |
+| Canal pharma (dica na tela) | benchmark | R$ 50–150 por especialidade, gatilho ~2.000 CRMs | 100 |
+| Serviços da Método 3A | benchmark | 0,7 % contratam R$ 3 mil/mês, margem 30 % | 75 |
+| Dados anonimizados / evidência do mundo real | chute | por estudo, com comitê de ética | 30 |
+| **Total no regime** | | conservador R$ 430 · **base R$ 763** · agressivo R$ 1.440 | **763** |
+
+**Leitura:** assinaturas são 11 % do potencial; mais da metade são duas portas não provadas que passam pelo Theo (agenda paga e venda pelo app). O grátis abre as portas; as portas precisam existir de verdade antes de valer dinheiro.
+
+**Custo variável por médico por ano:** IA R$ 12 + armazenamento ~R$ 3 = **R$ 15**. Mensagens iniciadas pela Helena pelo WhatsApp custam R$ 0,037 cada a partir de 01/10/2026 (fim da janela grátis de 24 h; 1.000 grátis por número/mês): ~900/mês por médico = +R$ 400/ano → **app com notificação é obrigatório**; PWA instalável é a primeira entrega.
+
+**Rampa por patamar (não linear), com a equipe como o Rodrigo definiu:**
+
+| Médicos | Portas ligadas | R$/médico/ano | Equipe (folha/mês) | Receita/ano | Resultado/ano |
+|---|---|---|---|---|---|
+| 1.000 | Rápido, Pro, espaço, pesquisa parcial, M3A | 150 | 1 (R$ 5 mil) | R$ 150 mil | R$ 72 mil |
+| 5.000 | lado do paciente, agenda paga e venda pelo app começando, réguas | 400 | 3 (R$ 16 mil) | R$ 2,0 mi | R$ 1,7 mi |
+| 10.000 | pharma por especialidade, dados | 620 | 8 (R$ 50 mil) | R$ 6,2 mi | R$ 5,4 mi |
+| 25.000 | regime | 760 | 10 (R$ 70 mil) | R$ 19 mi | R$ 17,8 mi |
+| 100.000 | regime | 810 | 20 (R$ 160 mil) | R$ 81 mi | R$ 77,6 mi |
+
+Fora da conta ainda: impostos (13–19 %), taxa de pagamento, CAC se o laço não girar, Apple/Google 15–30 % no app nativo, coorte com retenção. Múltiplo de baixo dígito até prova.
+
+**Quem compra:** médico (Rápido, Pro, espaço, réguas, comissão do que vende e da consulta paga, serviços M3A); farmácia e indústria (programa de desconto/PSP escolhido pelo paciente, assinatura de plataforma; sem comissão por receita); laboratório (agendamento que o paciente escolhe); indústria (dica na tela por especialidade, painel via agência, estudos com comitê de ética; nunca conteúdo do paciente nem dado de dispositivo); plano de saúde (adesão e retorno por beneficiário, guia pré-preenchida, Helena para a rede; **nunca vê a consulta**); Método 3A (o canal); prefeituras e SUS (fase 3).
+
+**O que precisa ser verdade (checklist do beta):** mensagens pelo app, não WhatsApp (medir instalação do PWA); transcrição no aparelho passa o gate (WER + 5 termos); o laço gira (K ≥ 0,3 em 90 dias); o médico deixa o paciente receber a versão simples (≥ 70 %); o paciente abre (≥ 40 %); hábito na 8ª semana (≥ 50 %; consultas por médico por semana); "efeito cartão" existe; anonimização e consentimento passam no advogado; plano de saúde aceita só agregado e guia; plano contínuo não é lido como plano de saúde (ANS).
 
 ## 9. Concorrência
 
@@ -164,7 +208,26 @@ Detalhe em `helena-vs-noa.html`. Resumo: **Noa Notes** (Doctoralia) R$ 199/mês 
 7. Semana 1 é medição (iPhone e mini).
 8. Advogado antes de pharma e do banco anonimizado (4 perguntas).
 9. Resgate de janeiro: convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; momentos Pro; espaço vende acesso imediato; a dica na tela; degustação de uso pessoal; oferta do Pro sem eufemismo; 30 h/mês na abertura sem os R$ 25 mil; Cérebro = "pergunte ao histórico, ache o trecho, exporte a prova" (fase 2); todas as profissões de saúde; área jurídica futuro. **[v5.1]** Exportação em todo plano (emenda 24); paciente não vê áudio na tela, mas o obtém sob pedido (emenda 25).
-10. Nome: Helena. Ligação futura com o Theo (financeiro da clínica): a consulta gera a cobrança.
+10. Nome: Helena. **[v5.2]** O Theo deixou de ser "ligação futura": com a agenda paga e a venda pelo app, mais da metade do potencial passa por cobrar e receber. Decisões 34–35.
+
+
+## 13. O mundo da Helena (o ecossistema)
+
+Cinco desenhos em `mundo-da-helena.html`. Em texto:
+
+**Os atores e a linha de cada um.** *Quem usa* (médico, secretária, paciente, dependentes): nunca se sentir vigiado; nunca perder o próprio dado (exportação). *Quem paga* (indústria, farmácia/rede, laboratório, plano de saúde, Método 3A): nunca conteúdo do paciente; nada em nome do médico; sem comissão por receita. *Quem regula* (CFM/CRO/CRP, ANVISA, ANS, ANPD, CDC): cada um tem uma resolução que já derrubou uma decisão nossa. *Quem fornece* (Meta, Apple e Google, Google Cloud/Vertex, Supabase/Vercel, Mac minis, Asaas): podem mudar preço e regra sem avisar; ter mais de um caminho. *Quem concorre* (Noa/Doctoralia, ByDoctor/Amplimed/Feegow, Memed como aliada ou rival, Abridge/Nuance nos EUA): o que não copiam sem se canibalizar é dar de graça e ter o paciente.
+
+**Por onde passa o dinheiro:** de cima, os que pagam (médico; indústria; farmácia e laboratório, valor zero até existir; plano; M3A; médico vendendo pelo app), cada um rotulado benchmark/chute/zero. Embaixo, para onde vai: IA e armazenamento (R$ 15/médico/ano), equipe (1 em 1.000; 8 em 10 mil), Meta (R$ 0,037 por mensagem iniciada; zero pelo app), infra (~R$ 3 mil/ano) e taxa de pagamento (~2 %), Apple/Google (15–30 % no app nativo), impostos (13–19 %).
+
+**Por onde passa o dado, e a parede:** dentro (identificado, com dono e consentimento): prontuário do médico (controlador; 20 anos; exportável), histórico do paciente (controlador: a Helena; consentimento em camadas), CRM (o paciente pode ler), dados do celular e relógio (só cuidado), compartilhar entre médicos (só com o sim, com log), áudio identificado (cota + 12 meses; ao titular sob pedido). *Nunca sai:* identificado, dado de dispositivo, conteúdo do paciente para segmentar, voz. A parede = anonimização medida (k-anonimato, nomes tirados do texto, combinação rara revisada; voz nunca). Fora (não é mais dado pessoal): agregado do médico, evidência do mundo real por estudo com comitê de ética, IA própria treinada só no anonimizado com teste de memorização, canal pharma = atenção do médico por especialidade. Sem conta do paciente, nada desce.
+
+**Uma consulta do começo ao fim, e onde a Helena está no meio:** o médico grava (Helena: prontuário, grátis) → revisa e assina (um toque; assinatura digital no roadmap) → o paciente recebe (versão simples, lembretes) → o paciente faz o que o médico mandou (farmácia, laboratório: hoje fora; amanhã serviço que ele escolhe) → o paciente volta e paga (agenda o retorno e paga pela Helena; Theo recebe; falta cai) → o médico enxerga o consultório (painel, CRM, dica na tela) → a base cresce (o paciente puxa o próximo médico). A Helena não inventa transação: se coloca no meio das que já existem.
+
+**Como o mercado ganha dinheiro, e onde a Helena se coloca:** assinatura pelo médico (Noa R$ 199, ByDoctor, Amplimed, Freed, Heidi, Nabla: margem 90 %, sem incentivo a baixar preço); contrato com hospital vendido pelo faturamento (Abridge, Nuance, Suki, Ambience); grátis para o médico pago pela indústria (Doximity, OpenEvidence, Memed, PEBMED: anos até lucrar); marketplace na receita (Memed: exige assinatura digital e regra do CFM); plataforma do paciente com o médico dentro (Doctoralia, apps de plano). **A Helena junta o terceiro com o quinto e tira o primeiro:** grátis para os dois, com o paciente dentro, vivendo do resto.
+
+**O tamanho do campo:** ~600 mil médicos; > 2 milhões de profissionais que fazem consulta; ~150 consultas por médico por mês; ~1 bilhão de consultas/ano só de médicos (estimativa grosseira); ~100 pacientes com conta por médico ativo; Noa 30 mil pagantes no mundo e 1 mi de consultas no Brasil; Memed 150–210 mil médicos; um médico ativo vale R$ 763/ano no regime (base v3.1).
+
+**Pagamentos (pesquisado 10/09):** Asaas: Pix R$ 1,99 (100 grátis/mês), cartão 2,99 % + R$ 0,49, split e subcontas nativos. Stripe Brasil: cartão 3,99 % + R$ 0,39, Pix 1,19 % (por convite). Doctoralia usa Stripe Connect (conta conectada por médico), comissão não pública, repasse de cartão ~30 dias, e prende quem contrata pacote com Pagamentos. Helena: Pix padrão, cartão com taxa mostrada, repasse no dia seguinte, taxa pública, opcional.
 
 ## Fica como histórico (não volta)
 
