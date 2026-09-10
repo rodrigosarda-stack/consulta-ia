@@ -97,7 +97,7 @@
   .lados .pill{fill:var(--teal)}
 </style>
 <main>
-  <div class="eyebrow">Método 3A · Helena (MarIA) · 09/09/2026 · para aprovação</div>
+  <div class="eyebrow">Método 3A · Helena (MarIA) · v5.1 · 09/09/2026 · emendada após o parecer dos sete</div>
   <h1>Projeto MarIA, de ponta a ponta</h1>
   <p class="lead">O médico grava a consulta no celular. O prontuário sai pronto. O paciente recebe o que o médico disse, e nunca mais perde. De graça. São 30 horas por mês de volta para o médico, um mês de trabalho por ano. A base de médicos e pacientes é o negócio.</p>
 
@@ -393,13 +393,13 @@ flowchart TB
       <tr><td>Receita, exame, atestado, carta</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓</td></tr>
       <tr><td>Modelos por especialidade, editar na tela</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓</td></tr>
       <tr><td>Extensão do Chrome dentro do prontuário eletrônico</td><td class="c sim">✓</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
-      <tr><td>Exportar dados</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c nao">✗</td></tr>
+      <tr><td>Exportar dados (PDF em lote + JSON)</td><td class="c sim">✓</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
     </tbody>
   </table></div>
   <p class="nota"><strong>A escada:</strong> Rápido compra uma coisa só, velocidade, que é o único atrito diário do grátis; é a mixaria que cadastra o cartão. Pro é gestão, a quase 3× o Rápido, ainda "menos que uma consulta" e um terço do Noa. Anual: dez meses pelo preço de doze, e libera o período sem pagar. <strong>Clínica:</strong> 2 ou mais médicos, desconto por volume. Três degraus, nunca quatro; o Rápido nunca ganha gestão.</p>
   <div class="dois">
-    <div class="caixa"><h3>Mensal e anual</h3><p class="nota" style="margin:0"><strong>Mensal (R$ 77):</strong> Pro daqui em diante. Tudo que ele grava pagando é dele; três anos de mensal são três anos de painel. O período em que não pagava fica congelado.<br><br><strong>Anual recorrente (R$ 770):</strong> tudo isso e o período sem pagar liberado. "Contrate o ano e libere tudo que você gravou de graça." Quanto mais tempo usou de graça, maior o tesouro atrás da porta. Cancelou, aquele período fecha de novo.</p></div>
-    <div class="caixa"><h3>Espaço: tem ou não tem</h3><p class="nota" style="margin:0">Passou da cota, a gravação nova fica <strong>indisponível para o médico</strong>. Ele sente a perda; ter é R$ 9,90. Não existe tabela de resgate nem "arquivo" na tela. Se um dia precisar, o atendimento diz: "podemos tentar recuperar, sem garantia, com custo". A palavra "apagado" não existe: a Helena guarda tudo, e a política diz isso. Prontuário e transcrição nunca ficam indisponíveis; só o áudio.</p></div>
+    <div class="caixa"><h3>Mensal e anual</h3><p class="nota" style="margin:0"><strong>Mensal (R$ 77):</strong> Pro daqui em diante. Tudo que ele grava pagando é dele; três anos de mensal são três anos de painel. O período em que não pagava fica congelado.<br><br><strong>Anual recorrente (R$ 770):</strong> tudo isso e o período sem pagar liberado. "Contrate o ano e libere tudo que você gravou de graça." Quanto mais tempo usou de graça, maior o tesouro atrás da porta. Cancelou, fecha de novo só o painel daquele período; ficha, prontuário e exportação nunca fecham.</p></div>
+    <div class="caixa"><h3>Espaço: vende acesso imediato</h3><p class="nota" style="margin:0">Passou da cota, o áudio novo sai do acesso imediato do médico; ter é R$ 9,90. <strong>Prazo e finalidade escritos:</strong> áudio identificado por cota + 12 meses, depois só a transcrição; ao titular, o áudio é entregue grátis sob pedido em 15 dias. "Guardar para sempre" só do que passou por anonimização medida. Sem tabela de resgate na tela. Prontuário, transcrição e exportação nunca ficam indisponíveis. Espaço e Réguas são add-ons; a escada continua com três degraus.</p></div>
   </div>
   <h3>Os momentos Pro</h3>
   <div class="tabela-wrap"><table>
@@ -414,7 +414,7 @@ flowchart TB
   </table></div>
   <div class="caixa">
     <div class="bolha ia"><small>Helena · oferta do Pro, sem eufemismo</small>Você gravou 47 consultas em 10 dias e economizou 7 horas de digitação. Tudo grátis, e continua.<br><br>O que você <strong>não</strong> tem no grátis:<br>• o prontuário em 1 minuto (hoje espera a fila)<br>• a ficha de cada paciente, com o que ele contou e quando voltou<br>• o painel do seu consultório atualizado<br>• espaço para 3.800 consultas com áudio (no grátis, 75)<br><br>Só a velocidade: Rápido, R$ 27. Tudo isso: Pro, R$ 77 por mês. Menos que uma consulta.<br>[QUERO O RÁPIDO] [QUERO O PRO]</div>
-    <p class="nota" style="margin:.6rem 0 0">Três regras: quando mostra o Pro, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver; e nunca se tira o que é do grátis. Lado do paciente: sempre grátis, e o paciente nunca vê o áudio nem o prontuário técnico. Limite de 3 consultas por dia existe no código, desligado, como saída de emergência.</p>
+    <p class="nota" style="margin:.6rem 0 0">Três regras: quando mostra o Pro, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver; e nunca se tira o que é do grátis. Lado do paciente: sempre grátis; a versão simples só sai depois da revisão de um toque do médico, e o paciente pode ler o que existe sobre ele e baixar o histórico em PDF. Limite de 3 consultas por dia existe no código, desligado, como saída de emergência.</p>
   </div>
 
   <span class="num">7</span>
@@ -454,10 +454,10 @@ flowchart TB
   style AN fill:#c98a1b22,stroke:#c98a1b
   style FORA fill:#4c7fb51a,stroke:#4c7fb5
 </pre>
-    <figcaption>Três consentimentos e uma parede. Anonimizado deixa de ser dado pessoal; a lei para de se aplicar. O trabalho é a anonimização ser real.</figcaption>
+    <figcaption>Consentimento em camadas na conta do paciente (prontuário → histórico e lembretes → anonimização e treino). O aviso falado não é consentimento. Anonimizado deixa de ser dado pessoal; o trabalho é a anonimização ser real e medida.</figcaption>
   </figure>
   <div class="dois">
-    <div class="caixa"><h3>Guardamos tudo</h3><p class="nota" style="margin:0">Áudio por cota de plano, "indisponível para o médico" além dela, nunca "apagado"; transcrições e prontuários para sempre. É o produto (espaço vendido como proteção jurídica: "por menos de 1 centavo por consulta você tem a prova") e é o ativo (itens 5 e 6). O Noa apaga em 14 dias porque o negócio dele é a assinatura. O nosso é a base.</p></div>
+    <div class="caixa"><h3>Guardamos o que tem base</h3><p class="nota" style="margin:0">Texto identificado enquanto há relação com médico ou paciente, exportável; áudio identificado por prazo (cota + 12 meses); para sempre só o anonimizado, com anonimização medida. Sem conta do paciente, a gravação serve ao médico e ponto: não entra em dataset nem treino. O que sai para o negócio: agregado do médico e evidência do mundo real anonimizada, por estudo, com comitê de ética. O que nunca sai: identificado, dado de dispositivo, conteúdo do paciente para segmentar.</p></div>
     <div class="caixa"><h3>Sigilo entre médicos</h3><p class="nota" style="margin:0">O prontuário do Dr. João é dele e do paciente. O Dr. Pedro pede, o paciente aceita, e aí vê o histórico inteiro. Fica registrado quem viu o quê e quando. Existe desde o dia um.</p></div>
   </div>
 
@@ -472,17 +472,17 @@ flowchart TB
     <div><b>mês 18</b>Dados anonimizados</div>
     <div><b>mês 24</b>IA própria, valor da empresa</div>
   </div>
-  <h3>A dica no prontuário é a mídia</h3>
-  <p>Cada prontuário entregue é um momento de atenção total do médico: ele acabou de pedir. A dica no fim usa os números do consultório dele para dizer algo útil, e nessa dica cabe a oferta. Um terço vende o Pro, um terço serviço da Método 3A ou conteúdo, um terço indústria. Nunca usa o conteúdo do paciente para escolher o que mostrar.</p>
+  <h3>A dica na tela é a mídia</h3>
+  <p>Cada prontuário entregue é um momento de atenção. A dica aparece na tela, nunca no PDF nem no prontuário, identificada como publicidade e com "dispensar", uma a cada cinco prontuários. Até 5 mil médicos, só Pro e Método 3A. Indústria por especialidade, com gatilho de ~2.000 médicos validados, nunca por queixa ou diagnóstico. Os números do consultório ficam em "seu mês em números", opt-in, não como gatilho de venda.</p>
   <div class="caixa">
-    <div class="bolha ia"><small>Helena · entregando o prontuário</small>✅ Prontuário da Ana pronto. Revisa e copia:<br>[prontuário]<br><br><span style="color:var(--ambar)">💡 Mês passado você atendeu 5 pacientes por dia. Este mês está em 4: caiu 20 %. Um paciente novo de endocrinologia custa em média R$ 300 em mídia. Quer ver como recuperar esses 20 %? [MARCAR UMA CONVERSA]</span></div>
+    <div class="bolha ia"><small>Helena · entregando o prontuário</small>✅ Prontuário da Ana pronto. Revisa e copia:<br>[prontuário]<br><br><span style="color:var(--ambar)">💡 Publicidade · O painel do seu consultório está pronto: o que você mais atende, quem não voltou. [VER O PAINEL] [dispensar]</span></div>
     <div class="barras" style="margin-top:.8rem">
       <div class="barra"><span>E-mail marketing</span><div class="t"><i class="v" style="width:3%"></i></div><span class="r">R$ 0,05 · 20 % abre</span></div>
       <div class="barra"><span>Disparo WhatsApp</span><div class="t"><i class="a" style="width:25%"></i></div><span class="r">R$ 0,50 · 60 % abre</span></div>
       <div class="barra"><span>Remarketing Meta</span><div class="t"><i class="a" style="width:100%"></i></div><span class="r">R$ 2,00 · interrompe</span></div>
       <div class="barra"><span>Dica no prontuário</span><div class="t"><i style="width:2%"></i></div><span class="r">R$ 0,02 · 100 % lê</span></div>
     </div>
-    <p class="nota" style="margin:.6rem 0 0">É por isso que o médico grátis não é custo: é um contato que custa R$ 0,80 por mês e lê a Helena 150 vezes por mês. É o que a Memed vende dentro da receita e o que a Doximity vende a US$ 228 por médico por ano.</p>
+    <p class="nota" style="margin:.6rem 0 0">O médico grátis custa R$ 0,80 por mês e vê a Helena 150 vezes por mês: é ativo de mídia. A leitura ainda não foi medida; o beta mede clique e "dispensar".</p>
   </div>
   <h3>O modelo financeiro, refeito com as premissas de hoje</h3>
   <p>Mesma estrutura de janeiro (cinco cenários, 36 meses, 5 perfis de usuário), com o que mudou: custo de R$ 0,80 por médico em vez de R$ 1,50 (e R$ 1 por pagante em vez de R$ 10), Pro a R$ 77 com conversão de 3 % (a escada aprovada; o Rápido a R$ 27 não está neste modelo), espaço a R$ 9,90, e pharma a partir do mês 12. Base inicial: 120 médicos ativos (30 % dos 400 clientes do 3A). Não inclui equipe, suporte, advogado nem marketing.</p>
@@ -618,7 +618,9 @@ flowchart TB
       <tr><td>Prontuário com "o que eu interpretei"</td><td><span class="chip c-ok">pronto</span></td><td>Gemini 3.7 sem pensar</td></tr>
       <tr><td>Painel, linha do tempo, PDF, validação CRM/CRO, planos Asaas</td><td><span class="chip c-ok">pronto</span></td><td>Validação CRM nunca é chamada pelo front</td></tr>
       <tr><td>Termos, Privacidade, relatório de impacto</td><td><span class="chip c-pend">textos prontos</span></td><td>Links na tela mortos</td></tr>
-      <tr><td>Paciente como entidade (telefone), sugestão de nome</td><td><span class="chip c-novo">novo</span></td><td>Pré-requisito do CRM e do lado do paciente</td></tr>
+      <tr><td>Paciente como entidade (telefone), dependentes, perfil de secretária, passkey</td><td><span class="chip c-novo">novo</span></td><td>Pré-requisito do CRM e do lado do paciente</td></tr>
+      <tr><td>Exportação PDF/JSON para médico e paciente</td><td><span class="chip c-novo">novo</span></td><td>Condição de existir (emenda 24)</td></tr>
+      <tr><td>Assinatura digital ICP-Brasil no Pro</td><td><span class="chip c-novo">novo</span></td><td>Sem ela a Helena é rascunho; receita e atestado exigem</td></tr>
       <tr><td>Conexão e Sobre a pessoa no CRM</td><td><span class="chip c-novo">novo</span></td><td>2 dias; matéria-prima já existe</td></tr>
       <tr><td>Plataforma do paciente: versão simples, lembretes, histórico, anexos, compartilhar</td><td><span class="chip c-novo">novo</span></td><td>Maior peça nova do projeto</td></tr>
       <tr><td>Fila com prioridade (grátis espera, pago não)</td><td><span class="chip c-novo">novo</span></td><td>Barato: é a mesma fila</td></tr>
@@ -637,14 +639,14 @@ flowchart TB
   <figure class="fig">
 <pre class="mermaid">
 flowchart TB
-  S1[Semana 1<br/>Ditado no iPhone<br/>Gemma no mini em lote] --> S2[Semana 2<br/>Paciente = telefone<br/>Termos ligados<br/>Régua com 10 gravações]
+  S1[Semana 1<br/>Gate: transcrição no aparelho<br/>Gemma no mini<br/>Beta de papel com 10 médicos<br/>Advogado] --> S2[Semana 2<br/>Paciente = telefone<br/>Termos ligados<br/>Régua com 10 gravações]
   S2 --> S3[Semanas 3–4<br/>Versão simples + WhatsApp<br/>do paciente<br/>Fila com prioridade]
   S3 --> S4[Semanas 5–6<br/>Histórico do paciente<br/>Compartilhar entre médicos<br/>Conexão e Sobre a pessoa]
   S4 --> S5[Semanas 7–8<br/>Transcrição no aparelho<br/>Minis em produção<br/>Extensão do Chrome]
   S5 --> B[Beta com médicos reais]
   style B fill:#2dd4bf33,stroke:#1c9a86
 </pre>
-    <figcaption>Semana 1 é medição, não código: as duas coisas que decidem o custo. Depois, o lado do paciente antes dos extras pagos, porque é ele que gira o laço.</figcaption>
+    <figcaption>Semana 1 é medição e beta de papel, não código: gate da transcrição no aparelho, Gemma no mini, versão simples mandada à mão para 10 médicos, e o advogado. Só se passar, constrói-se o lado do paciente.</figcaption>
   </figure>
 
   <span class="num">12</span>
@@ -658,6 +660,7 @@ flowchart TB
     <div><span class="k">6</span><span><strong>Custo:</strong> transcrição sai da API (aparelho do médico), redação vai para Gemma/Qwen nos minis com API de reserva. Gemini fica como reserva e como "pago".</span></div>
     <div><span class="k">7</span><span><strong>Semana 1 é medição:</strong> ditado no iPhone e Gemma no mini. Depende de você: o iPhone e um mini ligado.</span></div>
     <div><span class="k">8</span><span><strong>Advogado</strong> antes de pharma e do banco anonimizado, com quatro perguntas: anonimização suficiente, fornecedores de IA, o consentimento do paciente na conta, e a palavra "indisponível" na política de retenção.</span></div>
+    <div><span class="k">10</span><span><strong>Emendas 24–33 após o parecer dos sete (09/09, noite):</strong> exportação em todo plano; áudio com prazo e ao titular sob pedido; receita, exame e leads sem comissão e valor zero no modelo; dica só na tela e por especialidade; dependentes, secretária, passkey; consentimento em camadas e paciente sem conta fora do dataset; versão simples só após revisão; transcrição no aparelho e minis viram hipótese com gate; beta de papel e advogado antes do lado do paciente; assinatura digital no roadmap.</span></div>
     <div><span class="k">9</span><span><strong>Resgate de janeiro, aprovado em 09/09:</strong> convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; espaço tem ou não tem; a dica é a mídia; degustação de uso pessoal; sem exportar dados; paciente não vê áudio.</span></div>
   </div>
   <p class="fonte">Fontes: repositório consulta-ia (docs/gravador-v2.md, docs/prompt-confabulacao/*), especificação V4 de 01/04/2026, três pesquisas profundas de 08/09, pesquisas sobre o Noa de 08–09/09, medições desta semana no MacBook e via OpenRouter. Números marcados como medidos foram medidos; os demais são do plano ou estimados.</p>

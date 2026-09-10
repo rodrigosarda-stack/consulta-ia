@@ -1,4 +1,6 @@
-# Helena (ex-MarIA) — Especificação v5
+# Helena (ex-MarIA) — Especificação v5.1
+
+> **v5.1 (09/09, noite):** emendas 24–33 após o parecer de sete especialistas independentes (`docs/plano/parecer-dos-sete.html`, `docs/plano/pareceres/`). Onde esta versão contradiz o texto original abaixo, valem as emendas, marcadas com **[v5.1]**.
 
 **Data:** 09/09/2026 · **Aprovada por:** Rodrigo Sardá, nesta data, sobre a página "Projeto MarIA" (artifact `00522272`) e a página "Resgate de janeiro" (artifact `a9893ab1`).
 **Substitui:** Especificação V4 (01/04/2026) e a Especificação Unificada v2 (janeiro/2026), que fica em `docs/plano/2026-01-especificacao-unificada-v2.md` como histórico.
@@ -31,11 +33,11 @@ Não é um programa de prontuário. É um **laço entre médico e paciente** que
 
 ## 2. Os dois lados da mesma consulta
 
-**Identidade dos dois lados = telefone.** A consulta nasce ligada ao médico (telefone + CRM/CRO/CRP) e ao paciente (telefone).
+**Identidade dos dois lados = telefone.** A consulta nasce ligada ao médico (telefone + CRM/CRO/CRP) e ao paciente (telefone). **[v5.1]** Um número pode ter **dependentes** (mãe com filhos, filho com pai idoso); existe **perfil de secretária**; o histórico exige **passkey** e tem **bloqueio de 72 h após troca de chip**.
 
 **Médico:** grava e esquece; prontuário estruturado com "O que eu interpretei"; CRM (pago) com linha do tempo, **Conexão** (ganchos de conversa: filhos, time, o que estuda) e **Sobre a pessoa** (contexto de vida), escritos pela IA a partir dos pedaços etiquetados "conversa"; anexa receita, exame, vídeo para o paciente; pede acesso ao histórico do paciente com outros médicos.
 
-**Paciente (sempre grátis):** versão em linguagem simples do que o médico mandou; lembretes no WhatsApp (retorno, remédio, "pode voltar a caminhar"); histórico de vida cruzando médicos ("aplicativo chefe da saúde" da pessoa); traz exame e foto do remédio; decide quem vê o quê. **Nunca vê o áudio nem o prontuário técnico.** Pedido formal de dados (LGPD/CFM) é raro e tratado à mão pelo médico.
+**Paciente (sempre grátis):** versão em linguagem simples do que o médico mandou (**[v5.1]** só depois da revisão de um toque do médico; dose com dúvida vira "confirme com o consultório"; rodapé "mensagem automática · urgência: ligue X"; a resposta do paciente cai numa caixa do consultório com prazo); lembretes no WhatsApp (retorno, remédio, "pode voltar a caminhar"); histórico de vida cruzando médicos ("aplicativo chefe da saúde" da pessoa); traz exame e foto do remédio; decide quem vê o quê. **Não vê o áudio nem o prontuário técnico na tela.** **[v5.1]** Mas pode ler o que existe sobre ele (inclusive "Sobre a pessoa" e "Conexão"), baixar o histórico simples em PDF, e obter o áudio grátis sob pedido em 15 dias (LGPD art. 18/19).
 
 **Sigilo entre médicos:** o prontuário do Dr. João é dele e do paciente. O Dr. Pedro só vê se o paciente aceitar; fica registrado quem viu o quê e quando. Existe desde o dia um.
 
@@ -57,7 +59,7 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 
 **Para 1.000 médicos/mês:** transcrição na API R$ 57 mil vs R$ 0 no aparelho; redação R$ 4.900 no Gemini vs R$ 570 no Gemma hospedado vs ~R$ 150 de energia nos minis; fixo ~R$ 500. **Total ~R$ 1.100/mês. Trinta pagantes de R$ 47 bancam 1.000 grátis.**
 
-**Condição:** a transcrição no aparelho tem que ser boa em português com ruído. Não medida. Teste do ditado no iPhone pendente.
+**[v5.1] Isto é hipótese, não decisão.** A transcrição no aparelho não dá diarização MÉDICO/PACIENTE nem a "dica" que corrige remédios; Android é fragmentado; PWA no iOS não grava com tela bloqueada. **Semana 1 é gate binário:** WER e 5 termos em 12 gravações de 3 especialidades contra o pipeline atual; avaliar híbrido (aparelho no "modo espera", servidor na consulta). Minis = piloto de 2 máquinas com UPS e runbook; API com contrato como caminho principal até provar. Até medir, o custo assumido por médico é **R$ 3–8/mês**, não R$ 1.
 
 ## 5. Qual IA escreve o prontuário
 
@@ -83,27 +85,27 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 | Receita, exame, atestado, carta | ✗ | ✗ | ✓ |
 | Modelos por especialidade, editar na tela | ✗ | ✗ | ✓ |
 | Extensão do Chrome | ✓ | ✓ | ✓ |
-| Exportar dados | ✗ | ✗ | ✗ |
+| Exportar dados **[v5.1]** | ✓ (PDF em lote + JSON) | ✓ | ✓ |
 
 **Escada de preço (09/09, noite):** Rápido R$ 27 compra só velocidade (o único atrito diário; cadastra o cartão); Pro R$ 77 é gestão (quase 3× o Rápido, "menos que uma consulta", um terço do Noa); Anual R$ 770 (dez meses pelo preço de doze) libera o período sem pagar; **Clínica**: 2+ médicos, desconto por volume. Três degraus, nunca quatro; o Rápido nunca ganha gestão.
 
 **Mensal:** Pro daqui em diante; tudo que grava pagando é dele (3 anos de mensal = 3 anos de painel); o período em que não pagava fica congelado.
-**Anual recorrente:** tudo isso **e o período sem pagar liberado**. "Contrate o ano e libere tudo que você gravou de graça." Cancelou, aquele período fecha de novo.
+**Anual recorrente:** tudo isso **e o período sem pagar liberado**. "Contrate o ano e libere tudo que você gravou de graça." Cancelou, fecha de novo **só o painel** daquele período **[v5.1]**; ficha, prontuário e exportação nunca fecham.
 
 **Momentos Pro** (aparece quando vale mais, e some): primeiras 25 consultas (tudo); toda vez que um paciente volta (a ficha dele, uma vez); fim de cada mês ("seu mês em números" por 24 h); a cada 50 consultas gravadas (7 dias de Pro); todo dia (a fila). Regras: quando mostra, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver (sem eufemismo); nunca se tira o que é do grátis.
 
-**Espaço: tem ou não tem.** Além da cota, a gravação nova fica **"indisponível para o médico"**. Sem tabela de resgate, sem "arquivo" na tela. Resgate só por atendimento: "podemos tentar recuperar, sem garantia, com custo", caso a caso. **A palavra "apagado" não existe**: guardamos tudo (é o ativo) e a política de privacidade diz isso. Prontuário e transcrição nunca ficam indisponíveis; só o áudio. Espaço vendido como proteção jurídica ("por menos de 1 centavo por consulta você tem a prova"), em consultas guardadas, nunca em GB; aviso aos 90 %.
+**Espaço: vende acesso imediato. [v5.1]** Além da cota, o áudio novo sai do acesso imediato do médico; **prazo e finalidade escritos**: áudio identificado guardado por cota + 12 meses, depois só a transcrição; ao titular (paciente ou médico) o áudio é entregue grátis sob pedido em 15 dias; "guardar para sempre" só do que passou por anonimização medida. Sem tabela de resgate na tela. A palavra "apagado" segue fora; "indisponível" só com o prazo escrito ao lado. Prontuário e transcrição nunca ficam indisponíveis. Espaço e Réguas são **add-ons**; a escada continua com três degraus. Espaço vendido como proteção jurídica ("por menos de 1 centavo por consulta você tem a prova"), em consultas guardadas, nunca em GB; aviso aos 90 %.
 
 **Limite de 3 consultas/dia:** existe no código, desligado; saída de emergência.
 
 ## 7. Dados, consentimento e a parede
 
-**Quem consente:** médico aceita os Termos no cadastro; a Helena fala o aviso dentro do áudio ("Gravação iniciada. Consulta documentada por inteligência artificial") e a tela lembra o médico; paciente aceita os Termos dele ao criar a conta (consentimento específico e destacado, cobrindo dado sensível, histórico, compartilhamento e uso anonimizado); paciente autoriza cada médico que pede acesso.
+**Quem consente [v5.1]:** médico aceita os Termos no cadastro; a Helena fala o aviso dentro do áudio ("gravação em curso; detalhes em [link]") — **aviso não é consentimento**; o paciente consente **em camadas** na conta dele: prontuário (tutela da saúde, só informação) → histórico e lembretes (consentimento) → anonimização e treino (consentimento destacado, revogável); paciente autoriza cada médico que pede acesso. **Sem conta do paciente, a gravação serve ao médico e ponto:** não entra em anonimização, dataset nem treino. Controlador por fluxo: o médico no prontuário; a Helena no histórico cruzado, CRM, anonimização e treino. DPAs (Vertex, Supabase, Meta) antes do piloto; DeepSeek fora. RIPD e encarregado.
 
 **Dentro da parede (identificado):** consultas, CRM do médico (tudo que o paciente contou, sem filtro de assunto — o médico tem direito de saber), histórico do paciente.
 **Anonimização de verdade** (sem nome, data exata, cidade pequena, combinação rara) → **fora da parede:** banco de consultas em português, IA própria, canal pharma = atenção do médico, nunca conteúdo do paciente. Dado anonimizado não é dado pessoal (LGPD art. 12); o trabalho é a anonimização ser real (ANPD, ago/2026).
 
-**Guardamos tudo.** Áudio por cota; texto para sempre. O Noa apaga em 14 dias porque vive da assinatura; nós vivemos da base.
+**Guardamos o que tem base. [v5.1]** Texto identificado enquanto há relação com médico ou paciente (prontuário é guardado 20 anos pelo médico, exportável); áudio identificado por prazo; para sempre só o anonimizado, com anonimização medida (k-anonimato, datas deslocadas, NER de nomes, combinação rara). O que sai para o negócio: agregado do médico e evidência do mundo real anonimizada e estruturada, por estudo, com comitê de ética. O que nunca sai: identificado, dado de dispositivo (Apple Saúde/Health Connect), conteúdo do paciente para segmentar.
 
 **Advogado antes de pharma e do banco anonimizado**, com quatro perguntas: anonimização suficiente; fornecedores de IA (DPA); consentimento do paciente na conta; a palavra "indisponível" na política de retenção.
 
@@ -111,7 +113,7 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 
 Ordem: Pro e espaço pagam a operação (mês 1) → serviços M3A (mês 6) → Plano Clínica (mês 6) → canal pharma/educação por especialidade (mês 12) → dados anonimizados (mês 18) → IA própria (mês 24). Precedentes: Memed (grátis 14 anos, 150 mil médicos, lucro em 2025, R$ 100 mi projetados), OpenEvidence (grátis, US$ 300 mi/ano, 90 % margem), Doximity (US$ 228/médico/ano).
 
-**A dica no prontuário é a mídia.** Cada prontuário entregue é um momento de atenção total. A dica usa os números do consultório do médico ("mês passado 5 pacientes/dia, este mês 4: caiu 20 %; um paciente novo de endocrinologia custa R$ 300 em mídia; quer ver como recuperar? [MARCAR UMA CONVERSA]"). Rodízio: 1/3 vende o Pro, 1/3 serviço M3A ou conteúdo, 1/3 indústria; nunca duas iguais seguidas; nunca usa o conteúdo do paciente para escolher. Custo R$ 0,02 por dica, leitura ~100 %. O médico grátis custa R$ 0,80/mês e lê a Helena ~150×/mês: é ativo de mídia, não custo.
+**A dica na tela é a mídia. [v5.1]** Cada prontuário entregue é um momento de atenção. A dica aparece **na tela, nunca no PDF/prontuário**, identificada como publicidade, com "dispensar"; 1 a cada 5 prontuários; até 5 mil médicos só Pro e M3A; indústria **por especialidade** (gatilho ~2.000 CRMs validados), **nunca por queixa ou diagnóstico**. Os números do consultório aparecem em "seu mês em números", opt-in, não como gatilho de venda. Custo R$ 0,02 por dica; leitura a medir (clique e "dispensar"). O médico grátis custa R$ 0,80/mês e vê a Helena ~150×/mês: é ativo de mídia, não custo.
 
 **Modelo financeiro (36 meses, 5 cenários, sem equipe/suporte/advogado/marketing):** custo R$ 0,80/médico + R$ 500 fixo; Pro R$ 47; espaço R$ 9,90 (5–25 % dos ativos); pharma R$ 0–40/médico/mês a partir do mês 9–18; base inicial 120 ativos (30 % dos 400 clientes do 3A); teto 100 mil.
 
@@ -144,14 +146,14 @@ Detalhe em `helena-vs-noa.html`. Resumo: **Noa Notes** (Doctoralia) R$ 199/mês 
 
 ## 11. Ordem de ataque
 
-- **Semana 1 (medição):** ditado no iPhone contra as 2 gravações reais; Gemma 4 31B num mini 32 GB com 1/4/8 em lote.
+- **Semana 1 (medição e beta de papel) [v5.1]:** gate binário da transcrição no aparelho (12 gravações, 3 especialidades, WER + 5 termos); Gemma 4 31B num mini 32 GB com 1/4/8 em lote; **beta de papel** com 10 médicos do 3A (versão simples mandada à mão por 2 semanas: o médico deixa? o paciente abre?); **advogado** com cinco perguntas (portabilidade, retenção de áudio, controlador por fluxo, comissão de farmácia, paciente sem conta).
 - **Semana 2:** paciente = telefone; Termos ligados; régua com 10 gravações.
-- **Semanas 3–4:** versão simples + WhatsApp do paciente; fila com prioridade; convite pelo telefone.
+- **Semanas 3–4:** só se o beta de papel passar: versão simples + WhatsApp do paciente (com revisão do médico); fila com prioridade; convite pelo telefone; exportação PDF/JSON.
 - **Semanas 5–6:** histórico do paciente; compartilhar entre médicos; Conexão e Sobre a pessoa; painel de gestão.
 - **Semanas 7–8:** transcrição no aparelho; minis em produção; extensão do Chrome.
 - **Beta com médicos reais** (validar com 10 médicos do 3A, como já dizia janeiro).
 
-## 12. Decisões aprovadas em 09/09/2026
+## 12. Decisões aprovadas em 09/09/2026 (ver emendas 24–33 em `docs/decisoes/`, que prevalecem)
 
 1. O laço é o produto; lado do paciente sempre grátis, construído antes dos extras pagos.
 2. Grátis sem limite para saúde; pago = velocidade (Rápido R$ 27), gestão (Pro R$ 77, anual R$ 770), Clínica por volume. Fila com prioridade, sem atraso artificial. Limite 3/dia desligado.
@@ -161,9 +163,11 @@ Detalhe em `helena-vs-noa.html`. Resumo: **Noa Notes** (Doctoralia) R$ 199/mês 
 6. Custo: transcrição sai da API (aparelho do médico); redação em Gemma/Qwen nos minis com API de reserva; Gemini como reserva e como "pago".
 7. Semana 1 é medição (iPhone e mini).
 8. Advogado antes de pharma e do banco anonimizado (4 perguntas).
-9. Resgate de janeiro: convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; momentos Pro; espaço tem ou não tem; a dica é a mídia com os números do médico; degustação de uso pessoal; oferta do Pro sem eufemismo; 30 h/mês na abertura sem os R$ 25 mil; Cérebro = "pergunte ao histórico, ache o trecho, exporte a prova" (fase 2); todas as profissões de saúde; área jurídica futuro; **sem opção de exportar dados; paciente não vê áudio**.
+9. Resgate de janeiro: convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; momentos Pro; espaço vende acesso imediato; a dica na tela; degustação de uso pessoal; oferta do Pro sem eufemismo; 30 h/mês na abertura sem os R$ 25 mil; Cérebro = "pergunte ao histórico, ache o trecho, exporte a prova" (fase 2); todas as profissões de saúde; área jurídica futuro. **[v5.1]** Exportação em todo plano (emenda 24); paciente não vê áudio na tela, mas o obtém sob pedido (emenda 25).
 10. Nome: Helena. Ligação futura com o Theo (financeiro da clínica): a consulta gera a cobrança.
 
 ## Fica como histórico (não volta)
+
+**[v5.1] Também ficam como histórico, derrubados pelos sete:** "sem exportar dados"; áudio "indisponível" sem prazo com resgate pago por atendimento; comissão por receita/exame/lead em nome do médico; a dica dentro do PDF com os números do médico e indústria por queixa; transcrição no aparelho e minis como decisão (viraram hipótese com gate); modelo de 36 meses com Pro R$ 47 e 7 %.
 
 Gravar pelo WhatsApp; 3 transcrições por dia após trial; preços R$ 147/247/397; apagar áudio em 24 h; Cérebro Pro com Opus; RTX 4090 alugada; prêmio de "+3 dias" por indicação; cortar no dia 3; tabela pública de resgate de arquivo (R$ 149/399); "cada mês pago abre 3 meses"; trava de exportação.
