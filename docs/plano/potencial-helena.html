@@ -1,0 +1,193 @@
+<title>Potencial da Helena</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--azul:#4c7fb5;--azul-fundo:rgba(76,127,181,.14);--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12);--roxo:#8b6bd1;--roxo-fundo:rgba(139,107,209,.14)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070;--roxo:#ad95e6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:17px;line-height:1.6}
+  main{max-width:50rem;margin:0 auto;padding:3rem 1.5rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.5rem;line-height:1.08;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.8rem;margin:3.2rem 0 .6rem;text-wrap:balance}
+  h3{font-size:1.05rem;font-weight:600;margin:1.4rem 0 .5rem}
+  p{margin:0 0 1rem;max-width:66ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.25rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  .placar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--linha);border:1px solid var(--linha);border-radius:8px;overflow:hidden;margin:1.5rem 0}
+  .placar div{background:var(--papel-2);padding:.9rem 1rem}
+  .placar .n{font-family:"Newsreader",Georgia,serif;font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .placar .l{font-size:.85rem;color:var(--cinza);margin-top:.2rem}
+  @media (max-width:640px){.placar{grid-template-columns:1fr}}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px;margin:1rem 0}
+  table{border-collapse:collapse;width:100%;min-width:40rem;font-size:.95rem}
+  th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2)}
+  td{padding:.55rem .8rem;border-bottom:1px solid var(--linha);vertical-align:top}
+  tr:last-child td{border-bottom:0}
+  td.mono{text-align:right}
+  .nota{font-size:.9rem;color:var(--cinza)}
+  ul{margin:.25rem 0 1rem;padding-left:1.2rem} li{margin:.35rem 0}
+  .barras{display:grid;gap:.45rem;margin:.6rem 0}
+  .barra{display:grid;grid-template-columns:14rem 1fr 6rem;gap:.7rem;align-items:center;font-size:.92rem}
+  .barra .t{height:16px;background:var(--linha);border-radius:4px;overflow:hidden}
+  .barra .t i{display:block;height:100%;background:var(--teal)}
+  .barra .t i.a{background:var(--ambar)} .barra .t i.z{background:var(--azul)}
+  .barra .r{text-align:right;font-variant-numeric:tabular-nums}
+  .par2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.6rem 0}
+  @media (max-width:640px){.par2{grid-template-columns:1fr}}
+  .par2 > div{background:var(--papel);border:1px solid var(--linha);border-radius:8px;padding:.8rem .9rem;font-size:.95rem}
+  .par2 b{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);margin-bottom:.3rem}
+  .aprov{display:grid;gap:.5rem;margin:1rem 0}
+  .aprov div{display:grid;grid-template-columns:2.2rem 1fr;gap:.8rem;align-items:start;padding:.9rem 1rem;border:1px solid var(--linha);border-radius:8px;background:var(--papel-2)}
+  .aprov .k{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;color:var(--teal-escuro)}
+</style>
+<main>
+  <div class="eyebrow">Helena · estudo de potencial · 09/09/2026 · para aprovação</div>
+  <h1>Potencial da Helena</h1>
+  <p class="lead">Somando todas as portas de receita que apareceram esta semana, quanto vale um médico ativo por ano, quanto vale a base em escala, e o que precisa ser verdade para chegar lá. Tudo é estimativa, com a base de cada número ao lado.</p>
+
+  <div class="placar">
+    <div><div class="n">R$ 1.351</div><div class="l">de receita possível por médico ativo por ano, no regime, cenário base (R$ 200 em 1.000 médicos)</div></div>
+    <div><div class="n">R$ 15</div><div class="l">de custo variável por médico por ano (IA e armazenamento; app, não WhatsApp)</div></div>
+    <div><div class="n">88 : 1</div><div class="l">receita possível sobre custo variável, por médico, no regime</div></div>
+  </div>
+
+  <h2>1. Onde a Helena chega</h2>
+  <p>Começa sem instalar nada: link, grava, prontuário. Isso é a porta e não muda. Mas o destino é um aplicativo, dos dois lados, por três motivos que já apareceram: entrega de mensagem a custo zero, transcrição no aparelho (a conta de R$ 1 por médico), e o paciente ter a saúde dele na tela do celular.</p>
+  <div class="par2">
+    <div><b>Por que o médico vai para o app</b>Prontuário mais rápido e mais privado, porque transcreve no aparelho. Gravação em segundo plano que não cai. Ficha do paciente antes de ele entrar. Notificação de retorno. Vender procedimento e receber pelo app.</div>
+    <div><b>Por que o paciente vai para o app</b>Tudo da saúde dele num lugar só: consultas com todos os médicos, o que cada um disse, exames fotografados, remédios em uso com lembrete, e os dados do próprio celular e do relógio.</div>
+  </div>
+  <h3>Os dados que já estão no celular</h3>
+  <p>iPhone e Android já guardam batimento, pressão, passos, sono, peso e, com relógio, muito mais. Apple Saúde e Google Health Connect deixam um app ler isso <strong>com permissão do paciente, item por item</strong>. É de graça e é padrão. Apps de dieta e de glicose escrevem lá também. O que isso vira na Helena:</p>
+  <ul>
+    <li><strong>Antes da consulta,</strong> o Dr. João vê a pressão e o sono da Ana nas últimas duas semanas, sem ela trazer papel.</li>
+    <li><strong>No prontuário,</strong> a queixa ganha contexto: "dor no joelho" ao lado de "voltou a andar 8 mil passos por dia em agosto".</li>
+    <li><strong>Na régua,</strong> a mensagem do médico usa o dado: "sua pressão ficou boa esta semana, continue".</li>
+    <li><strong>Remédios:</strong> a receita vira lista de uso com lembrete de horário e aviso de quando acaba. Isso é cuidado, está dentro da parede, e é a porta da "receita vira compra".</li>
+  </ul>
+  <p class="nota">Isso exige app nativo e exige que a Helena nunca use esse dado para nada além do cuidado daquele paciente com aquele médico. É o dado mais sensível de todos, e é o que mais prende.</p>
+
+  <h2>2. As portas de receita</h2>
+  <p>Onze portas. Para cada uma: quando dá para ligar, a base do número, e o que rende por médico ativo por ano em três cenários. "Médico ativo" é quem grava; pagar ou não pagar não importa aqui.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Porta</th><th>Liga</th><th>Base do número</th><th>Conservador</th><th>Base</th><th>Agressivo</th></tr></thead>
+    <tbody><tr><td>Rápido (R$ 27/mês)</td><td>dia 1</td><td class='nota'>4 % · 7 % · 10 % pagam só pela velocidade; é o que cadastra o cartão</td><td class='mono'>13</td><td class='mono'><strong>23</strong></td><td class='mono'>32</td></tr>
+<tr><td>Pro (R$ 77/mês, anual R$ 770)</td><td>dia 1</td><td class='nota'>2 % · 3 % · 5 % pagam por gestão; freemium generoso converte 2–5 % no total pago</td><td class='mono'>18</td><td class='mono'><strong>28</strong></td><td class='mono'>46</td></tr><tr><td>Espaço (R$ 9.90/mês)</td><td>dia 1</td><td class='nota'>5 % · 10 % · 18 % assinam; barato. com o medo a favor</td><td class='mono'>6</td><td class='mono'><strong>12</strong></td><td class='mono'>21</td></tr><tr><td>Réguas (R$ 29.90/mês)</td><td>lado do paciente</td><td class='nota'>2 % · 5 % · 10 %; depende do médico querer mandar mensagem no nome dele</td><td class='mono'>7</td><td class='mono'><strong>18</strong></td><td class='mono'>36</td></tr><tr><td>Painel de pesquisa para a indústria</td><td>dia 1</td><td class='nota'>metade da base é de especialidades pesquisadas; 1 · 2 · 4 pesquisas/ano. 30 % respondem. R$ 150 de margem</td><td class='mono'>22</td><td class='mono'><strong>45</strong></td><td class='mono'>90</td></tr><tr><td>Encaminhamento e retorno (leads)</td><td>com densidade</td><td class='nota'>precisa de outro médico da Helena na cidade; R$ 20 por lead; 0.3 · 0.55 · 1 lead/mês em 30 % dos médicos</td><td class='mono'>22</td><td class='mono'><strong>40</strong></td><td class='mono'>72</td></tr><tr><td>Médico vende pelo app. comissão 3 % líquida (Theo)</td><td>lado do paciente</td><td class='nota'>10 % · 15 % · 25 % vendem R$ 5 mil/mês pelo app; 5 % menos 2 % do pagamento</td><td class='mono'>180</td><td class='mono'><strong>270</strong></td><td class='mono'>450</td></tr><tr><td>Receita vira compra (comissão da farmácia)</td><td>lado do paciente</td><td class='nota'>~1.000 receitas/ano/médico (150 consultas/mês. 60 % com receita); 1 % · 3 % · 8 % compram pelo app; R$ 12</td><td class='mono'>120</td><td class='mono'><strong>360</strong></td><td class='mono'>960</td></tr><tr><td>Exame vira agendamento (comissão do laboratório)</td><td>lado do paciente</td><td class='nota'>~540 pedidos/ano (30 % das consultas); 1 % · 3 % · 6 % agendam; R$ 15</td><td class='mono'>80</td><td class='mono'><strong>200</strong></td><td class='mono'>400</td></tr><tr><td>Canal pharma / educação (a dica)</td><td>10 mil+</td><td class='nota'>âncora Brasil: Memed R$ 475/médico/ano com farmácia dentro; EUA R$ 670–1.200</td><td class='mono'>120</td><td class='mono'><strong>250</strong></td><td class='mono'>450</td></tr><tr><td>Serviços da Método 3A</td><td>mês 6</td><td class='nota'>0.4 % · 0.7 % · 1.2 % contratam R$ 3 mil/mês. margem 30 %</td><td class='mono'>43</td><td class='mono'><strong>75</strong></td><td class='mono'>130</td></tr><tr><td>Dados anonimizados / evidência do mundo real</td><td>25 mil+</td><td class='nota'>contratos por estudo; ninguém publica preço</td><td class='mono'>10</td><td class='mono'><strong>30</strong></td><td class='mono'>80</td></tr>
+    <tr><td><strong>Total por médico ativo por ano. no regime</strong></td><td></td><td></td><td class="mono"><strong>R$ 641</strong></td><td class="mono"><strong>R$ 1.351</strong></td><td class="mono"><strong>R$ 2.767</strong></td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Revisado em 09/09 à noite: cada número foi reexaminado (de onde veio. o que precisa ser verdade). Onze mudaram. quase todos para baixo; receita e exame subiram porque eu tinha contado poucas receitas por médico. "No regime" quer dizer com todas as portas ligadas; ver a rampa por patamar abaixo.</p>
+  <h3>Onde o dinheiro está, no cenário base</h3>
+  <div class="barras">
+    <div class="barra"><span>Receita vira compra</span><div class="t"><i style="width:100%"></i></div><span class="r">R$ 360</span></div>
+    <div class="barra"><span>Médico vende pelo app (Theo)</span><div class="t"><i style="width:75%"></i></div><span class="r">R$ 270</span></div>
+    <div class="barra"><span>Canal pharma (a dica)</span><div class="t"><i class="a" style="width:69%"></i></div><span class="r">R$ 250</span></div>
+    <div class="barra"><span>Exame vira agendamento</span><div class="t"><i style="width:56%"></i></div><span class="r">R$ 200</span></div>
+    <div class="barra"><span>Serviços Método 3A</span><div class="t"><i class="z" style="width:21%"></i></div><span class="r">R$ 75</span></div>
+    <div class="barra"><span>Rápido + Pro + espaço + réguas</span><div class="t"><i class="z" style="width:22%"></i></div><span class="r">R$ 81</span></div>
+    <div class="barra"><span>Painel de pesquisa</span><div class="t"><i class="a" style="width:12.5%"></i></div><span class="r">R$ 45</span></div>
+    <div class="barra"><span>Leads e retorno</span><div class="t"><i style="width:11%"></i></div><span class="r">R$ 40</span></div>
+    <div class="barra"><span>Dados anonimizados</span><div class="t"><i class="a" style="width:8%"></i></div><span class="r">R$ 30</span></div>
+  </div>
+  <div class="caixa">
+    <p style="margin:0"><strong>A leitura que importa:</strong> as assinaturas (Pro, espaço, réguas) são 4 % do potencial. O que faz o número são as portas em que a Helena está <em>no meio de uma transação que já existe</em>: o médico vendendo, o paciente comprando o remédio, o laboratório recebendo o exame, a indústria falando com o médico. É por isso que o grátis não é sacrifício. É o que abre essas portas. E é por isso que o Theo entra: metade do potencial passa por cobrar e receber.</p>
+  </div>
+
+  <h2>3. Quem compra</h2>
+  <p>As mesmas portas, vistas por comprador. Cada um quer uma coisa diferente da mesma base, e cada um tem uma linha que não pode ser cruzada.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Quem compra</th><th>O que compra da Helena</th><th>Quanto vale</th><th>Cuidado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Médico</strong></td><td>Pro, espaço, réguas, leads, comissão do que vende, serviços da Método 3A</td><td class="mono">R$ 200–900 / médico / ano</td><td>É o cliente e o canal. Nunca pode se sentir vigiado.</td></tr>
+      <tr><td><strong>Farmácia e rede</strong></td><td>A receita chegando na hora, com o paciente pronto para comprar: entrega e desconto. Uma rede grande paga também para ser a farmácia padrão.</td><td class="mono">R$ 300 / médico / ano</td><td>Serviço, não anúncio. O paciente aperta o botão.</td></tr>
+      <tr><td><strong>Laboratório</strong></td><td>O pedido de exame no momento em que sai, com o paciente pronto para agendar. Painel de "pedidos na minha região".</td><td class="mono">R$ 150 / médico / ano</td><td>Mesmo modelo. O resultado volta para a Helena, que é o que o paciente quer.</td></tr>
+      <tr><td><strong>Indústria</strong></td><td>A atenção do médico (dica), o painel de pesquisa, a evidência do mundo real</td><td class="mono">R$ 300–650 / médico / ano</td><td>Nunca conteúdo do paciente. Remédio de receita só se anuncia para médico, nunca para paciente.</td></tr>
+      <tr><td><strong>Plano de saúde</strong></td><td>Adesão e retorno dos beneficiários; guia de exame pré-preenchida; Helena para a rede credenciada com a marca do plano</td><td class="mono">contrato por beneficiário; potencialmente o maior por cliente</td><td>O plano nunca vê a consulta. Só agregado, ou o que já ia por guia.</td></tr>
+      <tr><td><strong>Método 3A</strong></td><td>O canal para vender tráfego, social e marca ao médico</td><td class="mono">R$ 100 / médico / ano</td><td>Já existe.</td></tr>
+      <tr><td><strong>Prefeituras e SUS</strong></td><td>Prontuário em posto de saúde</td><td class="mono">contrato público, grande</td><td>Lento. Fase 3, se tanto.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Plano de saúde, em detalhe</h3>
+  <div class="par2">
+    <div><b>Adesão e retorno</b>O paciente que não volta e não toma o remédio custa caro ao plano depois. A régua da Helena, no nome do médico, resolve isso. O plano paga por beneficiário acompanhado, como os programas de cuidado que os planos americanos compram.</div>
+    <div><b>Guia de exame</b>O médico preenche a guia à mão e o plano audita. A Helena já tem o pedido de exame estruturado no prontuário. Guia pré-preenchida economiza para os dois lados.</div>
+    <div><b>Helena para a rede</b>O plano oferece a Helena aos médicos credenciados, com a marca dele. Aquisição de médicos em lote, paga pelo plano.</div>
+    <div style="border-color:var(--vermelho)"><b>O que não pode</b>O plano ver a consulta. Se o médico sentir que o plano lê o que ele fala com o paciente, ele sai, e leva os pacientes. Tudo que vai para o plano é agregado ou é o que já ia por guia. Essa parede é a que sustenta todas as outras.</div>
+  </div>
+
+  <h2>4. Em escala: a rampa, não a linha reta</h2>
+  <p>A primeira versão desta página multiplicava cada médico pelo mesmo valor em 1.000 e em 100 mil. É falso: as portas ligam em patamares diferentes. Pharma só compra alcance a partir de uns 10 mil médicos; encaminhamento precisa de outro médico da Helena na mesma cidade; receita e exame precisam do lado do paciente. Esta é a rampa.</p>
+  <h3>Custo variável por médico ativo, por ano</h3>
+  <div class="tabela-wrap"><table style="min-width:0">
+    <thead><tr><th>Item</th><th>Conta</th><th>R$/ano</th></tr></thead>
+    <tbody>
+      <tr><td>IA: transcrição no aparelho, redação nos minis, vigia</td><td>R$ 1 por mês</td><td class="mono">12</td></tr>
+      <tr><td>Armazenamento</td><td>13 MB por hora gravada, 88 h/mês, R$ 0,02 por GB, acumulando</td><td class="mono">~3</td></tr>
+      <tr><td><strong>Total</strong></td><td></td><td class="mono"><strong>15</strong></td></tr>
+      <tr><td class="nota">Se as mensagens forem pelo WhatsApp oficial em vez do app</td><td class="nota">A partir de 01/10/2026 a Meta cobra por mensagem também dentro da janela de 24 h: R$ 0,037 cada, após 1.000 grátis por número por mês. ~900 mensagens/mês por médico</td><td class="mono nota">+400</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota"><strong>A janela grátis de 24 h acaba em 01/10/2026.</strong> Pelo WhatsApp, o canal custaria 25× a IA. Por isso o app não é opcional: notificação do app custa zero. WhatsApp fica para entrar, para quem não instalou, e para o que não pode falhar. Infra fixa (Supabase, Vercel): ~R$ 3 mil por ano no total.</p>
+  <h3>Por patamar, com a equipe como você definiu</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Médicos</th><th>Portas ligadas</th><th>R$/médico/ano</th><th>Equipe</th><th>Receita/ano</th><th>Custo/ano</th><th>Resultado/ano</th><th>Margem</th></tr></thead>
+    <tbody><tr><td class='mono'>1.000</td><td class='nota'>Pro. espaço. pesquisa parcial. M3A. começo do lado do paciente</td><td class='mono'>200</td><td>2 <span class='nota'>(R$ 10.000/mês)</span></td><td class='mono'>R$ 200.000</td><td class='mono'>R$ 138.000</td><td class='mono' style='color:var(--teal-escuro)'>R$ 62.000</td><td class='mono'>31 %</td></tr><tr><td class='mono'>5.000</td><td class='nota'>lado do paciente inteiro. venda pelo app começando. pharma piloto</td><td class='mono'>550</td><td>4 <span class='nota'>(R$ 22.000/mês)</span></td><td class='mono'>R$ 2.8 mi</td><td class='mono'>R$ 342.000</td><td class='mono' style='color:var(--teal-escuro)'>R$ 2.4 mi</td><td class='mono'>88 %</td></tr><tr><td class='mono'>10.000</td><td class='nota'>pharma real. leads com densidade. dados começando</td><td class='mono'>1.000</td><td>8 <span class='nota'>(R$ 50.000/mês)</span></td><td class='mono'>R$ 10.0 mi</td><td class='mono'>R$ 753.000</td><td class='mono' style='color:var(--teal-escuro)'>R$ 9.2 mi</td><td class='mono'>92 %</td></tr><tr><td class='mono'>25.000</td><td class='nota'>regime</td><td class='mono'>1.300</td><td>10 <span class='nota'>(R$ 70.000/mês)</span></td><td class='mono'>R$ 32.5 mi</td><td class='mono'>R$ 1.2 mi</td><td class='mono' style='color:var(--teal-escuro)'>R$ 31.3 mi</td><td class='mono'>96 %</td></tr><tr><td class='mono'>50.000</td><td class='nota'>regime</td><td class='mono'>1.350</td><td>14 <span class='nota'>(R$ 105.000/mês)</span></td><td class='mono'>R$ 67.5 mi</td><td class='mono'>R$ 2.0 mi</td><td class='mono' style='color:var(--teal-escuro)'>R$ 65.5 mi</td><td class='mono'>97 %</td></tr><tr><td class='mono'>100.000</td><td class='nota'>regime; pharma e dados no teto</td><td class='mono'>1.400</td><td>20 <span class='nota'>(R$ 160.000/mês)</span></td><td class='mono'>R$ 140.0 mi</td><td class='mono'>R$ 3.4 mi</td><td class='mono' style='color:var(--teal-escuro)'>R$ 136.6 mi</td><td class='mono'>98 %</td></tr></tbody>
+  </table></div>
+  <div class="caixa">
+    <p style="margin:0 0 .6rem"><strong>O que mudou com a rampa:</strong> em 1.000 médicos o negócio empata, não sobra R$ 1,6 milhão. O lucro vem de 5 mil para cima, quando o lado do paciente e a pharma entram. Isso bate com a Memed, que ficou anos sem lucro e virou lucrativa em escala. É menos bonito e mais verdadeiro.</p>
+    <p style="margin:0 0 .6rem"><strong>Margem:</strong> 31 % em 1.000; 87 % em 5 mil; 92 % em 10 mil; 96–98 % acima. Na faixa de software, como você disse, a partir do segundo patamar.</p>
+    <p class="nota" style="margin:0"><strong>Equipe contra o mercado:</strong> as empresas de IA mais eficientes fazem US$ 1,5 a 4,7 milhões de receita por pessoa por ano (Cursor, Midjourney, Lovable); software tradicional, US$ 130 mil. A Helena com 8 pessoas em 10 mil médicos faz R$ 1,25 milhão por pessoa, uns US$ 230 mil. A equipe não está grande. O que essas pessoas fazem: suporte ao médico e ao paciente (a maior parte), operação dos minis e do app, evolução do produto.</p>
+  </div>
+
+  <h2>5. O que isso vale</h2>
+  <p>Plataformas de médicos monetizadas por indústria e transação negociam a múltiplos altos de receita: a Doximity vale cerca de 15 vezes o que fatura; a OpenEvidence foi avaliada em bilhões de dólares com US$ 300 milhões de receita anual; a Abridge, só com o scribe, em bilhões. No Brasil a Memed chegou a R$ 100 milhões de receita com 150 mil médicos e virou lucrativa em 2025.</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Marco</th><th>Receita/ano (base)</th><th>A 5× receita</th><th>A 15× receita</th><th>Comparável</th></tr></thead>
+    <tbody>
+      <tr><td>10 mil médicos ativos</td><td class="mono">R$ 10 mi</td><td class="mono">R$ 50 mi</td><td class="mono">R$ 150 mi</td><td>Noa no Brasil hoje; Freed, Tali</td></tr>
+      <tr><td>50 mil médicos ativos</td><td class="mono">R$ 68 mi</td><td class="mono">R$ 340 mi</td><td class="mono">R$ 1,0 bi</td><td>Memed (150 mil médicos, R$ 100 mi)</td></tr>
+      <tr><td>100 mil médicos ativos</td><td class="mono">R$ 140 mi</td><td class="mono">R$ 700 mi</td><td class="mono">R$ 2,1 bi</td><td>1 em 6 médicos do Brasil</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Múltiplos são ordem de grandeza, não avaliação. O ativo que sustenta o múltiplo alto não é a receita: é a base de médicos validados com pacientes ligados e o histórico de consultas cruzando médicos, que ninguém no Brasil tem.</p>
+
+  <h2>6. O que precisa ser verdade</h2>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Condição</th><th>Se falhar</th><th>Como saber logo</th></tr></thead>
+    <tbody>
+      <tr><td>As mensagens saem pelo app, não pelo WhatsApp</td><td>R$ 400 por médico por ano só de Meta; 25× a IA</td><td>App web instalável em semanas; medir quantos instalam no beta</td></tr>
+      <tr><td>O "efeito cartão": quem paga o Rápido compra mais espaço, réguas e vende mais pelo app</td><td>O Rápido vale só R$ 17/médico/ano em vez de ~R$ 80</td><td>Beta: comparar compras de quem tem cartão contra quem não tem</td></tr>
+      <tr><td>A transcrição no aparelho funciona em português com ruído</td><td>Custo por médico volta a R$ 30–44 e o grátis vira buraco</td><td>Ditado do roteiro no iPhone, esta semana</td></tr>
+      <tr><td>O laço gira: o paciente traz o médico</td><td>Crescimento vira compra de tráfego; CAC de R$ 1.000</td><td>Beta com 10 médicos do 3A: quantos médicos novos vêm de paciente em 90 dias</td></tr>
+      <tr><td>O médico deixa o paciente receber a versão simples</td><td>Metade das portas fecha</td><td>Perguntar aos 10 do beta antes de construir</td></tr>
+      <tr><td>Anonimização e consentimento passam no advogado</td><td>Pharma e dados saem da conta: −20 % do potencial</td><td>Advogado antes do mês 12</td></tr>
+      <tr><td>O Noa não leva a consulta ao app do paciente antes de nós</td><td>Perdemos o diferencial com a distribuição deles</td><td>Lado do paciente em 6 semanas, não em 6 meses</td></tr>
+      <tr><td>Plano de saúde aceita receber só agregado e guia, sem ver a consulta</td><td>O canal mais valioso fecha; ou, pior, os médicos saem</td><td>Primeira conversa com um plano regional antes do mês 12</td></tr>
+      <tr><td>Plano contínuo do médico não é lido como plano de saúde</td><td>Vender só procedimento e pacote; −30 % da maior porta</td><td>Advogado, ANS</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>7. Ordem de ligar as portas</h2>
+  <ul>
+    <li><strong>Dia 1:</strong> Pro, espaço, painel de pesquisa (só precisa da base e do WhatsApp).</li>
+    <li><strong>Mês 6:</strong> serviços da Método 3A pela dica; leads e retorno automático.</li>
+    <li><strong>Com o lado do paciente (semana 6+):</strong> réguas; médico vende pelo app com o Theo.</li>
+    <li><strong>Mês 12:</strong> canal pharma na dica; receita vira compra; exame vira agendamento.</li>
+    <li><strong>Mês 18+:</strong> dados anonimizados e evidência do mundo real; plano contínuo, se o advogado liberar.</li>
+    <li><strong>App nativo:</strong> quando a transcrição no aparelho for medida e o paciente tiver motivo para instalar. Antes disso, app web instalável, com notificação grátis.</li>
+  </ul>
+
+  <h2>Para você aprovar</h2>
+  <div class="aprov">
+    <div><span class="k">A</span><span>As onze portas entram na especificação como seção 8b, com estes números marcados como estimativa.</span></div>
+    <div><span class="k">B</span><span>Canais: WhatsApp para entrar e garantir; app para viver. A janela grátis de 24 h acaba em 01/10/2026, então o app web instalável (notificação grátis) é a primeira entrega; nativo na fase 2, com transcrição no aparelho e dados de saúde do celular e do relógio.</span></div>
+    <div><span class="k">C</span><span>Dados de saúde do paciente (Apple Saúde, Health Connect, remédios em uso) só para o cuidado daquele paciente com aquele médico. Nunca saem da parede.</span></div>
+    <div><span class="k">D</span><span>O Theo entra no plano como a peça de cobrar e receber: procedimentos, pacotes, retorno, comissão.</span></div>
+    <div><span class="k">E</span><span>Painel de pesquisa para a indústria é a primeira porta nova a ligar, porque só precisa da base.</span></div>
+    <div><span class="k">F</span><span>As sete condições da seção 6 viram o checklist do beta.</span></div>
+    <div><span class="k">G</span><span>Compradores: médico, farmácia, laboratório, indústria, plano de saúde, Método 3A; prefeituras e SUS na fase 3. Plano de saúde nunca vê a consulta.</span></div>
+  </div>
+  <p class="nota">Fontes dos comparáveis: pesquisas de 08–09/09 (Doximity, OpenEvidence, Abridge, Memed, Sermo). Números de adoção por porta são premissas minhas; o que muda o resultado são as taxas de adoção, e só o beta responde.</p>
+</main>

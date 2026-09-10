@@ -69,21 +69,23 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 
 ## 6. Grátis e pago
 
-| Recurso | Grátis | Pro (R$ 47/mês ou anual) |
-|---|---|---|
-| Gravar consultas de saúde | sem limite | sem limite |
-| Prontuário com "o que eu interpretei" | ✓ | ✓ |
-| Prontuário pronto em | fila, até ~1 h | 1 minuto |
-| Paciente recebe versão simples e lembretes | ✓ | ✓ |
-| Painel de gestão (atendimentos, queixas, retornos) | congelado nas primeiras 25 consultas | vivo |
-| CRM: linha do tempo, Conexão, Sobre a pessoa | só a consulta de hoje | tudo, com busca |
-| Pergunte ao histórico, ache o trecho, exporte a prova (fase 2) | ✗ | ✓ |
-| Gravar reunião, aula, ditado | a primeira, de presente | ✓ |
-| Áudio guardado | 75 consultas | 3.800 · 13.000 · degrau R$ 29,90 |
-| Receita, exame, atestado, carta | ✗ | ✓ |
-| Modelos por especialidade, editar na tela | ✗ | ✓ |
-| Extensão do Chrome | ✓ | ✓ |
-| Exportar dados | ✗ | ✗ |
+| Recurso | Grátis | Rápido (R$ 27) | Pro (R$ 77; anual R$ 770) |
+|---|---|---|---|
+| Gravar consultas de saúde | sem limite | sem limite | sem limite |
+| Prontuário com "o que eu interpretei" | ✓ | ✓ | ✓ |
+| Prontuário pronto em | fila, até ~1 h | 1 minuto | 1 minuto |
+| Paciente recebe versão simples e lembretes | ✓ | ✓ | ✓ |
+| Painel de gestão | congelado nas primeiras 25 consultas | congelado | vivo |
+| CRM: linha do tempo, Conexão, Sobre a pessoa | só a consulta de hoje | só a consulta de hoje | tudo, com busca |
+| Pergunte ao histórico, ache o trecho, exporte a prova (fase 2) | ✗ | ✗ | ✓ |
+| Gravar reunião, aula, ditado | a primeira, de presente | a primeira | ✓ |
+| Áudio guardado | 75 consultas | 75 (+ espaço à parte) | 3.800 · 13.000 · degrau R$ 29,90 |
+| Receita, exame, atestado, carta | ✗ | ✗ | ✓ |
+| Modelos por especialidade, editar na tela | ✗ | ✗ | ✓ |
+| Extensão do Chrome | ✓ | ✓ | ✓ |
+| Exportar dados | ✗ | ✗ | ✗ |
+
+**Escada de preço (09/09, noite):** Rápido R$ 27 compra só velocidade (o único atrito diário; cadastra o cartão); Pro R$ 77 é gestão (quase 3× o Rápido, "menos que uma consulta", um terço do Noa); Anual R$ 770 (dez meses pelo preço de doze) libera o período sem pagar; **Clínica**: 2+ médicos, desconto por volume. Três degraus, nunca quatro; o Rápido nunca ganha gestão.
 
 **Mensal:** Pro daqui em diante; tudo que grava pagando é dele (3 anos de mensal = 3 anos de painel); o período em que não pagava fica congelado.
 **Anual recorrente:** tudo isso **e o período sem pagar liberado**. "Contrate o ano e libere tudo que você gravou de graça." Cancelou, aquele período fecha de novo.
@@ -152,7 +154,7 @@ Detalhe em `helena-vs-noa.html`. Resumo: **Noa Notes** (Doctoralia) R$ 199/mês 
 ## 12. Decisões aprovadas em 09/09/2026
 
 1. O laço é o produto; lado do paciente sempre grátis, construído antes dos extras pagos.
-2. Grátis sem limite para saúde; pago = velocidade, CRM, gestão, extras. Fila com prioridade, sem atraso artificial. Limite 3/dia desligado.
+2. Grátis sem limite para saúde; pago = velocidade (Rápido R$ 27), gestão (Pro R$ 77, anual R$ 770), Clínica por volume. Fila com prioridade, sem atraso artificial. Limite 3/dia desligado.
 3. Paciente e médico são o telefone; a consulta nasce ligada aos dois.
 4. A parede: tudo que o paciente contou entra no CRM do médico; para o negócio sai anonimizado; pharma compra atenção do médico, nunca conteúdo do paciente; sigilo entre médicos por autorização do paciente.
 5. Guardamos tudo; áudio por cota ("indisponível", nunca "apagado"); texto para sempre.

@@ -24,3 +24,6 @@ Aprovadas pelo Rodrigo sobre as páginas "Projeto Helena" e "Resgate de janeiro"
 | 18 | Só pesos oficiais de modelos; nenhum MoE de poucos ativos para o prontuário | 4/4 MoE e 3/3 derivados reprovaram na régua (remédio). |
 | 19 | Advogado LGPD/ANVISA antes de pharma e do banco anonimizado | Anonimização, DPAs, consentimento do paciente, palavra "indisponível". |
 | 20 | Cérebro = "pergunte ao histórico, ache o trecho, exporte a prova" (fase 2); todas as profissões de saúde; área jurídica futuro; ligação com o Theo futura | Resgate de janeiro adaptado. |
+| 21 | Escada de preço: Rápido R$ 27 (só velocidade), Pro R$ 77 (gestão; anual R$ 770 libera o passado), Clínica 2+ médicos por volume | Rápido cadastra o cartão; distância de ~3× entre degraus; Rápido nunca ganha gestão. |
+| 22 | Canais: WhatsApp para entrar e garantir; app para viver. A janela grátis de 24 h da Meta acaba em 01/10/2026; PWA instalável é a primeira entrega; nativo na fase 2 | Pelo WhatsApp o canal custaria ~R$ 400/médico/ano, 25× a IA. |
+| 23 | Onze portas de receita e sete compradores (médico, farmácia, laboratório, indústria, plano de saúde, M3A; SUS fase 3); plano de saúde nunca vê a consulta | Estudo "Potencial da Helena" (docs/plano/potencial-helena.html). |
