@@ -97,7 +97,7 @@
   .lados .pill{fill:var(--teal)}
 </style>
 <main>
-  <div class="eyebrow">Método 3A · Helena (MarIA) · v5.1 · 09/09/2026 · emendada após o parecer dos sete</div>
+  <div class="eyebrow">Método 3A · Helena (MarIA) · v5.2 · 10/09/2026 · documento mestre: docs/plano/2026-09-09-especificacao-v5-helena.md</div>
   <h1>Projeto MarIA, de ponta a ponta</h1>
   <p class="lead">O médico grava a consulta no celular. O prontuário sai pronto. O paciente recebe o que o médico disse, e nunca mais perde. De graça. São 30 horas por mês de volta para o médico, um mês de trabalho por ano. A base de médicos e pacientes é o negócio.</p>
 
@@ -514,6 +514,31 @@ flowchart TB
     </tbody>
   </table></div>
   <p class="nota">Premissas por cenário: espaço assinado por 5 a 25 % dos ativos; pharma de R$ 0 a 40 por médico ativo por mês (Memed: ~R$ 55; Doximity: ~US$ 19). Comparado a janeiro: o cenário base tinha 811 pagantes e R$ 609 mil de lucro em 3 anos com custo de R$ 10 por pagante; hoje o mesmo cenário dá ~100 pagantes e ~R$ 680 mil, porque o custo caiu e a pharma entrou. Corrigido em 09/09 à noite após o parecer dos especialistas: a versão anterior ainda usava Pro a R$ 47 e 7 %. O que muda o jogo não é a conversão: é a base grátis grande e barata. Tudo é projeção.</p>
+
+  <span class="num">8b</span>
+  <h2>As portas da receita e o potencial</h2>
+  <p>Doze portas, cada uma rotulada como <strong>benchmark</strong> (tem comparável), <strong>chute</strong> (ninguém mediu) ou <strong>zero até existir</strong> (derrubada pelos sete até haver assinatura digital e parecer). No regime, cenário base: <strong>R$ 763 por médico ativo por ano</strong>; conservador R$ 430, agressivo R$ 1.440. Assinaturas são 11 % disso; mais da metade são duas portas não provadas que passam pelo Theo: a consulta agendada e paga pela Helena, e o médico vendendo procedimento pelo app.</p>
+  <div class="barras">
+    <div class="barra"><span>Médico vende pelo app (chute)</span><div class="t"><i style="width:100%"></i></div><span class="r">R$ 270</span></div>
+    <div class="barra"><span>Agenda e pagamento da consulta (chute)</span><div class="t"><i style="width:60%"></i></div><span class="r">R$ 162</span></div>
+    <div class="barra"><span>Canal pharma por especialidade</span><div class="t"><i class="a" style="width:37%"></i></div><span class="r">R$ 100</span></div>
+    <div class="barra"><span>Rápido + Pro + espaço + réguas</span><div class="t"><i class="z" style="width:30%"></i></div><span class="r">R$ 81</span></div>
+    <div class="barra"><span>Serviços Método 3A</span><div class="t"><i class="z" style="width:28%"></i></div><span class="r">R$ 75</span></div>
+    <div class="barra"><span>Painel de pesquisa</span><div class="t"><i class="a" style="width:17%"></i></div><span class="r">R$ 45</span></div>
+    <div class="barra"><span>Dados anonimizados</span><div class="t"><i class="a" style="width:11%"></i></div><span class="r">R$ 30</span></div>
+    <div class="barra"><span>Receita, exame, leads</span><div class="t"><i style="width:0.5%"></i></div><span class="r">0 até existir</span></div>
+  </div>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Médicos</th><th>Portas ligadas</th><th>R$/médico/ano</th><th>Equipe</th><th>Receita/ano</th><th>Resultado/ano</th></tr></thead>
+    <tbody>
+      <tr><td>1.000</td><td>Rápido, Pro, espaço, pesquisa parcial, M3A</td><td>150</td><td>1 pessoa</td><td>R$ 150 mil</td><td>R$ 72 mil</td></tr>
+      <tr><td>5.000</td><td>lado do paciente, agenda paga e venda pelo app começando</td><td>400</td><td>3</td><td>R$ 2,0 mi</td><td>R$ 1,7 mi</td></tr>
+      <tr><td>10.000</td><td>pharma por especialidade, dados</td><td>620</td><td>8</td><td>R$ 6,2 mi</td><td>R$ 5,4 mi</td></tr>
+      <tr><td>25.000</td><td>regime</td><td>760</td><td>10</td><td>R$ 19 mi</td><td>R$ 17,8 mi</td></tr>
+      <tr><td>100.000</td><td>regime</td><td>810</td><td>20</td><td>R$ 81 mi</td><td>R$ 77,6 mi</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">Custo variável R$ 15 por médico por ano; fora da conta: impostos, taxa de pagamento, CAC, lojas de app. Quem compra: médico, farmácia e indústria (programa de desconto escolhido pelo paciente), laboratório, indústria (dica na tela por especialidade, painel, estudos), plano de saúde (nunca vê a consulta), Método 3A. Agenda paga: opcional por médico, desconto configurável como benefício ao paciente, Pix padrão, taxa pública. Detalhe em <em>Potencial da Helena</em>; o ecossistema em desenhos em <em>O mundo da Helena</em>; a revisão externa em <em>Parecer dos sete</em>.</p>
 
   <span class="num">9</span>
   <h2>Concorrência</h2>
