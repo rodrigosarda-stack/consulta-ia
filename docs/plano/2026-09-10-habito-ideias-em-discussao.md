@@ -479,3 +479,67 @@ cara humana ao produto, e em saúde isso vale muito.
 8. O nome das medidas na tela, que não pode soar a boletim.
 9. Se o vídeo é grátis ou Pro (palpite: grátis — puxa confiança e puxa para o 3A; vende-se a
    profundidade).
+
+---
+
+# Fechamentos da rodada 4 — 11/09/2026
+
+## DECIDIDO pelo Rodrigo (11/09)
+
+**Coach ao vivo, análise de oportunidade e medidas entram no CÉREBRO.** Não se cria um quarto
+degrau. A escada fica:
+
+| Degrau | O que é |
+| --- | --- |
+| **Rápido** R$ 27 | velocidade |
+| **Pro** R$ 77 | gestão do consultório |
+| **Cérebro** | a Helena que pensa em cima do que ele gravou: memória, coach ao vivo, análise de oportunidade, medidas |
+
+Motivo: quarto nível confunde e não vende mais.
+
+## As perguntas ao advogado passam de 5 para 8
+
+As cinco que já estavam (semana 1): portabilidade, retenção de áudio, controlador por fluxo,
+comissão de farmácia, paciente sem conta. As três novas, **em ordem de quem trava mais**:
+
+**6. LGPD — finalidade (esta primeiro; se travar, as outras duas nem importam).**
+O consentimento da spec é em camadas: prontuário pela tutela da saúde; histórico e lembretes por
+consentimento; anonimização e treino por consentimento destacado. **Analisar a transcrição para
+dar conselho comercial ao médico não está em nenhuma dessas camadas — é uma quarta finalidade.**
+O dado foi coletado para cuidar do paciente; usá-lo para ensinar o médico a vender melhor é outra
+coisa, mesmo que o resultado ajude o paciente. Pode exigir base legal própria e talvez
+consentimento do paciente, o que seria péssimo de operacionalizar.
+
+**7. ANVISA/CFM — o assistente ao vivo é dispositivo médico?**
+Fácil e fora: "você pediu ressonância em março e ela não trouxe" (registro puro); "ele não repetiu
+a posologia" (compreensão, não dose).
+**Difícil, e é a função mais valiosa:** "você prescreveu dipirona e ela disse na consulta passada
+que tem alergia a dipirona" — fato tirado do registro, mas na prática é alerta de segurança, e
+alerta de segurança cheira a apoio à decisão clínica.
+O que muda com a resposta: se for dispositivo médico, entram registro na ANVISA, sistema de
+qualidade e meses de processo. Aí se decide entre construir, cortar o alerta de segurança, ou
+mudar a forma de dizer. É a diferença entre um recurso e um projeto regulatório.
+
+**8. CEM — a análise de oportunidade fere o Código de Ética Médica?**
+Inofensivos: "a consulta acabou sem marcar retorno"; "você ofereceu parcelamento antes de
+perguntarem". Cinzento: "você falou o preço antes de explicar o que ele ganha" — treinamento de
+venda dentro de consulta médica.
+**Agravante nosso:** a fonte do treinamento é a agência de marketing que atende aquele mesmo
+médico, o que pode ser lido como conflito de interesse.
+
+## Recomendações minhas, aguardando o Rodrigo
+
+1. Observação aparece em todo prontuário (é produto); frase de venda segue a regra já decidida de
+   1 a cada 5 (é anúncio).
+2. A demo é **por conta da casa**, nunca sai do saldo de crédito dele.
+3. A demo dispara com ~25 consultas gravadas **e** 3 semanas corridas, o que vier por último.
+4. O vídeo do Rodrigo é **grátis** — puxa confiança e puxa para o 3A; vende-se a profundidade.
+5. O nome das medidas na tela fica para depois de existir a primeira tela (nome sem tela é chute).
+
+## As três que continuam abertas, com dono
+
+| O quê | Dono | Destravamento |
+| --- | --- | --- |
+| Finalidade (LGPD), dispositivo médico (ANVISA), mercantilização (CEM) | **advogado** | consulta da semana 1, agora com 8 perguntas |
+| Faixa de referência das medidas | **beta** | o beta de papel com 10 médicos produz o primeiro número |
+| Custo por minuto do coach ao vivo | **Claude** | medir com a chave do OpenRouter e os scripts da varredura; não precisa construir nada |
