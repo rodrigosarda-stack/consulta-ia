@@ -497,35 +497,15 @@ degrau. A escada fica:
 
 Motivo: quarto nível confunde e não vende mais.
 
-## As perguntas ao advogado passam de 5 para 8
+## Sobre advogado
 
-As cinco que já estavam (semana 1): portabilidade, retenção de áudio, controlador por fluxo,
-comissão de farmácia, paciente sem conta. As três novas, **em ordem de quem trava mais**:
+As cinco perguntas que já estavam na spec (semana 1) seguem como estão: portabilidade,
+retenção de áudio, controlador por fluxo, comissão de farmácia, paciente sem conta.
+São do Rodrigo, vieram do parecer dos sete.
 
-**6. LGPD — finalidade (esta primeiro; se travar, as outras duas nem importam).**
-O consentimento da spec é em camadas: prontuário pela tutela da saúde; histórico e lembretes por
-consentimento; anonimização e treino por consentimento destacado. **Analisar a transcrição para
-dar conselho comercial ao médico não está em nenhuma dessas camadas — é uma quarta finalidade.**
-O dado foi coletado para cuidar do paciente; usá-lo para ensinar o médico a vender melhor é outra
-coisa, mesmo que o resultado ajude o paciente. Pode exigir base legal própria e talvez
-consentimento do paciente, o que seria péssimo de operacionalizar.
-
-**7. ANVISA/CFM — o assistente ao vivo é dispositivo médico?**
-Fácil e fora: "você pediu ressonância em março e ela não trouxe" (registro puro); "ele não repetiu
-a posologia" (compreensão, não dose).
-**Difícil, e é a função mais valiosa:** "você prescreveu dipirona e ela disse na consulta passada
-que tem alergia a dipirona" — fato tirado do registro, mas na prática é alerta de segurança, e
-alerta de segurança cheira a apoio à decisão clínica.
-O que muda com a resposta: se for dispositivo médico, entram registro na ANVISA, sistema de
-qualidade e meses de processo. Aí se decide entre construir, cortar o alerta de segurança, ou
-mudar a forma de dizer. É a diferença entre um recurso e um projeto regulatório.
-
-**8. CEM — a análise de oportunidade fere o Código de Ética Médica?**
-Inofensivos: "a consulta acabou sem marcar retorno"; "você ofereceu parcelamento antes de
-perguntarem". Cinzento: "você falou o preço antes de explicar o que ele ganha" — treinamento de
-venda dentro de consulta médica.
-**Agravante nosso:** a fonte do treinamento é a agência de marketing que atende aquele mesmo
-médico, o que pode ser lido como conflito de interesse.
+Eu tinha acrescentado três por conta própria em 11/09. **Removidas** — o Rodrigo estabeleceu
+em 11/09 que não quer consideração jurídica que ele não peça, e a regra está em
+`~/.claude/CLAUDE.md`. Ficam no histórico do git (commit f04afaf) se um dia forem úteis.
 
 ## Recomendações minhas, aguardando o Rodrigo
 
@@ -540,6 +520,5 @@ médico, o que pode ser lido como conflito de interesse.
 
 | O quê | Dono | Destravamento |
 | --- | --- | --- |
-| Finalidade (LGPD), dispositivo médico (ANVISA), mercantilização (CEM) | **advogado** | consulta da semana 1, agora com 8 perguntas |
 | Faixa de referência das medidas | **beta** | o beta de papel com 10 médicos produz o primeiro número |
 | Custo por minuto do coach ao vivo | **Claude** | medir com a chave do OpenRouter e os scripts da varredura; não precisa construir nada |
