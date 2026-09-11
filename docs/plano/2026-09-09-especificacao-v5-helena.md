@@ -1,4 +1,4 @@
-# Helena (ex-MarIA) — Especificação v5.2
+# Helena (ex-MarIA) — Especificação v5.3
 
 > **v5.1 (09/09, noite):** emendas 24–33 após o parecer de sete especialistas independentes (`docs/plano/parecer-dos-sete.html`, `docs/plano/pareceres/`). Onde esta versão contradiz o texto original abaixo, valem as emendas, marcadas com **[v5.1]**.
 
@@ -6,7 +6,7 @@
 **Substitui:** Especificação V4 (01/04/2026) e a Especificação Unificada v2 (janeiro/2026), que fica em `docs/plano/2026-01-especificacao-unificada-v2.md` como histórico.
 **Nome:** o produto passa a se chamar **Helena**. Código, repositório e URLs ainda dizem MarIA; a troca é tarefa separada.
 
-> **Este é o documento mestre da Helena.** Páginas visuais desta versão, todas nesta pasta: `projeto-helena.html` (o projeto de ponta a ponta), `potencial-helena.html` (as 12 portas de receita, rampa, equipe, comparáveis), `mundo-da-helena.html` (o ecossistema em 5 desenhos), `parecer-dos-sete.html` + `pareceres/` (revisão por 7 especialistas), `resgate-janeiro.html` (o que voltou de janeiro), `helena-vs-noa.html` (concorrência), `estudo-modelos.html` (167 modelos medidos), `prontuarios-em-lote.html` (por que o lote funciona). Decisões numeradas em `docs/decisoes/2026-09-09-decisoes-produto.md` (1–35). Versão: **v5.2, 10/09/2026** (8b e 13 novas; porta 12).
+> **Este é o documento mestre da Helena.** Páginas visuais desta versão, todas nesta pasta: `projeto-helena.html` (o projeto de ponta a ponta), `potencial-helena.html` (as 12 portas de receita, rampa, equipe, comparáveis), `mundo-da-helena.html` (o ecossistema em 5 desenhos), `parecer-dos-sete.html` + `pareceres/` (revisão por 7 especialistas), `resgate-janeiro.html` (o que voltou de janeiro), `helena-vs-noa.html` (concorrência), `estudo-modelos.html` (167 modelos medidos), `prontuarios-em-lote.html` (por que o lote funciona). Decisões numeradas em `docs/decisoes/2026-09-09-decisoes-produto.md` (1–43). Versão: **v5.3, 11/09/2026** (emendas 36–43: hábito como objetivo, modelo de crédito, Cérebro premium). O caminho inteiro da conversa que gerou as 36–43, inclusive o que foi descartado, está em `docs/plano/2026-09-10-habito-ideias-em-discussao.md`.
 
 ---
 
@@ -77,9 +77,10 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 | Prontuário com "o que eu interpretei" | ✓ | ✓ | ✓ |
 | Prontuário pronto em | fila, até ~1 h | 1 minuto | 1 minuto |
 | Paciente recebe versão simples e lembretes | ✓ | ✓ | ✓ |
-| Painel de gestão | congelado nas primeiras 25 consultas | congelado | vivo |
+| Painel de gestão | **[v5.3, emenda 37]** aberto com o saldo de entrada; depois gasta crédito | congelado | vivo |
 | CRM: linha do tempo, Conexão, Sobre a pessoa | só a consulta de hoje | só a consulta de hoje | tudo, com busca |
 | Pergunte ao histórico, ache o trecho, exporte a prova (fase 2) | ✗ | ✗ | ✓ |
+| **[v5.3] Cérebro:** coach ao vivo, análise de oportunidade, medidas em formato de exame, vídeo do Rodrigo | ✗ | ✗ | ✓ (degrau Cérebro, emendas 38–43) |
 | Gravar reunião, aula, ditado | a primeira, de presente | a primeira | ✓ |
 | Áudio guardado | 75 consultas | 75 (+ espaço à parte) | 3.800 · 13.000 · degrau R$ 29,90 |
 | Receita, exame, atestado, carta | ✗ | ✗ | ✓ |
@@ -92,7 +93,9 @@ Gravar em pedaços cortados na pausa da fala (20–60 s; sobreposição 0,3 s na
 **Mensal:** Pro daqui em diante; tudo que grava pagando é dele (3 anos de mensal = 3 anos de painel); o período em que não pagava fica congelado.
 **Anual recorrente:** tudo isso **e o período sem pagar liberado**. "Contrate o ano e libere tudo que você gravou de graça." Cancelou, fecha de novo **só o painel** daquele período **[v5.1]**; ficha, prontuário e exportação nunca fecham.
 
-**Momentos Pro** (aparece quando vale mais, e some): primeiras 25 consultas (tudo); toda vez que um paciente volta (a ficha dele, uma vez); fim de cada mês ("seu mês em números" por 24 h); a cada 50 consultas gravadas (7 dias de Pro); todo dia (a fila). Regras: quando mostra, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver (sem eufemismo); nunca se tira o que é do grátis.
+**[v5.3, emenda 37] O costume do médico é objetivo de produto**, com dois alvos: **fazer ele voltar todo dia** e **fazer ele gravar todo dia**. O modelo não é prêmio, é limite (ChatGPT/Manus): usa de graça, sente o poder, bate no teto, paga. **Gravar e receber o prontuário ficam grátis e ilimitados para sempre** — é a posição contra o Noa. O que é medido por crédito é a Helena que sabe sobre os pacientes dele. **Cinco fontes de crédito:** saldo gordo na entrada; diária pequena que **zera** (por entrar); o grosso vindo de **gravar, com teto diário** (nunca mensal — por mês ele bate no 2º dia e passa 28 sem motivo); pacote alto e separado por **indicação**; e comprar. **Duas alavancas nossas:** o teto e o **câmbio** (quanto o crédito compra é decisão nossa, ajustável sem mexer no número que ele vê — é isso que resolve o médico que usa muito). **Freio natural:** crédito só compra análise das consultas que ele mesmo gravou, então entrar e indicar nunca substituem gravar.
+
+**Momentos Pro** (aparece quando vale mais, e some): toda vez que um paciente volta (a ficha dele, uma vez); fim de cada mês ("seu mês em números" por 24 h); a cada 50 consultas gravadas (7 dias de Pro); todo dia (a fila). Regras: quando mostra, mostra de verdade, sem tela borrada; a mensagem de trancar lista o que ele acabou de ver (sem eufemismo); nunca se tira o que é do grátis.
 
 **Espaço: vende acesso imediato. [v5.1]** Além da cota, o áudio novo sai do acesso imediato do médico; **prazo e finalidade escritos**: áudio identificado guardado por cota + 12 meses, depois só a transcrição; ao titular (paciente ou médico) o áudio é entregue grátis sob pedido em 15 dias; "guardar para sempre" só do que passou por anonimização medida. Sem tabela de resgate na tela. A palavra "apagado" segue fora; "indisponível" só com o prazo escrito ao lado. Prontuário e transcrição nunca ficam indisponíveis. Espaço e Réguas são **add-ons**; a escada continua com três degraus. Espaço vendido como proteção jurídica ("por menos de 1 centavo por consulta você tem a prova"), em consultas guardadas, nunca em GB; aviso aos 90 %.
 
@@ -210,6 +213,8 @@ Detalhe em `helena-vs-noa.html`. Resumo: **Noa Notes** (Doctoralia) R$ 199/mês 
 9. Resgate de janeiro: convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; momentos Pro; espaço vende acesso imediato; a dica na tela; degustação de uso pessoal; oferta do Pro sem eufemismo; 30 h/mês na abertura sem os R$ 25 mil; Cérebro = "pergunte ao histórico, ache o trecho, exporte a prova" (fase 2); todas as profissões de saúde; área jurídica futuro. **[v5.1]** Exportação em todo plano (emenda 24); paciente não vê áudio na tela, mas o obtém sob pedido (emenda 25).
 10. Nome: Helena. **[v5.2]** O Theo deixou de ser "ligação futura": com a agenda paga e a venda pelo app, mais da metade do potencial passa por cobrar e receber. Decisões 34–35.
 
+
+**[v5.3] Emendas 36–43 (10–11/09), em `docs/decisoes/`:** 36 hábito vira objetivo, e o médico que some já entregou o celular pessoal; 37 o modelo vira limite e não prêmio, com crédito, teto diário e câmbio (mata a regra das 25 consultas e reabre o prêmio de indicação como crédito); 38 coach ao vivo, análise de oportunidade e medidas entram no **Cérebro**, sem quarto degrau; 39 o assistente **não tem decisão clínica**, só de negócio — briefing no início vale, interrupção clínica no meio não existe; 40 as medidas saem em **formato de exame** (valor, faixa, veredito seco), com referência, dinheiro e ação; 41 vídeo do Rodrigo por medida = **marketing de conteúdo invertido**, e o agregado vira conteúdo público do 3A; 42 a demo de conversão acontece na entrega do prontuário, com menu de dinheiro e o número dele dentro; 43 o **Cérebro é o plano premium** e o preço cobre o custo (R$ 297 recomendado, em aberto).
 
 ## 13. O mundo da Helena (o ecossistema)
 
