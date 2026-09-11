@@ -97,7 +97,7 @@
   .lados .pill{fill:var(--teal)}
 </style>
 <main>
-  <div class="eyebrow">Método 3A · Helena (MarIA) · v5.2 · 10/09/2026 · documento mestre: docs/plano/2026-09-09-especificacao-v5-helena.md</div>
+  <div class="eyebrow">Método 3A · Helena (MarIA) · v5.3 · 11/09/2026 · documento mestre: docs/plano/2026-09-09-especificacao-v5-helena.md</div>
   <h1>Projeto MarIA, de ponta a ponta</h1>
   <p class="lead">O médico grava a consulta no celular. O prontuário sai pronto. O paciente recebe o que o médico disse, e nunca mais perde. De graça. São 30 horas por mês de volta para o médico, um mês de trabalho por ano. A base de médicos e pacientes é o negócio.</p>
 
@@ -178,7 +178,7 @@
       <div class="seta"><span></span><span>↓</span></div>
       <div><b>3</b><span>A Maria toca no link, o WhatsApp abre com a mensagem pronta, ela envia. A Helena lê o número no texto e registra o vínculo.</span></div>
       <div class="seta"><span></span><span>↓</span></div>
-      <div><b>4</b><span>A indicação só conta quando a Maria grava a primeira consulta de saúde de verdade. Sem prêmio em dinheiro nem em Pro: o produto é o motivo. O motor de volume é o paciente.</span></div>
+      <div><b>4</b><span>A indicação só conta quando a Maria grava a primeira consulta de saúde de verdade. O prêmio é um pacote alto de crédito, separado e com teto próprio — nunca dinheiro, nunca tempo de Pro, que não converte quem jamais ia pagar. O motor de volume continua sendo o paciente.</span></div>
     </div>
     <div class="bolha ia" style="margin-top:.8rem"><small>a mensagem</small>🩺 Cansou de perder tempo escrevendo prontuário? Resolva de graça.<br>Teste a Helena: grava a consulta e o prontuário sai pronto em 2 minutos. De graça.<br>👉 [link]</div>
   </div>
@@ -385,9 +385,10 @@ flowchart TB
       <tr><td>Prontuário com "o que eu interpretei"</td><td class="c sim">✓</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
       <tr><td>Prontuário pronto em</td><td class="c meio">fila, até ~1 h</td><td class="c sim">1 minuto</td><td class="c sim">1 minuto</td></tr>
       <tr><td>Paciente recebe a versão simples e lembretes</td><td class="c sim">✓</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
-      <tr><td>Painel de gestão (atendimentos, queixas, retornos)</td><td class="c meio">congelado nas primeiras 25 consultas</td><td class="c meio">congelado</td><td class="c sim">✓ vivo</td></tr>
+      <tr><td>Painel de gestão (atendimentos, queixas, retornos)</td><td class="c meio">abre com o saldo de entrada; depois gasta crédito</td><td class="c meio">idem grátis</td><td class="c sim">✓ vivo</td></tr>
       <tr><td>CRM: linha do tempo, Conexão, Sobre a pessoa</td><td class="c nao">só a consulta de hoje</td><td class="c nao">só a consulta de hoje</td><td class="c sim">✓ tudo, com busca</td></tr>
-      <tr><td>Pergunte ao histórico, ache o trecho, exporte a prova</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓ (fase 2)</td></tr>
+      <tr><td><strong>Cérebro</strong> — pergunte ao histórico, ache o trecho, exporte a prova</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓ degrau à parte</td></tr>
+      <tr><td><strong>Cérebro</strong> — coach ao vivo na consulta, análise de oportunidade, medidas em formato de exame, vídeo do Rodrigo</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓ degrau à parte</td></tr>
       <tr><td>Gravar reunião, aula, ditado</td><td class="c meio">a primeira, de presente</td><td class="c meio">a primeira</td><td class="c sim">✓</td></tr>
       <tr><td>Áudio guardado</td><td class="c meio">75 consultas</td><td class="c meio">75 (+ espaço à parte)</td><td class="c sim">3.800 · 13.000 · +R$ 29,90</td></tr>
       <tr><td>Receita, exame, atestado, carta</td><td class="c nao">✗</td><td class="c nao">✗</td><td class="c sim">✓</td></tr>
@@ -396,7 +397,7 @@ flowchart TB
       <tr><td>Exportar dados (PDF em lote + JSON)</td><td class="c sim">✓</td><td class="c sim">✓</td><td class="c sim">✓</td></tr>
     </tbody>
   </table></div>
-  <p class="nota"><strong>A escada:</strong> Rápido compra uma coisa só, velocidade, que é o único atrito diário do grátis; é a mixaria que cadastra o cartão. Pro é gestão, a quase 3× o Rápido, ainda "menos que uma consulta" e um terço do Noa. Anual: dez meses pelo preço de doze, e libera o período sem pagar. <strong>Clínica:</strong> 2 ou mais médicos, desconto por volume. Três degraus, nunca quatro; o Rápido nunca ganha gestão.</p>
+  <p class="nota"><strong>A escada:</strong> Rápido compra uma coisa só, velocidade, que é o único atrito diário do grátis; é a mixaria que cadastra o cartão. Pro é gestão, a quase 3× o Rápido, ainda "menos que uma consulta" e um terço do Noa. Anual: dez meses pelo preço de doze, e libera o período sem pagar. <strong>Cérebro:</strong> a Helena que pensa em cima do que ele gravou — memória, coach ao vivo, análise de oportunidade e medidas. É o primeiro plano em que usar mais custa mais de verdade, porque é minuto de áudio; preço em aberto, recomendação de R$ 297 (margem perto de 89 % no médico de 150 consultas, contra R$ 199 do Noa). <strong>Clínica:</strong> 2 ou mais médicos, desconto por volume. Quatro degraus e nunca um quinto; o Rápido nunca ganha gestão. Espaço e Réguas continuam add-ons, não degraus.</p>
   <div class="dois">
     <div class="caixa"><h3>Mensal e anual</h3><p class="nota" style="margin:0"><strong>Mensal (R$ 77):</strong> Pro daqui em diante. Tudo que ele grava pagando é dele; três anos de mensal são três anos de painel. O período em que não pagava fica congelado.<br><br><strong>Anual recorrente (R$ 770):</strong> tudo isso e o período sem pagar liberado. "Contrate o ano e libere tudo que você gravou de graça." Quanto mais tempo usou de graça, maior o tesouro atrás da porta. Cancelou, fecha de novo só o painel daquele período; ficha, prontuário e exportação nunca fecham.</p></div>
     <div class="caixa"><h3>Espaço: vende acesso imediato</h3><p class="nota" style="margin:0">Passou da cota, o áudio novo sai do acesso imediato do médico; ter é R$ 9,90. <strong>Prazo e finalidade escritos:</strong> áudio identificado por cota + 12 meses, depois só a transcrição; ao titular, o áudio é entregue grátis sob pedido em 15 dias. "Guardar para sempre" só do que passou por anonimização medida. Sem tabela de resgate na tela. Prontuário, transcrição e exportação nunca ficam indisponíveis. Espaço e Réguas são add-ons; a escada continua com três degraus.</p></div>
@@ -405,7 +406,7 @@ flowchart TB
   <div class="tabela-wrap"><table>
     <thead><tr><th>Momento</th><th>O que o médico vê de Pro</th><th>Por que aqui</th></tr></thead>
     <tbody>
-      <tr><td>Primeiras 25 consultas</td><td>Tudo: fila rápida, ficha dos pacientes, painel vivo</td><td>Contar consultas garante que há dado. Ele vê o painel na versão Pro primeiro; depois o painel congela ali.</td></tr>
+      <tr><td>Saldo de entrada, no cadastro</td><td>Tudo: fila rápida, ficha dos pacientes, painel vivo</td><td>Gordo de propósito, para ele sentir o poder antes de qualquer limite apertar. Quem gasta rápido bate no teto rápido e sente; quem gasta devagar fica mais tempo. Some o corte seco das 25 consultas.</td></tr>
       <tr><td>Toda vez que um paciente volta</td><td>A ficha daquele paciente, completa, uma vez</td><td>O momento de maior valor do CRM: reconhecer a pessoa na frente dela.</td></tr>
       <tr><td>Fim de cada mês</td><td>"Seu mês em números", painel vivo por 24 h</td><td>Ele compara com o painel congelado que tem no resto do tempo.</td></tr>
       <tr><td>A cada 50 consultas gravadas</td><td>7 dias de Pro</td><td>Ganho por uso. Quem mais usa é quem mais tende a pagar.</td></tr>
@@ -686,7 +687,7 @@ flowchart TB
     <div><span class="k">7</span><span><strong>Semana 1 é medição:</strong> ditado no iPhone e Gemma no mini. Depende de você: o iPhone e um mini ligado.</span></div>
     <div><span class="k">8</span><span><strong>Advogado</strong> antes de pharma e do banco anonimizado, com quatro perguntas: anonimização suficiente, fornecedores de IA, o consentimento do paciente na conta, e a palavra "indisponível" na política de retenção.</span></div>
     <div><span class="k">10</span><span><strong>Emendas 24–33 após o parecer dos sete (09/09, noite):</strong> exportação em todo plano; áudio com prazo e ao titular sob pedido; receita, exame e leads sem comissão e valor zero no modelo; dica só na tela e por especialidade; dependentes, secretária, passkey; consentimento em camadas e paciente sem conta fora do dataset; versão simples só após revisão; transcrição no aparelho e minis viram hipótese com gate; beta de papel e advogado antes do lado do paciente; assinatura digital no roadmap.</span></div>
-    <div><span class="k">9</span><span><strong>Resgate de janeiro, aprovado em 09/09:</strong> convite pelo telefone sem prêmio; painel nas primeiras 25 consultas e depois congelado; mensal daqui em diante, anual libera o período sem pagar; espaço tem ou não tem; a dica é a mídia; degustação de uso pessoal; sem exportar dados; paciente não vê áudio.</span></div>
+    <div><span class="k">9</span><span><strong>Resgate de janeiro, aprovado em 09/09 e emendado em 11/09:</strong> convite pelo telefone, agora com prêmio em crédito (emenda 37); painel aberto pelo saldo de entrada, não mais congelado na 25ª consulta (emenda 37); mensal daqui em diante, anual libera o período sem pagar; espaço tem ou não tem; a dica é a mídia; degustação de uso pessoal; sem exportar dados; paciente não vê áudio.</span></div>
   </div>
   <p class="fonte">Fontes: repositório consulta-ia (docs/gravador-v2.md, docs/prompt-confabulacao/*), especificação V4 de 01/04/2026, três pesquisas profundas de 08/09, pesquisas sobre o Noa de 08–09/09, medições desta semana no MacBook e via OpenRouter. Números marcados como medidos foram medidos; os demais são do plano ou estimados.</p>
 </main>
