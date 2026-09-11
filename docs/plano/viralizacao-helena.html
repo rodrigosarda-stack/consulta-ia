@@ -1,0 +1,168 @@
+<title>Como a Helena viraliza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap">
+<style>
+  :root{--papel:#f6f8fa;--papel-2:#eef2f5;--tinta:#0f1e2e;--tinta-2:#3b4b5c;--cinza:#5b6b7c;--linha:#d5dde5;--teal:#2dd4bf;--teal-escuro:#1c9a86;--teal-fundo:rgba(45,212,191,.16);--ambar:#c98a1b;--ambar-fundo:rgba(201,138,27,.14);--azul:#4c7fb5;--vermelho:#c94f4f;--vermelho-fundo:rgba(201,79,79,.12)}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070}}
+  :root[data-theme="dark"]{--papel:#0b141d;--papel-2:#111c27;--tinta:#e6edf3;--tinta-2:#b6c3cf;--cinza:#8a9aab;--linha:#26323e;--teal-escuro:#5ee3d0;--ambar:#e0a83a;--azul:#7fa9db;--vermelho:#e07070}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--papel);color:var(--tinta);font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;font-size:17px;line-height:1.6}
+  main{max-width:54rem;margin:0 auto;padding:3rem 1.5rem 5rem}
+  h1{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:2.6rem;line-height:1.05;margin:0 0 .5rem;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:"Newsreader",Georgia,serif;font-weight:500;font-size:1.8rem;margin:3.4rem 0 .5rem;text-wrap:balance}
+  h3{font-size:1.05rem;font-weight:600;margin:1.4rem 0 .5rem}
+  p{margin:0 0 1rem;max-width:66ch}
+  .lead{font-family:"Newsreader",Georgia,serif;font-size:1.25rem;color:var(--tinta-2);line-height:1.45;max-width:60ch}
+  .eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-escuro);font-weight:600;margin-bottom:.75rem}
+  .num{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);font-weight:600;display:block;margin-top:3rem}
+  .num + h2{margin-top:.2rem}
+  .mono{font-family:"IBM Plex Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+  .fig{background:var(--papel-2);border:1px solid var(--linha);border-radius:12px;padding:1.2rem;margin:1rem 0;overflow-x:auto}
+  .fig figcaption{font-size:.9rem;color:var(--cinza);margin-top:.8rem;line-height:1.5}
+  .caixa{background:var(--papel-2);border:1px solid var(--linha);border-radius:10px;padding:1rem 1.2rem;margin:1rem 0}
+  .tabela-wrap{overflow-x:auto;border:1px solid var(--linha);border-radius:8px;margin:1rem 0}
+  table{border-collapse:collapse;width:100%;min-width:36rem;font-size:.95rem}
+  th{text-align:left;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);font-weight:600;padding:.6rem .8rem;border-bottom:1px solid var(--linha);background:var(--papel-2)}
+  td{padding:.6rem .8rem;border-bottom:1px solid var(--linha);vertical-align:top;line-height:1.5}
+  tr:last-child td{border-bottom:0} td.mono{text-align:right}
+  .nota{font-size:.9rem;color:var(--cinza)}
+  ul{margin:.25rem 0 1rem;padding-left:1.2rem} li{margin:.45rem 0}
+  .bolha{max-width:82%;padding:.6rem .9rem;border-radius:14px;margin:.35rem 0;font-size:.95rem;line-height:1.45;background:var(--papel);border:1px solid var(--linha);border-bottom-left-radius:4px}
+  .bolha small{display:block;font-size:.7rem;color:var(--cinza);margin-bottom:.15rem;letter-spacing:.05em;text-transform:uppercase}
+  .par2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.6rem 0}
+  @media (max-width:640px){.par2{grid-template-columns:1fr}}
+  .par2 > div{background:var(--papel);border:1px solid var(--linha);border-radius:8px;padding:.8rem .9rem;font-size:.95rem}
+  .par2 b{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cinza);margin-bottom:.3rem}
+  .par2 .ruim{border-color:var(--vermelho)} .par2 .bom{border-color:var(--teal-escuro)}
+  .dia{display:block;max-width:100%;height:auto;margin:0 auto}
+  .dia text{font-family:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;fill:var(--tinta)}
+  .dia .b1{font-size:13.5px;font-weight:600} .dia .b2{font-size:11px;fill:var(--tinta-2)} .dia .forte{font-weight:600;fill:var(--tinta)} .dia .pct{font-family:"IBM Plex Mono",Menlo,monospace;font-size:15px;font-weight:600;fill:var(--ambar)}
+  .dia .bx{fill:var(--papel);stroke:var(--linha);stroke-width:1.4}
+  .dia .g-helena{fill:var(--teal-fundo);stroke:var(--teal-escuro);stroke-width:2} .dia .g-usa{stroke:var(--azul)} .dia .g-pac{stroke:var(--teal-escuro)} .dia .g-paga{stroke:var(--ambar)} .dia .g-forn{stroke:var(--cinza)} .dia .g-k{fill:var(--ambar-fundo);stroke:var(--ambar);stroke-width:2}
+  .dia .ar{stroke:var(--cinza);stroke-width:2;fill:none} .dia .loop-t{stroke:var(--teal-escuro)} .dia .loop-a{stroke:var(--ambar);stroke-dasharray:6 4} .dia .chip{fill:var(--papel-2);stroke:var(--linha);stroke-width:1.4} .dia .lane{font-size:10px;letter-spacing:.08em;text-transform:uppercase;fill:var(--cinza);font-weight:600} .dia .b3{font-size:10.5px;fill:var(--tinta-2)} .dia .vert{fill:var(--teal-escuro)}
+</style>
+<main>
+  <div class="eyebrow">Helena · a estratégia de crescimento, de ponta a ponta · 10/09/2026</div>
+  <h1>Como a Helena viraliza</h1>
+  <p class="lead">Grátis para os dois lados, o paciente sai da consulta com a Helena no bolso, e cada consulta planta a próxima. Esta página explica os cinco motores, faz a conta de quanto isso gira de verdade, mostra onde quebra, e diz o que o beta tem que provar antes de a gente acreditar.</p>
+
+  <span class="num">1</span>
+  <h2>A tese em uma frase</h2>
+  <div class="caixa"><p style="margin:0;font-family:Newsreader,Georgia,serif;font-size:1.25rem;line-height:1.4">Ninguém precisa decidir gastar. O médico entra porque é grátis e fortalece o vínculo dele; o paciente entra porque nunca mais perde o que o médico disse; e o paciente leva a Helena para o próximo médico. A base cresce a cada consulta, e a base é o negócio.</p></div>
+  <p>É a mesma jogada da Memed (grátis 14 anos, 150 mil médicos) e da Doximity (grátis, 80 % dos médicos americanos), com uma peça que nenhuma das duas tem: <strong>o paciente dentro.</strong> E é a única posição que o Noa, a R$ 199 e 90 % de margem, não copia sem se canibalizar.</p>
+
+  <span class="num">2</span>
+  <h2>O fluxo, de ponta a ponta</h2>
+  <p>Uma consulta, dois caminhos, e o médico seguinte já entrou. Depois que a Helena devolve o prontuário, o fluxo se divide: à esquerda o paciente leva a Helena para o próximo médico (motor 1); à direita o médico indica um colega (motor 2). Os dois desembocam no mesmo lugar: um médico novo gravando a primeira consulta real.</p>
+  <figure class="fig"><svg class="dia" viewBox="0 0 780 746" role="img" aria-label="O fluxo de ponta a ponta"><defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--cinza)"/></marker><marker id="mt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--teal-escuro)"/></marker></defs><rect x="40" y="16" width="660" height="55" rx="9" class="bx g-usa"/><text x="370.0" y="42" text-anchor="middle" class="b1">1 · Médico A grava a consulta</text><text x="370.0" y="59" text-anchor="middle" class="b2">no navegador, sem instalar nada; o telefone dele é a conta</text><line x1="370.0" y1="71" x2="370.0" y2="99" class="ar" marker-end="url(#m)"/><rect x="40" y="99" width="660" height="55" rx="9" class="bx g-helena"/><text x="370.0" y="125" text-anchor="middle" class="b1">2 · Helena devolve o prontuário em 2 minutos</text><text x="370.0" y="142" text-anchor="middle" class="b2">e pergunta ao médico: mando a versão simples para o paciente?</text><path d="M370.0,154 V169 H199.0 V184" class="ar loop-t" marker-end="url(#mt)"/><rect x="91.5" y="184" width="215.0" height="26" rx="13" class="bx chip"/><text x="199.0" y="201" text-anchor="middle" class="lane">MOTOR 1 · O PACIENTE LEVA</text><path d="M370.0,154 V169 H551.0 V184" class="ar loop-t" marker-end="url(#mt)"/><rect x="443.5" y="184" width="215.0" height="26" rx="13" class="bx chip"/><text x="551.0" y="201" text-anchor="middle" class="lane">MOTOR 2 · O MÉDICO INDICA</text><line x1="199.0" y1="210" x2="199.0" y2="236" class="ar" marker-end="url(#m)"/><line x1="551.0" y1="210" x2="551.0" y2="236" class="ar" marker-end="url(#m)"/><rect x="40" y="236" width="318" height="70" rx="9" class="bx g-pac"/><text x="199.0" y="262" text-anchor="middle" class="b1">3 · O paciente recebe no WhatsApp</text><text x="199.0" y="279" text-anchor="middle" class="b2">a versão simples, os lembretes do tratamento e o</text><text x="199.0" y="294" text-anchor="middle" class="b2">link para guardar as consultas dele</text><rect x="402" y="236" width="298" height="70" rx="9" class="bx g-paga"/><text x="551.0" y="262" text-anchor="middle" class="b1">3 · A Helena pede na hora certa</text><text x="551.0" y="279" text-anchor="middle" class="b2">na 100ª consulta, no dia em que o paciente</text><text x="551.0" y="294" text-anchor="middle" class="b2">elogiou, ou no painel do mês com número bom</text><line x1="199.0" y1="306" x2="199.0" y2="332" class="ar" marker-end="url(#m)"/><line x1="551.0" y1="306" x2="551.0" y2="332" class="ar" marker-end="url(#m)"/><rect x="40" y="332" width="318" height="70" rx="9" class="bx g-pac"/><text x="199.0" y="358" text-anchor="middle" class="b1">4 · O paciente salva a Helena no celular</text><text x="199.0" y="375" text-anchor="middle" class="b2">o histórico fica com ele, de qualquer médico, e</text><text x="199.0" y="390" text-anchor="middle" class="b2">o aviso chega sem depender do WhatsApp</text><rect x="402" y="332" width="298" height="70" rx="9" class="bx g-paga"/><text x="551.0" y="358" text-anchor="middle" class="b1">4 · O médico A manda a mensagem pronta</text><text x="551.0" y="375" text-anchor="middle" class="b2">o texto já vai escrito e o link carrega o</text><text x="551.0" y="390" text-anchor="middle" class="b2">telefone dele como código de convite</text><line x1="199.0" y1="402" x2="199.0" y2="428" class="ar" marker-end="url(#m)"/><line x1="551.0" y1="402" x2="551.0" y2="428" class="ar" marker-end="url(#m)"/><rect x="40" y="428" width="318" height="70" rx="9" class="bx g-pac"/><text x="199.0" y="454" text-anchor="middle" class="b1">5 · Próxima consulta, com outro médico</text><text x="199.0" y="471" text-anchor="middle" class="b2">o paciente mostra o histórico e pergunta:</text><text x="199.0" y="486" text-anchor="middle" class="b2">doutor, posso gravar? a Helena me manda depois</text><rect x="402" y="428" width="298" height="70" rx="9" class="bx g-paga"/><text x="551.0" y="454" text-anchor="middle" class="b1">5 · O colega abre e grava</text><text x="551.0" y="471" text-anchor="middle" class="b2">a indicação só conta quando o indicado grava</text><text x="551.0" y="486" text-anchor="middle" class="b2">a primeira consulta de saúde real</text><path d="M199.0,498 V514 H370.0 V532" class="ar" marker-end="url(#m)"/><path d="M551.0,498 V514 H370.0" class="ar"/><rect x="40" y="532" width="660" height="70" rx="9" class="bx g-usa"/><text x="370.0" y="558" text-anchor="middle" class="b1">6 · Um médico novo, ativo</text><text x="370.0" y="575" text-anchor="middle" class="b2">gravou a primeira consulta de saúde real, tanto faz se veio pelo paciente ou pelo colega; é isso que a</text><text x="370.0" y="590" text-anchor="middle" class="b2">gente conta</text><path d="M700,567.0 H740 V56 H702" class="ar loop-t" marker-end="url(#mt)"/><text x="751" y="311.5" class="b2 vert" transform="rotate(90 751 311.5)" text-anchor="middle">e o ciclo recomeça com ele</text><rect x="40" y="632" width="660" height="70" rx="9" class="bx g-k"/><text x="370.0" y="658" text-anchor="middle" class="b1">K = médicos novos que cada médico ativo gera por ciclo</text><text x="370.0" y="675" text-anchor="middle" class="b2">motor 1, o laço do paciente, hoje perto de 0,05 · motor 2, o convite entre médicos, 0,1 a 0,2, ainda a</text><text x="370.0" y="690" text-anchor="middle" class="b2">medir · mais a secretária · meta do beta: 0,3</text><text x="390.0" y="728" text-anchor="middle" class="b2">e todo médico ativo entra na prova social: “X mil profissionais usam a Helena”, pague ou não</text></svg><figcaption>Nada aqui exige que alguém decida gastar. O médico A entra porque é grátis; o paciente guarda porque é o histórico dele; o médico B entra porque o paciente pediu na frente dele. O que a Helena controla são três momentos: a pergunta do passo 2, o link que vai ao paciente e o pedido ao médico na hora certa. O convite do médico é a parte rápida; o laço do paciente é a parte que gira sozinha.</figcaption></figure>
+
+  <span class="num">3</span><h2>Os cinco motores</h2>
+  <figure class="fig"><svg class="dia" viewBox="0 0 780 506" role="img" aria-label="Os cinco motores"><defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--cinza)"/></marker></defs><rect x="20" y="16" width="740" height="87" rx="9" class="bx g-helena"/><text x="390.0" y="42" text-anchor="middle" class="b1">Motor 1 · o laço</text><text x="390.0" y="60" text-anchor="middle" class="b2 forte">paciente → médico</text><text x="390.0" y="79" text-anchor="middle" class="b2">o paciente sai com a Helena no bolso e leva para o próximo médico; lento, leva meses, mas gira sozinho e não custa</text><text x="390.0" y="94" text-anchor="middle" class="b2">nada</text><rect x="20" y="117" width="740" height="87" rx="9" class="bx g-usa"/><text x="390.0" y="143" text-anchor="middle" class="b1">Motor 2 · médico → médico</text><text x="390.0" y="161" text-anchor="middle" class="b2 forte">convite pelo telefone; prêmio a testar no beta</text><text x="390.0" y="180" text-anchor="middle" class="b2">mensagem pronta com o link que carrega o número do indicador; pedido na hora certa; conta só quando o indicado</text><text x="390.0" y="195" text-anchor="middle" class="b2">grava; janeiro previa 8 indicações por “maximizador”, com prêmio</text><rect x="20" y="218" width="740" height="72" rx="9" class="bx g-paga"/><text x="390.0" y="244" text-anchor="middle" class="b1">Motor 3 · a base inicial</text><text x="390.0" y="262" text-anchor="middle" class="b2 forte">400 clientes da Método 3A</text><text x="390.0" y="281" text-anchor="middle" class="b2">120 médicos ativos sem custo de aquisição; as secretárias deles; e o beta de papel com 10 médicos</text><rect x="20" y="304" width="740" height="87" rx="9" class="bx g-forn"/><text x="390.0" y="330" text-anchor="middle" class="b1">Motor 4 · o que empurra os três</text><text x="390.0" y="348" text-anchor="middle" class="b2 forte">conteúdo, dica, secretária, prova social</text><text x="390.0" y="367" text-anchor="middle" class="b2">o médico grátis lê a Helena 150 vezes por mês; a secretária cadastra o link de verdade; “50 mil profissionais usam”</text><text x="390.0" y="382" text-anchor="middle" class="b2">conta quem grava, pague ou não</text><rect x="20" y="405" width="740" height="87" rx="9" class="bx g-pac"/><text x="390.0" y="431" text-anchor="middle" class="b1">Motor 5 · as táticas do memorando Manus</text><text x="390.0" y="449" text-anchor="middle" class="b2 forte">prova social pública e escassez controlada</text><text x="390.0" y="468" text-anchor="middle" class="b2">depoimento com o tempo economizado, no LinkedIn, com permissão; lista de espera para o Pro e o Cérebro; hype só nos</text><text x="390.0" y="483" text-anchor="middle" class="b2">lançamentos, nunca na base</text></svg><figcaption>Um só motor não basta. O laço com o paciente é lento e gira sozinho; o convite entre médicos é rápido e precisa de pedido na hora certa; os 400 clientes da Método 3A são a partida sem custo; conteúdo, dica, secretária e prova social empurram os três; e as duas táticas que o memorando sobre o Manus já tinha aprovado entram nos lançamentos.</figcaption></figure>
+
+  <span class="num">4</span>
+  <h2>O laço, passo a passo, com a conta honesta</h2>
+  <p>Este é o motor que promete mais e que ninguém mediu. A conta abaixo usa as metas do beta onde há meta, e estimativas de comportamento onde não há. É a conta que o revisor de produto fez, e ela é dura.</p>
+<p class="nota">A base é um ciclo de 90 dias: 150 consultas por mês dão 450 consultas no ciclo, que são cerca de 300 pacientes diferentes, porque parte deles volta. É esse número de pacientes distintos que entra no funil, não o de consultas. A hipótese de 300 é estimativa, e o beta mede.</p>
+  <figure class="fig"><svg class="dia" viewBox="0 0 780 669" role="img" aria-label="O funil do laço"><defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--cinza)"/></marker></defs><rect x="40" y="16" width="560" height="55" rx="9" class="bx g-usa"/><text x="320.0" y="42" text-anchor="middle" class="b1">1 médico ativo, em um ciclo de 90 dias</text><text x="320.0" y="59" text-anchor="middle" class="b2">450 consultas, cerca de 300 pacientes diferentes</text><text x="616" y="48.5" class="pct">100 %</text><line x1="320.0" y1="71" x2="320.0" y2="97" class="ar" marker-end="url(#m)"/><rect x="40" y="97" width="560" height="55" rx="9" class="bx g-helena"/><text x="320.0" y="123" text-anchor="middle" class="b1">O médico deixa mandar a versão simples</text><text x="320.0" y="140" text-anchor="middle" class="b2">meta do beta: pelo menos 70 % dos médicos</text><text x="616" y="129.5" class="pct">70 %</text><line x1="320.0" y1="152" x2="320.0" y2="178" class="ar" marker-end="url(#m)"/><rect x="40" y="178" width="560" height="55" rx="9" class="bx g-helena"/><text x="320.0" y="204" text-anchor="middle" class="b1">O paciente abre a versão simples</text><text x="320.0" y="221" text-anchor="middle" class="b2">salva o contato ou abre: pelo menos 40 %</text><text x="616" y="210.5" class="pct">40 %</text><line x1="320.0" y1="233" x2="320.0" y2="259" class="ar" marker-end="url(#m)"/><rect x="40" y="259" width="560" height="55" rx="9" class="bx g-pac"/><text x="320.0" y="285" text-anchor="middle" class="b1">O paciente fica engajado</text><text x="320.0" y="302" text-anchor="middle" class="b2">recebe lembrete e tem histórico; cerca de 30 % dos que abriram</text><text x="616" y="291.5" class="pct">30 %</text><line x1="320.0" y1="314" x2="320.0" y2="340" class="ar" marker-end="url(#m)"/><rect x="40" y="340" width="560" height="55" rx="9" class="bx g-pac"/><text x="320.0" y="366" text-anchor="middle" class="b1">Vai a outro médico em 90 dias</text><text x="320.0" y="383" text-anchor="middle" class="b2">o brasileiro consulta 2 a 4 vezes por ano</text><text x="616" y="372.5" class="pct">20 %</text><line x1="320.0" y1="395" x2="320.0" y2="421" class="ar" marker-end="url(#m)"/><rect x="40" y="421" width="560" height="55" rx="9" class="bx g-pac"/><text x="320.0" y="447" text-anchor="middle" class="b1">Menciona a Helena a esse médico</text><text x="320.0" y="464" text-anchor="middle" class="b2">“doutor, o senhor usa?” é raro: cerca de 5 %</text><text x="616" y="453.5" class="pct">5 %</text><line x1="320.0" y1="476" x2="320.0" y2="502" class="ar" marker-end="url(#m)"/><rect x="40" y="502" width="560" height="55" rx="9" class="bx g-usa"/><text x="320.0" y="528" text-anchor="middle" class="b1">O médico testa</text><text x="320.0" y="545" text-anchor="middle" class="b2">grava uma consulta de saúde real: cerca de 20 %</text><text x="616" y="534.5" class="pct">20 %</text><rect x="40" y="583" width="560" height="70" rx="9" class="bx g-k"/><text x="320.0" y="609" text-anchor="middle" class="b1">Resultado: cerca de 0,05 médico novo por médico ativo em 90 dias</text><text x="320.0" y="626" text-anchor="middle" class="b2">300 × 70 % × 40 % × 30 % × 20 % × 5 % × 20 % ≈ 0,05 · isto é K ≈ 0,05 por ciclo,</text><text x="320.0" y="641" text-anchor="middle" class="b2">ou cerca de 0,2 ao ano</text></svg><figcaption>Cada degrau é uma porcentagem sobre o anterior. O resultado é o K: quantos médicos novos um médico ativo gera por ciclo de 90 dias. Com o funil como está, K ≈ 0,05 por ciclo. Isso é boca a boca, não viralidade. Os degraus que mais pesam são os do meio: o paciente não abre nada entre consultas, e "pedir ao médico que use uma ferramenta" é raro.</figcaption></figure>
+  <h3>O que isso dá em médicos</h3>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Cenário (partindo de 120 médicos ativos)</th><th>Em 12 meses</th><th>Em 24 meses</th></tr></thead>
+    <tbody><tr><td>K 0,05 por ciclo · o funil de hoje, sem empurrar nada</td><td class='mono'>146</td><td class='mono'>177</td></tr><tr><td>K 0,3 por ciclo · a meta do beta, com os cinco motores</td><td class='mono'>343</td><td class='mono'>979</td></tr><tr><td>K 0,6 por ciclo · se o convite entre médicos e a secretária pegarem</td><td class='mono'>786</td><td class='mono'>5.154</td></tr><tr><td>K 1,0 · viral de verdade, e ninguém em saúde chega lá</td><td class='mono'>1.920</td><td class='mono'>30.720</td></tr></tbody>
+  </table></div>
+  <p class="nota">A primeira linha é o laço sozinho, como ele está hoje. As de baixo já contam o convite entre médicos e a secretária. A linha que importa é a segunda: K 0,3 é a meta do beta, e abaixo de 0,1 não é viral, é vendas. O cenário base do modelo financeiro, 10 % ao mês, supõe K perto de 0,3 somando os cinco motores.</p>
+
+  <span class="num">5</span>
+  <h2>Onde o laço quebra, e o que faz girar</h2>
+  <div class="par2">
+    <div class="ruim"><b>Quebra 1 · o paciente não abre nada entre consultas</b>Uma mensagem por consulta não cria hábito. Sem motivo para voltar ao app, o paciente esquece a Helena em duas semanas.</div>
+    <div class="bom"><b>O que faz girar</b>As réguas no nome do médico (D+1, D+7, D+14, retorno), o histórico de vida, os remédios em uso com lembrete, os dados do relógio. Cada toque é o médico presente. Meta: o paciente abre ≥ 40 %.</div>
+    <div class="ruim"><b>Quebra 2 · inversão de autoridade</b>Paciente pedir ao médico que use uma ferramenta é raro. O médico novo entra por colega ou por secretária, não por paciente.</div>
+    <div class="bom"><b>O que faz girar</b>Tirar o pedido da boca do paciente: quando ele marca com outro médico, a Helena manda ao consultório "a Ana, sua paciente de amanhã, usa a Helena; seu histórico dela chega se o senhor quiser: [link]". O link carrega o telefone do paciente. O médico novo recebe o pedido pronto, sem o paciente falar nada.</div>
+    <div class="ruim"><b>Quebra 3 · o médico não deixa mandar a versão simples</b>Se o médico não confia no texto que sai com o nome dele, o laço não nasce.</div>
+    <div class="bom"><b>O que faz girar</b>Versão simples só depois da revisão de um toque; dose com dúvida vira "confirme com o consultório"; rodapé de urgência. O médico manda porque leu. Meta: ≥ 70 % deixam.</div>
+    <div class="ruim"><b>Quebra 4 · a secretária</b>Quem opera o consultório é a recepção. O onboarding assume médico sozinho no WhatsApp.</div>
+    <div class="bom"><b>O que faz girar</b>Perfil de secretária desde o dia um: ela cadastra o paciente, manda o link, vê a agenda. E é ela quem passa a Helena para a secretária do consultório vizinho.</div>
+  </div>
+
+  <span class="num">6</span>
+  <h2>O convite entre médicos, sem prêmio</h2>
+  <p>Prêmio em Pro não converte quem nunca vai pagar; prêmio em dinheiro cheira mal em medicina. O que faz o médico indicar é o produto ser bom e a Helena pedir na hora certa.</p>
+  <div class="caixa">
+    <div class="bolha"><small>Helena · na 100ª consulta gravada</small>Você já gravou 100 consultas com a Helena. 🎉 Conhece um colega que ainda escreve prontuário na mão? Encaminha isso para ele:</div>
+    <div class="bolha" style="margin-left:1.2rem"><small>a mensagem, texto do Rodrigo</small>🩺 Cansou de perder tempo escrevendo prontuário? Resolva de graça.<br>Teste a Helena: grava a consulta e o prontuário sai pronto em 2 minutos. De graça.<br>👉 [link com o telefone do João dentro]</div>
+    <p class="nota" style="margin:.8rem 0 0">Os momentos de pedir: a 100ª consulta; o dia em que o paciente elogiou na régua; o painel do mês com um número bom; e, para a secretária, o fim do primeiro mês sem atraso. Nunca mais de uma vez por mês. A indicação só conta quando o indicado grava uma consulta de saúde real, e é assim que se define "médico ativo" para tudo o mais.</p>
+  </div>
+
+  <div class="caixa">
+    <h3 style="margin-top:0">O que os documentos de janeiro já diziam, e continua valendo</h3>
+    <ul>
+      <li><strong>Paciência é estratégia.</strong> O perfil "maximizador" (40 % da base) indica muito e só assina entre os meses 3 e 5. Janeiro decidiu esperar por ele em vez de espremer os 2 % de "compradores rápidos". A Helena mantém: o painel congela na 25ª consulta, mas o grátis nunca acaba.</li>
+      <li><strong>Recompensar o teste, não a compra.</strong> A indicação só conta quando o indicado grava a primeira consulta real. Igual.</li>
+      <li><strong>O grátis é canal de mídia, não custo.</strong> Janeiro: R$ 1,50 por mês e 99 % de abertura no WhatsApp. Hoje: R$ 0,80 e a dica na tela.</li>
+      <li><strong>Meta de custo de aquisição:</strong> janeiro projetava R$ 117 por pagante pelo viral, contra R$ 1.000 no tráfego pago. É a meta que o beta tem que confirmar.</li>
+    </ul>
+    <h3>O motor 2 sem prêmio: a conta que falta</h3>
+    <p style="margin:0 0 .6rem">Janeiro projetava 0,5 indicação por médico por mês <em>com</em> prêmio de +3 dias. Sem prêmio, ninguém sabe. Estimativa para o beta: 0,1 a 0,2 indicações por mês, 30 % testam → <strong>+0,1 a +0,2 de K por ciclo</strong>. Somado ao laço (0,05), chega perto dos 0,3 da meta só se o pedido for feito na hora certa e a secretária entrar. <strong>Teste do beta:</strong> metade dos 10 médicos com prêmio em consultas guardadas, metade sem. Se o prêmio dobrar a indicação, volta.</p>
+  </div>
+
+  <span class="num">7</span>
+  <h2>O grátis como ativo de mídia</h2>
+  <p>Cada médico grátis custa R$ 0,80 por mês e vê a Helena ~150 vezes por mês, no momento em que acabou de pedir o prontuário. É um contato que abre mais que qualquer disparo e custa menos que qualquer anúncio. A dica na tela, identificada e com "dispensar", é onde o convite, o Pro, o serviço da Método 3A e, mais tarde, a indústria por especialidade aparecem. Nunca por queixa do paciente, nunca no PDF.</p>
+
+  <span class="num">8</span>
+  <h2>O que o beta tem que provar, em 90 dias, com 10 médicos do 3A</h2>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Métrica</th><th>Meta</th><th>O que decide</th></tr></thead>
+    <tbody>
+      <tr><td>Ativação: 10 consultas reais em 14 dias</td><td class="mono">≥ 60 %</td><td>se o produto pega</td></tr>
+      <tr><td>Hábito: grava na 4ª e na 8ª semana; consultas por médico por semana na semana 8</td><td class="mono">≥ 50 %</td><td>o número que importa: sem hábito não há base</td></tr>
+      <tr><td>Laço, lado do médico: deixa mandar a versão simples</td><td class="mono">≥ 70 %</td><td>se o laço nasce</td></tr>
+      <tr><td>Laço, lado do paciente: salva o contato ou abre</td><td class="mono">≥ 40 %</td><td>se o laço vive</td></tr>
+      <tr><td>K: médicos novos por médico ativo em 90 dias, somando os cinco motores</td><td class="mono">≥ 0,3</td><td>viral ou vendas</td></tr>
+      <tr><td>PWA instalado pelo paciente no iPhone</td><td class="mono">medir</td><td>se as mensagens saem do WhatsApp (custo)</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Antes do código, o beta de papel:</strong> duas semanas mandando a versão simples à mão para os pacientes de 10 médicos. Responde às duas perguntas mais caras, "o médico deixa?" e "o paciente abre?", por R$ 0. Só se passar, constrói-se o lado do paciente.</p>
+
+  <span class="num">9</span>
+  <h2>Os riscos que atacam o laço</h2>
+  <ul>
+    <li><strong>O Noa leva a consulta ao app do paciente antes de nós.</strong> Eles já têm o paciente pela Doctoralia. Resposta: lado do paciente em 6 semanas, não em 6 meses, e funcionando com qualquer médico.</li>
+    <li><strong>A Meta cobra por mensagem a partir de 01/10.</strong> Um laço de 900 mensagens por médico por mês pelo WhatsApp custa R$ 400 por ano. Resposta: app instalável com notificação grátis; WhatsApp só para entrar e garantir.</li>
+    <li><strong>"Grátis vende os seus dados."</strong> O ataque que o Noa fará. Resposta: a parede escrita e pública, o paciente lendo o que existe sobre ele, exportação em todo plano, e nada por queixa ou diagnóstico.</li>
+    <li><strong>O CFM e o convite.</strong> Médico indicando ferramenta a colega não é publicidade médica. Médico anunciando preço ou desconto ao público é. O convite não fala de preço; a agenda paga, sim, e só ao próprio paciente.</li>
+    <li><strong>O laço é hipótese.</strong> A conta da seção 4 dá K 0,05 sem empurrar. Se o beta der menos de 0,1, o crescimento é vendas, com custo de aquisição de ~R$ 1.000 por médico, e o modelo financeiro muda.</li>
+  </ul>
+
+  <span class="num">10</span>
+  <h2>A ordem, de hoje até 10 mil médicos</h2>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Quando</th><th>O que gira</th><th>Como se mede</th></tr></thead>
+    <tbody>
+      <tr><td>Semanas 1–2</td><td>Beta de papel com 10 médicos do 3A; advogado; gate da transcrição no aparelho</td><td>deixa? abre?</td></tr>
+      <tr><td>Semanas 3–6</td><td>Lado do paciente de verdade: versão simples com revisão, lembretes, histórico, compartilhar; perfil de secretária; convite pelo telefone</td><td>as seis métricas do beta</td></tr>
+      <tr><td>Meses 3–6</td><td>Os 400 clientes do 3A → 120 ativos → os pacientes deles; réguas; app instalável</td><td>K ≥ 0,3 e hábito ≥ 50 %</td></tr>
+      <tr><td>Meses 6–12</td><td>Convite entre médicos escalado pela secretária; Plano Clínica; painel congelado e momentos Pro convertendo</td><td>1.000 ativos</td></tr>
+      <tr><td>Ano 2</td><td>Plano de saúde para a rede credenciada (aquisição em lote); dica por especialidade; agenda paga</td><td>5 a 10 mil ativos</td></tr>
+    </tbody>
+  </table></div>
+
+  <span class="num">11</span>
+  <h2>O que mudou desde os documentos de janeiro, e por quê</h2>
+  <p>Os três documentos estratégicos de janeiro (o estudo de caso do lançamento viral, o "flywheel" e o memorando sobre o Manus) descrevem o mesmo motor com cinco peças que foram trocadas depois. Para a estratégia ser rastreável:</p>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Peça</th><th>Janeiro</th><th>Hoje</th><th>Por quê</th></tr></thead>
+    <tbody>
+      <tr><td>Plataforma</td><td>Tudo dentro do WhatsApp: gravar, receber, indicar</td><td>Gravar na web sem instalar; WhatsApp para entrar e garantir; app instalável para viver</td><td>O gravador precisa de pedaços, silêncio e vigia que o WhatsApp não dá; e a Meta cobra por mensagem a partir de 01/10/2026</td></tr>
+      <tr><td>Trial</td><td>3 dias ilimitados, cortados no "pico de empolgação"</td><td>Painel completo nas primeiras 25 consultas, depois congelado; momentos Pro</td><td>Gatilho por consultas garante que há dado; o grátis nunca acaba (decisão de abril)</td></tr>
+      <tr><td>Grátis</td><td>3 transcrições por dia</td><td>Sem limite para consultas de saúde</td><td>Grátis de verdade é a única posição que o Noa não copia; o limite de 3/dia fica no código, desligado</td></tr>
+      <tr><td>Prêmio por indicação</td><td>+3 dias ilimitados</td><td>Sem prêmio; a testar no beta (espaço)</td><td>Rodrigo, 09/09: prêmio em Pro não converte quem nunca vai pagar; o motor de volume é o paciente</td></tr>
+      <tr><td>Preço</td><td>R$ 147 / 247 / 397</td><td>Rápido R$ 27 / Pro R$ 77 / Anual R$ 770 / Clínica</td><td>O pago deixou de ser o negócio; o Rápido cadastra o cartão</td></tr>
+      <tr><td>Conversão projetada</td><td>7 % no cenário base (811 pagantes no mês 36, R$ 127 mil/mês)</td><td>3 % em Pro, 10 % em Rápido, no modelo de 36 meses</td><td>Parecer do investidor: sem prêmio nem corte, a taxa de referência do freemium B2B é 2 a 5 %; o negócio é a base, não a conversão</td></tr>
+      <tr><td>Custo do grátis</td><td>Servidor GPU R$ 300/mês para 55 médicos; R$ 1,50/mês por grátis retido</td><td>R$ 0,80/mês por médico grátis (Gemini áudio + Gemma 4 31B); Mac mini como hipótese com gate</td><td>Medido em 08/09 com 141 modelos; o modelo Academia continua sendo o objetivo, só mudou o hardware</td></tr>
+      <tr><td>O que não existia em janeiro</td><td>—</td><td>O paciente dentro: versão simples, histórico, lembretes, e o laço paciente → médico</td><td>É o motor 1. Janeiro só tinha médico → médico.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">O que ficou igual: zero fricção na entrada, telefone como conta e como código, recompensar o teste e não a compra, o grátis como ativo de mídia, o modelo Academia, a paciência com o maximizador, as 30 horas por mês que a Helena devolve ao médico, e as duas táticas do Manus para lançamentos.</p>
+
+  <p class="nota">Tudo aqui vem da especificação v5.2, do estudo de potencial v3.1, do parecer dos sete (produto e investidor, sobre o K) e dos três documentos estratégicos de janeiro (estudo de caso viral, flywheel, memorando Manus). Onde há número de comportamento sem medição, está marcado como estimativa. O beta troca as estimativas por número.</p>
+</main>
