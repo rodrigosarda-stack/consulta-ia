@@ -255,3 +255,227 @@ Nome da unidade: em aberto.
    (bônus de semana fechada, extra em dia cheio) — ajuste para depois de funcionar.
 7. Levar ao advogado junto das outras 5 perguntas: premiação por gravar consulta em produto
    de saúde.
+
+---
+
+# Rodada 4 — 11/09/2026: o que o médico ganha em cima do que gravou
+
+> Aprovado pelo Rodrigo para registro em 11/09. Continua sendo **caderno**, não emenda:
+> os números e o degrau de plano ainda não estão decididos.
+
+Três coisas novas (A, B, C), a conversão que amarra as três (D, E), e o ciclo de melhora
+com o vídeo (F, G).
+
+## A. Perguntar pelo WhatsApp
+
+O Cérebro já está na spec como "pergunte ao histórico, ache o trecho, exporte a prova",
+fase 2, só no Pro. O Rodrigo acrescenta a **porta**: ele pergunta direto no WhatsApp, sem
+abrir nada.
+
+**A cena que vale:** o paciente está na frente dele e diz "o senhor me receitou tal coisa".
+Ele não lembra. Escreve no WhatsApp e a resposta chega ali, na hora.
+
+**Cuidados.** A Meta cobra por mensagem a partir de 01/10/2026, então cada pergunta tem custo
+real — o que nesse caso é bom, dá lastro ao crédito. Dado clínico trafegando pelo WhatsApp vai
+para a lista do advogado.
+
+## B. Assistente ao vivo durante a consulta (modo coach)
+
+Enquanto ele atende, a Helena avisa na tela. Exemplos do Rodrigo: o paciente diz "o senhor me
+falou tal coisa" e ela avisa que ele não disse; "fale com calma"; lembra de algo pessoal do
+paciente.
+
+**Por que é a mais forte estruturalmente.** É a primeira coisa do plano que faz ele deixar a
+Helena aberta a consulta inteira. Voltar e gravar deixam de depender da mecânica de crédito e
+viram consequência do produto. E é ela que dá **lastro ao crédito**: painel não custa nada para
+mostrar; coach ao vivo custa por minuto.
+
+**A LINHA, escrita antes da primeira linha de código:**
+
+> O assistente fala sobre **a conversa e o registro**. Nunca sobre **medicina**.
+
+- **Pode:** "ele não disse isso"; "ela mencionou que mora sozinha"; "você pediu ressonância em
+  março e ela não trouxe"; "ele não repetiu a posologia".
+- **Não pode:** dose, diagnóstico, conduta, contraindicação, interação. Vira apoio à decisão
+  clínica, com ANVISA como software de saúde e CFM junto.
+- Todos os exemplos do Rodrigo caíram do lado certo da linha sozinhos.
+
+**Cuidados.** Duas ou três intervenções na consulta inteira, no máximo: o paciente vê o médico
+olhando a tela, e seria irônico a Helena atrapalhar o vínculo que ela existe para fortalecer.
+Tecnicamente é outro bicho — transcrição em fluxo com modelo no meio, nada a ver com o custo de
+hoje (R$ 0,80/mês por ~150 prontuários em lote), e provavelmente não roda no mini.
+
+## C. Análise de oportunidade (o lado coach de negócio)
+
+Depois da consulta, a Helena aponta onde ele perdeu dinheiro pela forma de conduzir.
+
+**Por que pode ser a maior das três.** É exatamente o que a Método 3A já sabe e ensina, e nenhum
+concorrente tem uma agência com 400 médicos atrás. E funde duas ideias que estavam soltas: o
+coach e o "prêmio vem do 3A". Em vez de convidar para um workshop, aplica o método do 3A na
+consulta real dele, toda vez.
+
+**A LINHA, mais afiada que a do clínico:**
+
+> Melhorar **a conversa e o desfecho**, sim. Aumentar **o ticket**, não.
+
+O lado seguro é também o que dá mais dinheiro: paciente que entendeu, marcou o retorno e voltou
+vale mais que ticket espremido numa consulta.
+
+- **Pode:** ofereceu parcelamento antes de perguntarem; falou o preço sem antes explicar o que o
+  paciente ganha; a consulta acabou sem marcar retorno; objeção ficou sem resposta; ele falou
+  80 % do tempo; ninguém perguntou como o paciente chegou até ele.
+- **Não pode:** sugerir subir preço, empurrar procedimento, ou qualquer coisa que trate o
+  paciente como alvo. Manchete "IA ensina médico a vender mais para o paciente" mata o produto.
+  O CEM já tem artigo sobre mercantilização, citado na spec para a farmácia.
+
+**Cuidados.** É análise **depois**, nunca ao vivo: dica de venda na tela com o paciente na frente
+é distração e risco de ele ver. Opt-in e privado de verdade — não pode passar pela cabeça dele
+que alguém do 3A lê aquilo. E é isso que justifica um degrau acima do Pro: não é prontuário, não
+é memória, é outra categoria.
+
+## D. A demo como conversão, no momento da entrega
+
+O momento é o certo: ele acabou de receber o prontuário, com a prova fresca na mão. A spec já
+diz que cada prontuário entregue é um momento de atenção.
+
+**Menu primeiro, texto livre depois.** O Rodrigo corrigiu minha proposta e está certo: deixando
+em branco, o médico pergunta o que já sabe que existe, e o que ele já sabe não impressiona. O
+menu é que ensina o que a Helena faz. O "ou pergunta o que você quiser" fica no fim, para quando
+ele já entendeu o brinquedo.
+
+**As opções vêm com o número dele dentro, não genéricas.** "Quem eu pedi exame e não voltou" é
+folheto. **"Três pacientes seus fizeram exame em agosto e não voltaram, quer ver quem?" é soco.**
+Ele nem precisa perguntar para entender o que ganhou.
+
+**Ordem do menu, dinheiro na frente:** exames pedidos ou encaminhamentos que não voltaram;
+retornos vencidos; quem parou o tratamento no meio. Depois as de memória: o que prescrevi pro
+fulano da última vez; alguém já falou de alergia. Por último, texto livre.
+
+**O coach se demonstra de trás para frente.** Ao vivo não dá antes de assinar, mas dá para pegar
+uma consulta já gravada e mostrar o que ele teria avisado: "nessa de terça, eu teria te dito que
+ele não repetiu a posologia". Mesma prova, com o material dele.
+
+**A demo precisa de lastro.** Com três consultas gravadas não há o que perguntar sobre três
+semanas atrás. Então ela só dispara quando há material — e isso vira mecânica: a Helena pode
+anunciar antes ("daqui a tantas consultas eu te mostro uma coisa"), o que é motivo para continuar
+gravando.
+
+## E. O gotejo, e como convive com a regra da dica
+
+Rodrigo: "ele vai ter um pouquinho pra sentir o gostinho, a gente mostra um ou outro, mas ele tem
+que saber: assina o Pro. E ver isso o tempo todo."
+
+**A distinção que faz isso caber:** a observação é **produto**; o "assina o Pro" é **anúncio**.
+A observação pode aparecer sempre, porque é útil sozinha e é motivo de abrir. A frase de venda é
+que tem freio, e segue a regra já decidida de 1 a cada 5.
+
+**Como mostra:** uma observação real, inteira, sem tela borrada, como a spec já manda. E a frase
+sem eufemismo: "essa consulta teve mais quatro observações; no Pro você vê todas, em todas as
+consultas."
+
+**E é o ralo de crédito perfeito:** o gostinho cabe na diária grátis, o resto custa.
+
+## F. As medidas, em formato de exame
+
+Ideia do Rodrigo — e ele derrubou minha primeira versão com razão. Eu tinha proposto suavizar,
+mostrar só o fato e a evolução ("em 4 das suas 10 consultas o paciente saiu com retorno marcado;
+mês passado foram 2"). Ele respondeu: médico vive de valor com faixa de referência, e ninguém diz
+"seu sangue ficou em quarto entre os oito melhores" — diz se tem ou não tem.
+**Então é diagnóstico, não é comentário.**
+
+> **Retorno marcado: 40 %. Referência: 70 %. Abaixo.**
+
+Valor, faixa, veredito, sem rodeio. Bate com a regra já decidida de falar sem eufemismo.
+
+**A faixa tem que dizer de onde veio.** Exame traz método e população. Se ele perguntar "com base
+em quê?", a resposta não pode ser "a gente achou". Então: "referência 68 %, de 12.400 consultas de
+ortopedia na Helena". Faixa inventada com médico é tiro no pé — ele lê faixa de referência a vida
+inteira.
+
+**Ressalva honesta:** essa faixa não existe hoje. O 3A tem método e 400 clientes, mas não tem dado
+de dentro da consulta. Até a base existir, mostra o valor e a evolução dele, e diz que a faixa vem
+depois. É mais um motivo para a base ser o negócio.
+
+**Faixa de referência sim, ranking não.** "Abaixo da faixa" é linguagem de exame. "Você é o 30º
+entre 100 ortopedistas" vira print no grupo do WhatsApp e vira processo.
+
+**Começar só pelo que é contagem, não interpretação.** Glicose é medida; "objeção sem resposta" é
+um modelo lendo transcrição. Quanto mais seco o veredito, mais caro errar. Primeiro: retorno
+marcado ou não, quanto tempo cada um falou, posologia repetida de volta. As interpretadas entram
+depois que a régua provar que acerta.
+
+**Toda linha abre no momento exato.** Ele clica em 40 % e vê as seis consultas em que não marcou,
+com o trecho. Sem isso, veredito seco vira briga.
+
+**Janela de mês ou últimas 20 consultas**, nunca consulta a consulta — senão vira vigilância, e
+dia ruim todo mundo tem.
+
+**Botão de "não quero mais", por área e não geral.** Ele pode topar ver retorno marcado e odiar ver
+quanto tempo falou; botão único mata tudo de uma vez. Fica discreto desde o começo e só é oferecido
+na cara quando a mesma medida ruim se repete, que é quando dói.
+
+**O que isso fecha.** Para ver o número mexer, ele precisa continuar gravando. A medição vira o
+motivo de gravar, sem mecânica de crédito nenhuma.
+
+**As áreas (método do 3A virando medida):** quantos saíram com retorno marcado; quantos repetiram
+a posologia de volta; quanto do tempo quem falou foi o paciente; quantas objeções ficaram sem
+resposta; quantas vezes o preço veio antes da explicação do que ele ganha; de quantos ele soube
+como chegaram até o consultório.
+
+**As três partes que fazem a medida mover alguém** (o Rodrigo pegou esse furo: "como é que ele vai
+melhorar algo que ele não mensura?"): a **referência**, o **quanto aquilo vale em dinheiro**
+("seis pacientes seus esse mês saíram sem retorno marcado"), e **uma coisa para fazer diferente**
+("marque o retorno antes de ele levantar da cadeira"). Medida sem alvo e sem ação é frustração.
+
+## G. O vídeo do Rodrigo, e o marketing de conteúdo invertido
+
+Quando a medida vem ruim, entra um vídeo curto do Rodrigo ensinando exatamente aquilo.
+
+**Resolve o elo mais fraco do ciclo.** Medir e mostrar a faixa é fácil; "o que fazer" era ruim
+porque robô ensinando médico a conduzir consulta é presunçoso e ele rejeita. Com autoridade humana
+atrás, vira aula.
+
+**Marketing de conteúdo invertido (nome do Rodrigo).** No normal, publica-se para muita gente
+torcendo para achar quem tem o problema agora. Aqui já se sabe **quem** tem, **qual** é e que é
+**agora**, porque foi medido na consulta dele. Distribuição custa zero e a relevância é total.
+
+**Custo quase absurdo de baixo.** As medidas são um conjunto fechado, então são uns quinze vídeos,
+gravados uma vez, servindo todo médico para sempre.
+
+**A hora é o valor, não o conteúdo.** Curso é genérico e esquecido; 90 segundos logo depois de ver
+que perdeu seis retornos é coaching.
+
+**Regras.** Um a dois minutos. Um vídeo por medida, não aula sobre marketing médico. A sequência é
+**trecho da consulta dele primeiro, vídeo depois** — o par entre o erro e a explicação é o que
+ensina; vídeo solto vira propaganda. E se o vídeo for genérico, queima a credibilidade do Rodrigo
+justo quando ela vale mais.
+
+**Duas consequências maiores que o vídeo.**
+1. **A base diz ao 3A qual conteúdo produzir**, pelo erro que mais aparece — medido, não chutado.
+2. **O agregado vira conteúdo público que só o 3A pode fazer:** "68 % dos médicos não marcam o
+   retorno antes de o paciente levantar". Identificado dentro, agregado fora — a parede da spec.
+
+**Depois, canal.** O médico que assistiu e gostou é levado para o Instagram e o YouTube do 3A, e
+está a um passo de contratar a agência, que já é uma das portas do plano.
+
+**A trava que não pode cair.** A medida tem que ser verdadeira e útil para um médico que nunca vai
+assistir vídeo nenhum e nunca vai contratar a agência. Se ele desconfiar que a medição existe para
+vender, o produto inteiro cai junto.
+
+**Uma coisa que só isso resolve:** tudo o mais que a gente desenhou é robô. O Rodrigo aparecendo dá
+cara humana ao produto, e em saúde isso vale muito.
+
+## Em aberto da rodada 4
+
+1. Se o coach ao vivo, a análise de oportunidade e as medidas são Pro, Cérebro ou um degrau novo,
+   e a que preço.
+2. Custo real por minuto de coach ao vivo, **medido**, não estimado.
+3. Fronteira do clínico e fronteira da mercantilização — as duas ao advogado, junto das cinco
+   perguntas que já estão na lista.
+4. Frequência da observação versus frequência da frase de venda.
+5. Quantas consultas gravadas a demo exige para não furar.
+6. Se a demo sai da bolsa de crédito dele ou é por conta da casa.
+7. Como nasce a faixa de referência antes de a base existir.
+8. O nome das medidas na tela, que não pode soar a boletim.
+9. Se o vídeo é grátis ou Pro (palpite: grátis — puxa confiança e puxa para o 3A; vende-se a
+   profundidade).
