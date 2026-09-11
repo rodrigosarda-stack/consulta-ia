@@ -134,3 +134,9 @@ real no `schema.sql:577`), Whisper de reserva, etiquetas clínico/conversa com f
 **Duas ressalvas do gravador:** o `BITRATE = 24_000` (`Recorder.jsx:12`) é ignorado pelo Safari no
 iPhone, que grava a ~50 kbps, e nada detecta isso em tempo de execução; e `PEDACO_MIN_MS = 20_000`
 embute a política de cobrança mínima do Groq como constante de negócio.
+
+## Prioridade decidida (Rodrigo, 11/09)
+
+Atacar primeiro o item 1 (webhook do WhatsApp sem autenticação) — é o único dos 16 achados
+explorável por qualquer pessoa agora, sem credencial nenhuma. Os itens 2 e 3 (chave da Evolution
+exposta e Asaas sem webhook) seguem na fila logo depois.
