@@ -622,3 +622,33 @@ Ninguém mediu ainda quantos de quem recebe o convite de um colega de fato vira 
 ativo. A onda-teste de 3 é exatamente para produzir esse primeiro número real.
 
 **Registrado também em** `docs/plano/viralizacao-helena.html`, seção 2, passo 2.
+
+## Ajuste da rodada 5: quando pedir dentro da onda-teste
+
+Rodrigo: "talvez ele depois da segunda, da terceira, enfim." Nem no 1º uso, quando o
+médico não tem nada para mostrar, nem no mês inteiro do motor maduro (item 6 do resgate).
+**O pedido de indicar, dentro da onda-teste, vem depois da 2ª ou 3ª gravação.**
+
+## Os dois K, não um: teste não é engajamento
+
+Rodrigo trouxe a matemática de juro composto e separou sozinho duas coisas que a página
+só tratava como uma: "se pra cada pessoa que testa a gente consegue 1,3 pessoas novas que
+testa... isso é crescente, quase juro composto. Só que aqui estamos falando de teste;
+depois do teste a gente tem que falar de usuário, de engajamento."
+
+**K de teste** — quantos testam por indicação de quem testou. Pedido barato, na onda-teste.
+Se vier acima de 1, cresce sem parar sozinho: com K=1,3, os 3 da onda-teste passam de 500
+em 20 gerações. É por isso que a torneira do item anterior é obrigatória, não prudência.
+
+**K de engajamento** — quantos dos que testaram viram médico ativo de verdade, com hábito
+(emenda 36). Pode ser baixo mesmo com K de teste alto: testar é fácil, ficar é difícil.
+
+**O erro mais fácil de cometer:** multiplicar os dois sem separar. Teste viralizando com
+engajamento fraco enche a base de gente que já foi embora. A onda-teste de 3 precisa medir
+os dois números, não só quantos testaram.
+
+**Sobre pagar por conversão, não por envio** (ideia do Rodrigo): protege exatamente contra
+isso — ninguém ganha crédito mandando para cem pessoas sem que nada aconteça de verdade.
+Mesmo princípio do freio já usado no crédito: só tem valor o que tem lastro real.
+
+Registrado também em `docs/plano/viralizacao-helena.html`, seção 2, caixa "Dois K, não um".
