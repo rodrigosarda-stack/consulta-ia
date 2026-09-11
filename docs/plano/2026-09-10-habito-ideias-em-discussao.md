@@ -105,3 +105,69 @@ contradiz a posição central. Então a moeda tem que ser outra coisa. Ver Bloco
 | Grátis ilimitado, nunca acaba | Nenhuma ideia toca nisso; a moeda é sempre o pago |
 | Momentos Pro | Compatível: vira o mesmo medidor, em vez de gatilhos soltos |
 | Beta: hábito na 8ª semana ≥ 50 % | A.7 acrescenta "maior intervalo sem gravar" |
+
+---
+
+# Rodada 2 — 10/09/2026, fim do dia
+
+## Os dois objetivos, na palavra do Rodrigo
+
+1. **Fazer ele voltar todo dia.**
+2. **Fazer ele gravar todo dia.**
+
+Tudo tem que ser medido contra esses dois. Ideia que não move nenhum dos dois, cai.
+
+## Correção importante: o médico que some NÃO é perda total
+
+Rodrigo, 10/09: "a gente vai pegar o número dele. Isso é super difícil, conseguir um número
+do médico pessoal. Na realidade esse foi o motivo principal inicial da viralização, que era
+a lista. Eu não conseguia acessar o telefone do médico, eu caía sempre na secretária."
+
+Então o médico que grava 3 vezes e some já entregou: **celular pessoal validado**, CRM,
+especialidade e prova de que topa testar. O que falta é todo o resto, e o resto depende do
+costume.
+
+## O Rodrigo mudou de modelo no meio da conversa (e a mudança está certa)
+
+- **Antes:** "a gente tem que dar um prêmio, não tem que tirar."
+- **Agora:** "não é assim que funciona os sistemas. Eles bloqueiam o uso, eles limitam o uso,
+  e a pessoa gosta, usa, e se ela quer mais, ela tem que pagar. Pega o ChatGPT, pega o Claude,
+  pega o Manus."
+- Regra que fica: **o 1º nível (gravar + prontuário) é grátis e ilimitado para sempre**,
+  porque é o que faz ele entrar. Os níveis acima são limitados, e a diferença entre eles
+  tem que ser **sentida muito forte**.
+
+## O que morreu nesta rodada, e por quê (tudo do Rodrigo)
+
+| Ideia | Por que caiu |
+| --- | --- |
+| Opção 1, a Helena avisa pela agenda | Depende da agenda, que não é nossa, cada médico tem a sua e muitas vezes quem controla não é ele. Tem que ser algo **nosso**. |
+| Opção 2, o prontuário fica com a cara dele | É melhoria de qualidade. Não obriga ninguém a voltar nem a gravar. Não move os dois objetivos. |
+| Opção 4, desconto no Pro por volume | Dá desconto para quem não está pagando nada. Sem sentido. |
+| Prêmio = Pro de graça (rodada 1) | Quem usa muito bate a meta e nunca paga; quem usa pouco não ia pagar. O Pro para de vender. |
+
+## MELHOR IDEIA ATÉ AGORA (guardada a pedido do Rodrigo, 10/09)
+
+> "Interessante. O caminho melhorou, mas ainda não é isso. Guarda essa ideia, a melhor ideia,
+> por enquanto."
+
+**Cota diária de Cérebro, que zera todo dia e que ele enche gravando.**
+
+- Gravar e receber o prontuário: **grátis, ilimitado, nunca tocado.**
+- A Helena que **sabe sobre os pacientes dele** é o que fica limitado.
+- Todo médico ganha ~3 perguntas por dia, de graça.
+- **Gravou uma consulta hoje → ganha mais perguntas hoje.** Gravou cinco → pergunta o dia inteiro.
+- Acabou a cota e ele quer mais agora → paga.
+
+Por que serve: **a cota zera todo dia** (objetivo 1, voltar todo dia) e **gravar é o jeito de
+enchê-la** (objetivo 2, gravar todo dia). É a mecânica do Manus/ChatGPT com a moeda certa:
+a moeda não é a gravação, é a inteligência em cima do que ele gravou. E o teto dói no momento
+certo, logo depois da primeira resposta boa.
+
+**Segundo motivo de abrir todo dia, e esse é 100 % nosso, sem depender de agenda de terceiro:**
+a **fila de pendências tirada das próprias gravações**. "Pedi ressonância para 3 pacientes esta
+semana e nenhum voltou." "A Maria era para retornar em 30 dias e já faz 45." "O João parou o
+remédio." Não existe em lugar nenhum hoje, é dinheiro na mesa dele, e a fila só tem conteúdo
+se ele gravou.
+
+**Status:** o Rodrigo achou o caminho melhor, mas ainda não é isso. Continua aberto.
