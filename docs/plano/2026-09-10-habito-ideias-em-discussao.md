@@ -522,3 +522,57 @@ em 11/09 que não quer consideração jurídica que ele não peça, e a regra es
 | --- | --- | --- |
 | Faixa de referência das medidas | **beta** | o beta de papel com 10 médicos produz o primeiro número |
 | Custo por minuto do coach ao vivo | **Claude** | medir com a chave do OpenRouter e os scripts da varredura; não precisa construir nada |
+
+---
+
+# Medição: quanto custa o coach ao vivo (11/09/2026)
+
+Era o item aberto com o meu nome. **Medido**, não estimado: o coach rodando em cima da
+transcrição real de `fixture-gemini-audio-3.7-teste1.txt`, avaliando a conversa em janelas,
+com o prompt da regra ("fala da conversa e do registro, nunca de medicina"). Script em
+`docs/prompt-confabulacao/medir-coach.mjs`; custo real lido do `usage` do OpenRouter.
+
+| modelo | chamadas | US$/fixture | ms médio | avisos |
+| --- | ---: | ---: | ---: | ---: |
+| **google/gemma-4-31b-it** (a cada 2 falas) | 7 | **0,000161** | **698** | 1 |
+| google/gemma-4-31b-it (a cada fala) | 14 | 0,000389 | 1.045 | 1 |
+| openai/gpt-4.1-mini (a cada fala) | 14 | 0,002145 | 987 | 4 |
+| google/gemini-3.7-flash (a cada fala) | 14 | 0,006465 | 2.193 | 0 |
+
+**Gemma 4 31B ganha de novo**, como já tinha ganhado na varredura dos 141: mais barato, mais
+rápido e o único bem comportado. O GPT-4.1 mini repetiu **três vezes o mesmo aviso** ignorando o
+"você já avisou" — ao vivo isso seria insuportável. O Gemini 3.7 flash não avisou nada e custou
+16x mais.
+
+**Escalando para consulta real** (fixture tem 14 falas; 20 minutos têm ~70):
+
+| | por consulta | 150 consultas/mês |
+| --- | ---: | ---: |
+| Coach a cada 2 falas | R$ 0,0044 | **R$ 0,66/mês por médico** |
+| Coach a cada fala | R$ 0,0107 | R$ 1,60/mês por médico |
+
+## EU ESTAVA ERRADO sobre o coach dar lastro ao crédito
+
+Eu tinha escrito na rodada 4: "painel não custa nada para mostrar; coach ao vivo custa por
+minuto — é ela que dá lastro ao crédito". **Não é.** O coach custa centavos. Cobrar por ele é
+decisão de **valor**, não de custo. O argumento do lastro cai.
+
+## O custo de verdade é a transcrição, e isso amarra o coach a um gate que já existe
+
+| | por consulta | 150 consultas/mês |
+| --- | ---: | ---: |
+| Transcrição em nuvem (Gemini áudio, US$ 0,12/h) | R$ 0,22 | **R$ 33,00/mês por médico** |
+
+**A transcrição custa 41x o coach.** E o coach ao vivo *exige* transcrição contínua — não dá
+para fazer em lote depois. Então:
+
+- **Se a transcrição roda no aparelho**, o coach ao vivo é praticamente de graça: R$ 0,66/mês
+  em cima de um custo de transcrição zero.
+- **Se a transcrição roda em nuvem**, o médico sai de R$ 0,80/mês para ~R$ 34/mês. O modelo
+  financeiro inteiro muda.
+
+**Conclusão: o coach ao vivo está amarrado ao gate binário da transcrição no aparelho**, que já
+está marcado para a semana 1 (12 gravações, 3 especialidades, WER + 5 termos). Se aquele gate
+passar, o coach é quase de graça. Se não passar, o coach vira caro e precisa ser repensado.
+
+*(Câmbio usado: R$ 5,50/US$, aproximado.)*
