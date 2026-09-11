@@ -171,3 +171,87 @@ remédio." Não existe em lugar nenhum hoje, é dinheiro na mesa dele, e a fila 
 se ele gravou.
 
 **Status:** o Rodrigo achou o caminho melhor, mas ainda não é isso. Continua aberto.
+
+---
+
+# Rodada 3 — 10/09/2026: a direção escolhida
+
+> Rodrigo: **"acho que esse é o caminho."**
+> Isto é **direção acordada**, não emenda fechada. Os números ainda não estão calibrados.
+> Quando calibrar, vira emenda em `docs/decisoes/` e entra na spec.
+
+## O modelo: crédito, no estilo Manus, adaptado
+
+O 1º nível continua **grátis e ilimitado para sempre**: gravar a consulta e receber o
+prontuário. É o que faz o médico entrar e é a posição contra o Noa.
+
+O que é medido por crédito é **a Helena que sabe sobre os pacientes dele**: o painel de
+gestão, perguntar sobre a própria base, relatório, mês fechado, fila de pendências,
+exportação. Ele vê o **produto completo**, nunca uma versão capada com tela borrada
+(compatível com a regra já decidida: "quando mostra, mostra de verdade").
+
+## De onde vem o crédito (cinco fontes)
+
+| Fonte | Tamanho | Acumula? | Para que serve |
+| --- | --- | --- | --- |
+| **Entrada** | Gordo | Sim | Ele sente o poder antes de qualquer limite apertar |
+| **Diária, só por entrar** | Pequena | **Não**, zera todo dia | Objetivo 1: voltar todo dia |
+| **Por gravar**, com **teto diário** | O grosso | Sim | Objetivo 2: gravar todo dia |
+| **Por indicar** colega que grava a 1ª | Alto, separado, teto próprio | Sim | Motor 2, e devolve o prêmio derrubado em 09/09 |
+| **Comprando** | — | — | É a receita |
+
+## As duas alavancas que são só nossas
+
+1. **Teto diário do que se ganha gravando.** Resolve o médico que usa muito.
+   **Tem que ser por DIA, nunca por mês:** por mês ele bate no 2º dia e passa 28 dias sem
+   motivo de gravar. Calibrar **um pouco abaixo do dia normal dele** (ex.: teto que fecha em
+   ~6 consultas, se o típico faz 8–10), para quase todo mundo sentir que **completou** a meta.
+2. **Câmbio.** Quem decide quanto o crédito compra somos nós, e dá para apertar e afrouxar
+   sem mexer no número que ele vê. **É isso que resolve o buraco que matou as ideias
+   anteriores:** com regra fixa, quem grava muito ganha tudo para sempre; com câmbio, o teto
+   nunca fica abaixo do que ele consegue ganhar. Começar apertado e afrouxar, porque apertar
+   depois gera revolta.
+
+## O freio natural (só existe na Helena, o Manus não tem)
+
+**Crédito só compra análise das consultas que ele mesmo gravou.** Médico com saldo cheio e
+base vazia não tem o que comprar. Logo, **entrar todo dia e indicar colega nunca substituem
+gravar** — e isso não precisa de regra, o produto se defende sozinho.
+
+## O que esta direção substitui
+
+- **A regra das 25 consultas** (spec §6): morre. Vira saldo de entrada gasto no ritmo dele.
+  Some o corte seco, que era o pior pedaço: hoje o prêmio acaba na semana 1 e o hábito é
+  medido na semana 8.
+- **"Sem prêmio por indicação"** (decisão 09/09): reaberto de outro jeito. O prêmio deixa de
+  ser tempo de Pro (que não converte quem nunca ia pagar) e passa a ser crédito, que é a coisa
+  que acaba na mão dele.
+
+## Regra de honestidade, a botar por escrito antes de construir
+
+**O crédito só pode representar coisa que custa de verdade** (pergunta, relatório, exportação).
+Se for relógio disfarçado, o dia em que um médico fizer a conta a gente perde a confiança, e em
+saúde não há margem para isso. O Noa já vai atacar com "grátis vende seus dados"; não dar de
+bandeja um segundo ataque. **Não chamar de minuto** — o próprio Rodrigo sentiu que fica safado.
+Nome da unidade: em aberto.
+
+## Números reais do Manus (conferidos em 10/09/2026, não presumidos)
+
+- 1.000 créditos no cadastro · 300 por dia, **que não acumulam** · 500 por indicação.
+- Fontes: https://www.getaiperks.com/en/ai/manus-credits-explained ·
+  https://apidog.com/blog/manus-ai-public-free-credits/
+- **Não copiar o tamanho da indicação.** 500 contra 300/dia faz uma indicação valer menos de
+  dois dias de só logar. Para nós uma indicação é o celular pessoal de um médico, que é o ativo
+  mais difícil do negócio. Tem que estar numa ordem de grandeza acima.
+
+## O que falta calibrar (nada disso está decidido)
+
+1. Nome da unidade (não "minuto", não "ponto"?).
+2. Tabela de preços: quanto custa cada coisa que o crédito compra.
+3. Tamanho do saldo de entrada, da diária, do ganho por consulta e do teto diário.
+4. Tamanho do pacote de indicação e se o indicado também ganha.
+5. Se a diária exige só entrar ou exige entrar **e** gravar.
+6. O que fazer quando bater o teto todo dia virar automático e parar de motivar
+   (bônus de semana fechada, extra em dia cheio) — ajuste para depois de funcionar.
+7. Levar ao advogado junto das outras 5 perguntas: premiação por gravar consulta em produto
+   de saúde.
