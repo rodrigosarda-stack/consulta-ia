@@ -576,3 +576,49 @@ está marcado para a semana 1 (12 gravações, 3 especialidades, WER + 5 termos)
 passar, o coach é quase de graça. Se não passar, o coach vira caro e precisa ser repensado.
 
 *(Câmbio usado: R$ 5,50/US$, aproximado.)*
+
+---
+
+# Rodada 5 — 11/09/2026: o "grande dia" vira torneira controlada, não estouro
+
+Correção do Rodrigo sobre a ideia de lançamento em massa (rodada anterior, mesmo dia).
+
+> "Eu acho que a viralização ela tem que ser controlada por nós. A gente tem que segurar
+> e soltar, e abrir se for necessário. Talvez seja melhor lançar pra três, fazer o teste
+> viral e ver o que acontece, quais são as taxas de viralização, quanto que a base cresce
+> com o tempo. À medida que a gente vai entendendo esses números, a gente consegue se
+> preparar pra dimensionar toda a estrutura pra aquilo, e se necessário travar o
+> crescimento."
+
+## O que muda em relação à ideia anterior
+
+Não é mais um evento único mandado para os 400 de uma vez. Vira **ondas medidas**:
+
+1. **Onda-teste, 3 médicos** — mede a taxa real de conversão do convite, sem prometer
+   nada em escala.
+2. **Onda 1, 10** — confirma que não foi acaso da onda-teste.
+3. **Onda 2, uma fração maior** — calibrada pelo que as duas ondas anteriores mediram,
+   nunca por um número chutado.
+4. **Resto da base, só depois de a estrutura aguentar** — cada Mac mini medido dá conta
+   de ~60 médicos (spec §4); a torneira abre no ritmo da infraestrutura, não da vontade.
+
+**Timing também corrigido:** cada cliente usa a Helena por cerca de um mês antes de
+qualquer pedido de indicação — o "grande dia" não é o primeiro contato, é depois de
+uso real, reforçando o que já tinha sido decidido na rodada anterior (prova, não promessa).
+
+## Por que isso é a mesma lógica do crédito (emenda 37), aplicada em outro lugar
+
+O teto diário e o câmbio do modelo de crédito existem para que **a velocidade seja
+escolha nossa, nunca consequência automática do sistema**. A correção desta rodada aplica
+o mesmo princípio à aquisição: nunca deixar a viralização girar sozinha sem um jeito
+de segurar. Precisa de mecanismo real, não só de intenção — convite por código, lista
+de espera.
+
+## Consequência prática, ainda não resolvida
+
+Este lançamento por ondas precisa da própria medição de "K de lançamento" — uma taxa
+diferente do K do laço médico-paciente já medido na página (K≈0,05 hoje, meta 0,3).
+Ninguém mediu ainda quantos de quem recebe o convite de um colega de fato vira médico
+ativo. A onda-teste de 3 é exatamente para produzir esse primeiro número real.
+
+**Registrado também em** `docs/plano/viralizacao-helena.html`, seção 2, passo 2.
