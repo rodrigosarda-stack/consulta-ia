@@ -135,9 +135,25 @@
 </svg><figcaption class="nota" style="margin-top:.8rem"><strong>Receita, não só quantidade e custo — e nunca no dia em que o médico entra.</strong> Um médico recém-chegado ainda não converteu em nada: a receita de cada ponto usa o número de médicos de <strong>um ciclo atrás</strong>, nunca o de agora. No primeiro ciclo, mês 0, isso dá zero — não R$ 1.500 nem qualquer outro número, porque ninguém teve tempo de virar Pro, entrar na pesquisa ou qualquer outra coisa. É o próprio Rodrigo quem pegou isso: "no mês zero a gente tem lucro? Não é real."
   Usa os patamares já publicados no estudo de potencial (1.000 médicos → R$ 150/médico/ano; 5.000 → R$ 400; 25.000+ → R$ 760, "regime"), aplicados aos médicos do ciclo anterior, casando com o patamar mais próximo — aproximação, não um modelo novo.
   Verde é receita de portas já em produto hoje (assinaturas, Método 3A, painel de pesquisa, dados, pharma). Âmbar é <strong>"chute" no próprio estudo</strong>: agenda e pagamento da consulta, e o médico vendendo pelo app — as duas passam pelo Theo e ainda não existem. No regime maduro, 57 % da receita vem dessas duas portas não provadas. Nos dois primeiros cenários, nem chute existe ainda. No terceiro, agenda e app estão "começando" segundo o próprio estudo, sem número decomposto — por isso a barra fica hachurada em vez de fingir precisão que não existe.</figcaption></figure>
-  <p class="nota"><strong>Só a primeira linha é o K do laço puro</strong>, o mesmo 0,05 da tabela do topo, ninguém manda nada. As de baixo já não são mais isso: somam o convite entre médicos (alguém manda de propósito, como o K de teste) e a secretária, num K combinado dos cinco motores. A linha que importa é a segunda: 0,3 é a meta do beta, e abaixo de 0,1 não é viral, é vendas. O cenário base do modelo financeiro, 10 % ao mês, supõe esse K combinado perto de 0,3. Contas: cada linha é 120 × (1+K)^ciclos, ciclos de 90 dias — 4 em 12 meses, 8 em 24. <strong>Ressalva (11/09):</strong> o convite entre médicos dispara por evento (100ª consulta), não por calendário — o ciclo de 90 dias vale de verdade só para a primeira linha; nas de baixo, é aproximação, e tende a subestimar a velocidade real. <strong>Custo:</strong> R$ 0,80 por médico grátis por mês (seção 8), o mesmo número usado no resto da página — hipótese até o gate da transcrição no aparelho passar (emenda 31); é só o custo de IA do grátis, sem equipe, suporte nem infraestrutura fixa.</p>
+  <p class="nota"><strong>Só a primeira linha é o K do laço puro</strong>, o mesmo 0,05 da tabela do topo, ninguém manda nada. As de baixo já não são mais isso: somam o convite entre médicos (alguém manda de propósito, como o K de teste) e a secretária, num K combinado dos cinco motores. A linha que importa é a segunda: 0,3 é a meta do beta, e abaixo de 0,1 não é viral, é vendas. O cenário base do modelo financeiro, 10 % ao mês, supõe esse K combinado perto de 0,3. Contas: cada linha é 120 × (1+K)^ciclos, ciclos de 90 dias — 4 em 12 meses, 8 em 24. <strong>Ressalva (11/09):</strong> o convite entre médicos dispara por evento (100ª consulta), não por calendário — o ciclo de 90 dias vale de verdade só para a primeira linha; nas de baixo, é aproximação, e tende a subestimar a velocidade real. <strong>Custo:</strong> R$ 0,80 por médico grátis por mês (seção 9), o mesmo número usado no resto da página — hipótese até o gate da transcrição no aparelho passar (emenda 31); é só o custo de IA do grátis, sem equipe, suporte nem infraestrutura fixa.</p>
 
   <span class="num">6</span>
+  <h2>Simulação: reinvestir a receita em mídia paga</h2>
+  <p>Ideia do Rodrigo, 12/09: pegar a receita de pagantes e investir em divulgação, oitenta por cento crescendo até cem por cento no mês doze, e a partir daí travar o investimento no valor em reais do mês doze, sem deixar crescer mais como percentual da receita.</p>
+  <p>Simulado com o que já está na página: CAC de tráfego pago R$ 1.000 por médico (seção 11, riscos), a mesma conversão de três por cento para Pro. Cada real investido em mídia compra 1/1.000 de médico novo, somado ao que o laço já traz de graça.</p>
+  <figure class="fig"><svg class="dia" viewBox="0 0 780 470" role="img" aria-label="K 0,3 com e sem reinvestimento em mídia paga"><style>.grade{stroke:var(--linha);stroke-width:1}.grade-v{stroke:var(--linha);stroke-width:1;stroke-dasharray:2 3}.marco-mes12{stroke:var(--ambar);stroke-width:1.4;stroke-dasharray:4 3}.eixo-linha{stroke:var(--cinza);stroke-width:1.4}.eixo{font-size:11px;fill:var(--cinza);font-family:"IBM Plex Sans",sans-serif}.legenda{font-size:12.5px;fill:var(--tinta);font-family:"IBM Plex Sans",sans-serif}</style><line x1="70" y1="380.0" x2="750" y2="380.0" class="grade"/><text x="60" y="384.0" text-anchor="end" class="eixo">100</text><line x1="70" y1="222.6" x2="750" y2="222.6" class="grade"/><text x="60" y="226.6" text-anchor="end" class="eixo">300</text><line x1="70" y1="50.1" x2="750" y2="50.1" class="grade"/><text x="60" y="54.1" text-anchor="end" class="eixo">1000</text><line x1="70.0" y1="24" x2="70.0" y2="380" class="grade-v"/><text x="70.0" y="402" text-anchor="middle" class="eixo">0m</text><line x1="240.0" y1="24" x2="240.0" y2="380" class="grade-v"/><text x="240.0" y="402" text-anchor="middle" class="eixo">6m</text><line x1="410.0" y1="24" x2="410.0" y2="380" class="grade-v"/><text x="410.0" y="402" text-anchor="middle" class="eixo">12m</text><line x1="580.0" y1="24" x2="580.0" y2="380" class="grade-v"/><text x="580.0" y="402" text-anchor="middle" class="eixo">18m</text><line x1="750.0" y1="24" x2="750.0" y2="380" class="grade-v"/><text x="750.0" y="402" text-anchor="middle" class="eixo">24m</text><line x1="70" y1="380" x2="750" y2="380" class="eixo-linha"/><line x1="410.0" y1="24" x2="410.0" y2="380" class="marco-mes12"/><text x="410.0" y="16" text-anchor="middle" class="eixo">investimento trava aqui</text><path d="M 70.0,353.9 L 98.3,341.3 L 126.7,328.8 L 155.0,316.3 L 183.3,303.8 L 211.7,291.2 L 240.0,278.7 L 268.3,266.2 L 296.7,253.6 L 325.0,241.1 L 353.3,228.6 L 381.7,216.1 L 410.0,203.5 L 438.3,191.0 L 466.7,178.5 L 495.0,165.9 L 523.3,153.4 L 551.7,140.9 L 580.0,128.4 L 608.3,115.8 L 636.7,103.3 L 665.0,90.8 L 693.3,78.2 L 721.7,65.7 L 750.0,53.2" fill="none" stroke="var(--cinza)" stroke-width="2.5"/><path d="M 70.0,353.9 L 98.3,341.3 L 126.7,328.6 L 155.0,315.8 L 183.3,303.1 L 211.7,290.4 L 240.0,277.7 L 268.3,265.0 L 296.7,252.3 L 325.0,239.6 L 353.3,226.9 L 381.7,214.3 L 410.0,201.6 L 438.3,189.0 L 466.7,176.4 L 495.0,163.8 L 523.3,151.3 L 551.7,138.8 L 580.0,126.2 L 608.3,113.7 L 636.7,101.2 L 665.0,88.8 L 693.3,76.3 L 721.7,63.8 L 750.0,51.3" fill="none" stroke="var(--teal-escuro)" stroke-width="2.5"/><rect x="70" y="414" width="14" height="4" fill="var(--cinza)"/><text x="90" y="420" class="legenda">Só orgânico · 979 médicos em 24m</text><rect x="70" y="438" width="14" height="4" fill="var(--teal-escuro)"/><text x="90" y="444" class="legenda">Com mídia paga reinvestida · 992 médicos (+1.29%)</text></svg><figcaption class="nota" style="margin-top:.8rem">Cenário K 0,3, a meta do beta. As duas linhas praticamente se sobrepõem — o ganho em 24 meses é de 1,29 %, dentro do erro de qualquer estimativa aqui. Não é erro de conta, é o mesmo problema que a página já tinha sinalizado antes: com a receita ainda pequena, mil reais de mídia compram menos de um médico por mês, e o laço orgânico já está entregando dúzias.</figcaption></figure>
+  <div class="tabela-wrap"><table>
+    <thead><tr><th>Cenário</th><th>Investimento travado a partir do mês 12</th><th>Ganho em 24 meses</th></tr></thead>
+    <tbody>
+      <tr><td>K 0,05</td><td class='mono'>R$ 332/mês</td><td class='mono'>+3,98 %</td></tr>
+      <tr><td>K 0,3</td><td class='mono'>R$ 672/mês</td><td class='mono'>+1,29 %</td></tr>
+      <tr><td>K 0,6</td><td class='mono'>R$ 1.339/mês</td><td class='mono'>+0,45 %</td></tr>
+      <tr><td>K 1,0</td><td class='mono'>R$ 2.810/mês</td><td class='mono'>+0,15 %</td></tr>
+    </tbody>
+  </table></div>
+  <p class="nota">O padrão se repete nos quatro: quanto mais rápido o laço orgânico já está crescendo, menor a diferença que a mídia paga faz, porque a receita de poucos pagantes nunca chega perto de competir com o que o laço entrega sozinho. Mídia paga só começa a valer a pena quando a receita já for grande — nesse ponto, o problema de crescimento provavelmente já foi resolvido por outro motivo.</p>
+
+  <span class="num">7</span>
   <h2>Onde o laço quebra, e o que faz girar</h2>
   <div class="par2">
     <div class="ruim"><b>Quebra 1 · o paciente não abre nada entre consultas</b>Uma mensagem por consulta não cria hábito. Sem motivo para voltar ao app, o paciente esquece a Helena em duas semanas.</div>
@@ -150,7 +166,7 @@
     <div class="bom"><b>O que faz girar</b>Perfil de secretária desde o dia um: ela cadastra o paciente, manda o link, vê a agenda. E é ela quem passa a Helena para a secretária do consultório vizinho.</div>
   </div>
 
-  <span class="num">7</span>
+  <span class="num">8</span>
   <h2>O convite entre médicos, agora com prêmio em crédito</h2>
   <p>Prêmio em tempo de Pro foi derrubado em 09/09, porque não converte quem nunca ia pagar. Em 11/09 ele voltou de outro jeito: o prêmio é <strong>crédito</strong>, a mesma moeda que mede o hábito, num pacote alto e separado, com teto próprio. É separado de propósito, porque para nós uma indicação vale o celular pessoal de um médico, e não se copia o tamanho que o Manus dá. O que faz o médico indicar continua sendo o produto ser bom e a Helena pedir na hora certa; o crédito só empurra.</p>
   <div class="caixa">
@@ -171,11 +187,11 @@
     <p style="margin:0 0 .6rem">Janeiro projetava 0,5 indicação por médico por mês com prêmio de três dias de uso ilimitado. Com prêmio em crédito, que é outra moeda, ninguém sabe ainda. Estimativa para o beta: 0,1 a 0,2 indicações por mês, 30 % testam → <strong>+0,1 a +0,2 de K por ciclo</strong>. Somado ao laço (0,05), chega perto dos 0,3 da meta só se o pedido for feito na hora certa e a secretária entrar. <strong>O prêmio já voltou</strong> (emenda 37), então o teste do beta deixa de ser com ou sem prêmio e passa a ser de calibragem: qual tamanho de pacote de crédito muda a indicação, e onde o teto dele fica.</p>
   </div>
 
-  <span class="num">8</span>
+  <span class="num">9</span>
   <h2>O grátis como ativo de mídia</h2>
   <p>Cada médico grátis custa R$ 0,80 por mês e vê a Helena ~150 vezes por mês, no momento em que acabou de pedir o prontuário. É um contato que abre mais que qualquer disparo e custa menos que qualquer anúncio. A dica na tela, identificada e com "dispensar", é onde o convite, o Pro, o serviço da Método 3A e, mais tarde, a indústria por especialidade aparecem. Nunca por queixa do paciente, nunca no PDF.</p>
 
-  <span class="num">9</span>
+  <span class="num">10</span>
   <h2>O que o beta tem que provar, em 90 dias, com 10 médicos do 3A</h2>
   <div class="tabela-wrap"><table>
     <thead><tr><th>Métrica</th><th>Meta</th><th>O que decide</th></tr></thead>
@@ -190,7 +206,7 @@
   </table></div>
   <p><strong>Antes do código, o beta de papel:</strong> duas semanas mandando a versão simples à mão para os pacientes de 10 médicos. Responde às duas perguntas mais caras, "o médico deixa?" e "o paciente abre?", por R$ 0. Só se passar, constrói-se o lado do paciente.</p>
 
-  <span class="num">10</span>
+  <span class="num">11</span>
   <h2>Os riscos que atacam o laço</h2>
   <ul>
     <li><strong>O Noa leva a consulta ao app do paciente antes de nós.</strong> Eles já têm o paciente pela Doctoralia. Resposta: lado do paciente em 6 semanas, não em 6 meses, e funcionando com qualquer médico.</li>
@@ -200,7 +216,7 @@
     <li><strong>O laço é hipótese.</strong> A conta da seção 5 dá K 0,05 sem empurrar. Se o beta der menos de 0,1, o crescimento é vendas, com custo de aquisição de ~R$ 1.000 por médico, e o modelo financeiro muda.</li>
   </ul>
 
-  <span class="num">11</span>
+  <span class="num">12</span>
   <h2>A ordem, de hoje até 10 mil médicos</h2>
   <div class="tabela-wrap"><table>
     <thead><tr><th>Quando</th><th>O que gira</th><th>Como se mede</th></tr></thead>
@@ -213,7 +229,7 @@
     </tbody>
   </table></div>
 
-  <span class="num">12</span>
+  <span class="num">13</span>
   <h2>O que mudou desde os documentos de janeiro, e por quê</h2>
   <p>Os três documentos estratégicos de janeiro (o estudo de caso do lançamento viral, o "flywheel" e o memorando sobre o Manus) descrevem o mesmo motor com cinco peças que foram trocadas depois. Para a estratégia ser rastreável:</p>
   <div class="tabela-wrap"><table>
