@@ -5,8 +5,21 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const ASAAS_API_KEY = Deno.env.get("ASAAS_API_KEY"); // null ate configurar
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+// 17/09/2026: chave e URL base do Asaas saíram de Function Secret (ASAAS_API_KEY,
+// exige o painel do Supabase — sem acesso via API neste ambiente) pra tabela config,
+// mesmo padrão do asaas-webhook e asaas-reconciliacao. Trocar sandbox↔produção agora
+// é só um UPDATE nessas duas linhas — sem redeploy, sem depender de ninguém mexer no painel.
+let asaasCache: { apiKey: string | null; apiBase: string; at: number } = { apiKey: null, apiBase: "https://api.asaas.com", at: 0 };
+async function getAsaasConfig() {
+  const now = Date.now();
+  if (asaasCache.at && now - asaasCache.at < 5 * 60 * 1000) return asaasCache;
+  const { data } = await supabase.from("config").select("chave, valor").in("chave", ["asaas_api_key", "asaas_api_base"]);
+  const get = (k: string) => (data?.find((r) => r.chave === k)?.valor as string) ?? null;
+  asaasCache = { apiKey: get("asaas_api_key"), apiBase: get("asaas_api_base") || "https://api.asaas.com", at: now };
+  return asaasCache;
+}
 
 const ALLOWED_ORIGINS = ["https://consulta-ia.vercel.app","https://consulta-ia-git-staging-rodrigosarda-9265s-projects.vercel.app","http://localhost:5173","http://localhost:3000"];
 function getCorsHeaders(req: Request) { const o = req.headers.get("Origin")||""; return { "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(o)?o:ALLOWED_ORIGINS[0], "Access-Control-Allow-Methods":"GET,POST,OPTIONS", "Access-Control-Allow-Headers":"Content-Type,X-Session-Token", "Access-Control-Max-Age":"86400", "Vary":"Origin" }; }
@@ -17,7 +30,11 @@ function san(i:string){return i.replace(/<[^>]*>/g,"").replace(/[\x00-\x08\x0B\x
 function sanPh(i:string){return i.replace(/[^0-9()\s+-]/g,"").trim().slice(0,20)}
 function json(d:unknown,s=200,r?:Request){return new Response(JSON.stringify(d),{status:s,headers:{"Content-Type":"application/json",...getCorsHeaders(r||new Request("https://x"))}})}
 
-const PLANO_PRECOS: Record<string, number> = { maria: 4700, cerebro: 9700 }; // centavos
+// Enum plano_tipo renomeado em 17/09 (migração rename_plano_tipo_legado_pra_nomes_da_spec +
+// abre_espaco_pro_degrau_cerebro_real): 'maria'→'rapido', 'cerebro'→'pro', e um valor novo
+// 'cerebro' foi aberto pro degrau real da spec v5.3 (memória/coach, emendas 38-43). Preço do
+// Cérebro é recomendação em aberto na spec (R$297) — não fechado, revisar antes de vender.
+const PLANO_PRECOS: Record<string, number> = { rapido: 2700, pro: 7700, cerebro: 29700 }; // centavos
 
 // O bucket 'audios' tem allowed_mime_types = [audio/webm, audio/ogg, audio/mp4, audio/mpeg,
 // audio/wav, audio/x-m4a]. O navegador manda 'audio/webm;codecs=opus' (com parâmetro) e o
@@ -261,6 +278,30 @@ Deno.serve(async (req: Request) => {
     if(action==="prontuario"){const ci=url.searchParams.get("consulta_id");if(!ci||!/^[0-9a-f-]{36}$/i.test(ci))return json({error:"ID invalido"},400,req);const{data}=await supabase.from("prontuarios").select("*").eq("consulta_id",ci).eq("usuario_tel",telefone).single();return json({success:true,prontuario:data},200,req)}
     if(action==="logout"&&req.method==="POST"){await supabase.from("session_tokens").delete().eq("token",token);return json({success:true},200,req)}
 
+    // PUSH NOTIFICATIONS (PWA, Frente 11 Parte A, 15/09/2026): o navegador manda o
+    // PushSubscription.toJSON() (endpoint + keys.p256dh + keys.auth). Uma linha por
+    // endpoint (por aparelho); trocar de aparelho não duplica, o upsert atualiza o dono.
+    if (action === "push-subscribe" && req.method === "POST") {
+      const body = await req.json().catch(() => null);
+      const endpoint = body?.endpoint as string;
+      const p256dh = body?.keys?.p256dh as string;
+      const authKey = body?.keys?.auth as string;
+      if (!endpoint || !p256dh || !authKey) return json({ error: "Inscricao invalida" }, 400, req);
+      const { error } = await supabase.from("push_subscriptions").upsert(
+        { usuario_tel: telefone, endpoint, p256dh, auth_key: authKey, updated_at: new Date().toISOString() },
+        { onConflict: "endpoint" }
+      );
+      if (error) { console.error("push-subscribe:", error.message); return json({ error: "Falhou" }, 500, req); }
+      return json({ success: true }, 200, req);
+    }
+    if (action === "push-unsubscribe" && req.method === "POST") {
+      const body = await req.json().catch(() => null);
+      const endpoint = body?.endpoint as string;
+      if (!endpoint) return json({ error: "Falta endpoint" }, 400, req);
+      await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint).eq("usuario_tel", telefone);
+      return json({ success: true }, 200, req);
+    }
+
     // GRAVAÇÃO EM PEDAÇOS COM TRANSCRIÇÃO PROGRESSIVA (07/09/2026)
     // Cada pedaço (~30 s, arquivo completo) chega por action=chunk, é guardado e
     // transcrito na hora. A cada ~1 min a IA olha o fim do texto e diz se a
@@ -495,37 +536,51 @@ Deno.serve(async (req: Request) => {
     if(action==="timeline"){const nm=url.searchParams.get("paciente");if(!nm)return json({error:"Falta paciente"},400,req);const{data:u}=await supabase.from("usuarios").select("plano").eq("telefone",telefone).single();if(u?.plano==="free")return json({success:false,paywall:true},200,req);const{data}=await supabase.from("prontuarios").select("id,consulta_id,paciente_nome,prontuario,prontuario_texto,created_at").eq("usuario_tel",telefone).eq("paciente_nome",nm).order("created_at",{ascending:false});return json({success:true,timeline:data},200,req)}
 
     // CHECKOUT
-    if(action==="checkout"&&req.method==="POST"){
+    // 17/09/2026: trocado de billingType "UNDEFINED" (gerava link manual todo
+    // mês, cliente tinha que voltar e pagar de novo — não era débito
+    // automático de verdade) pro Checkout HOSPEDADO do Asaas. O cliente
+    // digita o cartão numa página do próprio Asaas (não na nossa — evita a
+    // gente virar responsável pelo dado, PCI), e chargeTypes RECURRENT faz
+    // cobrar sozinho nos ciclos seguintes. Não criamos mais customer/subscription
+    // na hora — só existem depois que o cliente terminar de pagar lá; o
+    // asaas-webhook (Frente 8) já casa pelo externalReference=telefone
+    // enquanto provider_subscription_id ainda não é conhecido.
+    if(action==="checkout"&&req.method==="POST"){ // chave/URL do Asaas: ver getAsaasConfig() acima
       const plano=url.searchParams.get("plano");
       if(!plano||!PLANO_PRECOS[plano])return json({error:"Plano invalido"},400,req);
 
+      const{apiKey:ASAAS_API_KEY,apiBase:ASAAS_API_BASE}=await getAsaasConfig();
       if(!ASAAS_API_KEY){
         return json({success:false,message:"Pagamentos em breve! Estamos finalizando a integração."},200,req);
       }
 
-      // Buscar ou criar customer no Asaas
-      const{data:usuario}=await supabase.from("usuarios").select("*").eq("telefone",telefone).single();
-      let customerId="";
-      const{data:assinExist}=await supabase.from("assinaturas").select("provider_customer_id").eq("usuario_tel",telefone).limit(1).single();
-      if(assinExist?.provider_customer_id){customerId=assinExist.provider_customer_id}
-      else{
-        const cRes=await fetch("https://api.asaas.com/v3/customers",{method:"POST",headers:{"Content-Type":"application/json",access_token:ASAAS_API_KEY},body:JSON.stringify({name:usuario?.nome||"Profissional de Saude",phone:telefone.replace("+55",""),externalReference:telefone})});
-        const cData=await cRes.json();
-        customerId=cData.id;
-      }
+      const valor=PLANO_PRECOS[plano]/100;
+      // Sem customerData: se mandar o objeto parcial (só telefone), o Asaas passa a
+      // exigir TODOS os campos dele (nome, email, CPF, endereço) — dado que a gente
+      // não coleta hoje. Omitindo o campo inteiro, o cliente preenche isso na própria
+      // página do Asaas. nextDueDate é obrigatório pra chargeTypes RECURRENT (não
+      // documentado como obrigatório no schema, mas a API rejeita sem ele).
+      const amanha=new Date(Date.now()+86400000).toISOString().slice(0,10);
 
-      // Criar assinatura
-      const sRes=await fetch("https://api.asaas.com/v3/subscriptions",{method:"POST",headers:{"Content-Type":"application/json",access_token:ASAAS_API_KEY},body:JSON.stringify({customer:customerId,billingType:"UNDEFINED",value:PLANO_PRECOS[plano]/100,cycle:"MONTHLY",description:`MarIA - Plano ${plano}`,externalReference:telefone})});
-      const sData=await sRes.json();
+      const coRes=await fetch(`${ASAAS_API_BASE}/v3/checkouts`,{method:"POST",headers:{"Content-Type":"application/json",access_token:ASAAS_API_KEY},body:JSON.stringify({
+        billingTypes:["CREDIT_CARD"],
+        chargeTypes:["RECURRENT"],
+        callback:{successUrl:`${ALLOWED_ORIGINS[0]}/?pagamento=sucesso`,cancelUrl:`${ALLOWED_ORIGINS[0]}/?pagamento=cancelado`},
+        items:[{name:`Helena - ${plano}`.slice(0,30),description:`Assinatura Helena - Plano ${plano}`,quantity:1,value:valor}],
+        subscription:{cycle:"MONTHLY",nextDueDate:amanha},
+        externalReference:telefone,
+      })});
+      const coData=await coRes.json();
 
-      if(sData.id){
-        await supabase.from("assinaturas").insert({usuario_tel:telefone,plano,provider:"asaas",provider_subscription_id:sData.id,provider_customer_id:customerId,valor_cents:PLANO_PRECOS[plano],status:"pending"});
-        // Gerar link de pagamento
-        const pRes=await fetch(`https://api.asaas.com/v3/paymentLinks`,{method:"POST",headers:{"Content-Type":"application/json",access_token:ASAAS_API_KEY},body:JSON.stringify({name:`MarIA ${plano}`,value:PLANO_PRECOS[plano]/100,billingType:"UNDEFINED",subscriptionCycle:"MONTHLY",chargeType:"RECURRENT",dueDateLimitDays:3,externalReference:telefone})});
-        const pData=await pRes.json();
-        return json({success:true,checkout_url:pData.url||"https://asaas.com"},200,req);
+      if(coData.id&&coData.link){
+        const{data:jaExiste}=await supabase.from("assinaturas").select("id").eq("usuario_tel",telefone).eq("status","pending").limit(1).single();
+        if(!jaExiste){
+          await supabase.from("assinaturas").insert({usuario_tel:telefone,plano,provider:"asaas",valor_cents:PLANO_PRECOS[plano],status:"pending"});
+        }
+        return json({success:true,checkout_url:coData.link},200,req);
       }
-      return json({error:"Falha ao criar assinatura"},500,req);
+      console.error("checkout Asaas falhou:", JSON.stringify(coData));
+      return json({error:"Falha ao criar checkout"},500,req);
     }
 
     return json({error:"action invalida"},400,req);

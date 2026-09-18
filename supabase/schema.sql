@@ -577,3 +577,57 @@ alter table consultas add column if not exists mapa_pedacos jsonb;              
 insert into config (chave, valor) values
   ('transcricao', '{"espera": "gemini:gemini-3.5-flash-lite", "consulta": "gemini:gemini-3.7-flash", "reserva": "whisper:whisper-large-v3", "falantes": true}')
 on conflict (chave) do nothing;
+
+-- ---------------------------------------------------------------------
+-- 13. PUSH NOTIFICATIONS (PWA) — Frente 11 Parte A, 15/09/2026
+--     Aplicado em produção via apply_migration em 15/09/2026.
+--     App web instalável precisa de canal de notificação grátis pra não
+--     depender só do WhatsApp (janela grátis de 24h da Meta acaba 01/10/2026,
+--     WhatsApp custaria 25x a IA — ver docs/plano/potencial-helena.html §4).
+--     Uma inscrição por endpoint (por aparelho/navegador). process-consultation
+--     tenta push primeiro; cai pro WhatsApp se não tiver inscrição ou falhar.
+-- ---------------------------------------------------------------------
+create table if not exists push_subscriptions (
+  id uuid default gen_random_uuid() not null,
+  usuario_tel text not null references usuarios(telefone),
+  endpoint text not null,
+  p256dh text not null,
+  auth_key text not null,
+  created_at timestamp with time zone default now() not null,
+  updated_at timestamp with time zone default now() not null
+);
+alter table push_subscriptions add constraint push_subscriptions_pkey PRIMARY KEY (id);
+alter table push_subscriptions add constraint push_subscriptions_endpoint_key UNIQUE (endpoint);
+CREATE INDEX idx_push_subscriptions_usuario ON public.push_subscriptions USING btree (usuario_tel);
+
+CREATE OR REPLACE FUNCTION public.tr_normalize_push_sub_phone() RETURNS trigger LANGUAGE plpgsql
+AS $function$ BEGIN NEW.usuario_tel := normalize_br_phone(NEW.usuario_tel); RETURN NEW; END; $function$;
+
+CREATE TRIGGER tr_push_subscriptions_normalize_phone BEFORE INSERT OR UPDATE ON public.push_subscriptions FOR EACH ROW EXECUTE FUNCTION tr_normalize_push_sub_phone();
+CREATE TRIGGER tr_push_subscriptions_updated_at BEFORE UPDATE ON public.push_subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+alter table push_subscriptions enable row level security;
+create policy service_role_all on push_subscriptions for ALL to public using ((auth.role() = 'service_role'::text));
+
+-- ⚠️ Secrets necessários (Supabase Dashboard → Edge Functions → Secrets, NÃO aqui):
+--   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (mailto:...)
+--   Chave pública já está hardcoded em src/lib/push.js (é pública por natureza).
+--   Chave privada gerada em 15/09/2026 e guardada no Chaveiro do Rodrigo
+--   (security find-generic-password -s consulta-ia-vapid-private -w) — nunca commitada.
+
+-- ---------------------------------------------------------------------
+-- 14. RENOMEIA plano_tipo — 17/09/2026, Frente 8 (Helena Segurança)
+--     'maria'/'cerebro' eram nomes do enum de janeiro (linha 34), anteriores
+--     à spec de 09/09 — 'cerebro' lá representava só "o plano chique" de
+--     então (hoje: Pro, R$77), colidindo de nome com o degrau REAL "Cérebro"
+--     (R$297, spec v5.3, emendas 38-43) que nunca teve lugar no banco.
+--     Zero linhas reais usavam 'maria'/'cerebro' (confirmado antes de rodar,
+--     só 'free' em uso) — renomear foi seguro, sem migração de dado.
+--     Aplicado em produção via apply_migration em 17/09/2026.
+-- ---------------------------------------------------------------------
+alter type plano_tipo rename value 'maria' to 'rapido';
+alter type plano_tipo rename value 'cerebro' to 'pro';
+alter type plano_tipo add value 'cerebro'; -- agora sim o degrau real
+
+update config set valor = '{"free": 1073741824, "rapido": 53687091200, "pro": 188978561024, "cerebro": 536870912000}'::jsonb
+where chave = 'storage_limits';

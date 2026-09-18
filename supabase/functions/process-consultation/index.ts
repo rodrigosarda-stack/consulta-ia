@@ -1,23 +1,34 @@
 // RESGATADO do Supabase em 05/09/2026 (versão 16, deployada em abril/2026).
 // Este código NUNCA esteve no git — vivia só no servidor.
 //
-// ⚠️ ÚNICA ALTERAÇÃO em relação ao que está deployado: a EVO_API_KEY estava
-// ESCRITA DIRETO NO CÓDIGO. Trocada por variável de ambiente pra não gravar
-// credencial no repositório. A chave original segue ativa na função em
-// produção — precisa ser rotacionada e cadastrada como secret.
+// 15/09/2026 (Frente 8): entrega de WhatsApp migrada de Evolution API
+// self-hosted pra HelenaCRM (Meta Cloud API oficial) — auditoria de
+// 2026-09-11 mostrou zero uso real do bot por médico de verdade (só dados de
+// teste), então a troca de motor não afeta ninguém. Token e canal ficam na
+// tabela config (mesmo padrão do helena-webhook), não em Function Secret —
+// sem acesso à CLI/API de secrets neste ambiente.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import webpush from "npm:web-push@3.6.7"; // npm: nativo do Deno (GA) — mais confiável que esm.sh pros módulos node:crypto que a lib usa por baixo
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY")!;
+const DEEPINFRA_API_KEY = Deno.env.get("DEEPINFRA_API_KEY")!;
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY")!;
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY")!;
 const CRON_SECRET = Deno.env.get("CRON_SECRET");
 
-const EVO_URL = "https://evo.metodo3amedico.com.br";
-const EVO_API_KEY = Deno.env.get("EVO_API_KEY")!; // era hardcoded — ver nota no topo
-const INSTANCE = "MarIA-Bot";
+const HELENA_API_URL = "https://api.helena.run/chat/v1/send/text";
+
+// PUSH NOTIFICATIONS (PWA, Frente 11 Parte A, 15/09/2026): canal de entrega grátis
+// pra não depender da janela grátis do WhatsApp (Meta cobra a partir de 01/10/2026,
+// 25x o custo da IA — docs/plano/potencial-helena.html §4). Secrets no painel do
+// Supabase (Edge Functions → Secrets), não aqui. Sem eles configurados, deliverPush
+// simplesmente não envia e o fluxo cai pro WhatsApp — nunca quebra o pipeline.
+const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:rodrigosarda@metodo3amedico.com.br";
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -92,15 +103,36 @@ function sanitizeJson(obj: Record<string, unknown>): Record<string, unknown> {
   return clean;
 }
 
+// ── Config transcrição (cache 5min): troca de modelo sem deploy ──
+// 17/09/2026: trocado de Groq pra DeepInfra DIRETO (endpoint compatível
+// OpenAI /v1/openai/audio/transcriptions, não o nativo /v1/inference — esse
+// devolve um campo "cost" que NÃO reflete a tarifa real, achado da mesma
+// sessão, não confiar nele). Modelo: Qwen/Qwen3-ASR-0.6B, não Whisper —
+// mesmo preço do Whisper Turbo (US$0,0002/min = US$0,012/hora, confirmado
+// na tela de uso real da conta) mas ACERTA "dipirona" na régua, onde todo
+// Whisper testado na sessão (Groq, DeepInfra, Mac local, navegador) errava
+// "de pirona". Preços e testes de todos os fornecedores/modelos:
+// docs/plano/estudo-transcricao.html.
+const TRANSCRICAO_MODELO_PADRAO = "Qwen/Qwen3-ASR-0.6B";
+let transcricaoCache: { modelo: string; at: number } = { modelo: TRANSCRICAO_MODELO_PADRAO, at: 0 };
+async function getTranscricaoConfig() {
+  const now = Date.now();
+  if (transcricaoCache.at && now - transcricaoCache.at < 5 * 60 * 1000) return transcricaoCache;
+  const { data } = await supabase.from("config").select("chave, valor").eq("chave", "transcricao_modelo").maybeSingle();
+  transcricaoCache = { modelo: (data?.valor as string) ?? TRANSCRICAO_MODELO_PADRAO, at: now };
+  return transcricaoCache;
+}
+
 async function transcribeAudio(audioBlob: Blob): Promise<string> {
+  const { modelo } = await getTranscricaoConfig();
   const formData = new FormData();
   formData.append("file", audioBlob, "audio.webm");
-  formData.append("model", "whisper-large-v3");
+  formData.append("model", modelo);
   formData.append("language", "pt");
-  formData.append("response_format", "text");
-  const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", headers: { Authorization: `Bearer ${GROQ_API_KEY}` }, body: formData });
+  const response = await fetch("https://api.deepinfra.com/v1/openai/audio/transcriptions", { method: "POST", headers: { Authorization: `bearer ${DEEPINFRA_API_KEY}` }, body: formData });
   if (!response.ok) throw new Error(`Whisper error ${response.status}`);
-  return await response.text();
+  const data = await response.json();
+  return data.text;
 }
 
 async function generateWithGemini(prompt: string): Promise<{ text: string; model: string }> {
@@ -138,7 +170,9 @@ async function generateWithHaiku(prompt: string): Promise<{ text: string; model:
 
 async function generateProntuario(transcricao: string, pacienteNome: string, plano: string) {
   const fullPrompt = `${PRONTUARIO_PROMPT}${JSON_INSTRUCTION}\n\n===== INICIO DO CONTEUDO =====\nPaciente: ${pacienteNome}\n\nTranscricao:\n${transcricao}\n===== FIM DO CONTEUDO =====`;
-  const { text: content, model } = plano === "cerebro" ? await generateWithHaiku(fullPrompt) : await generateWithGemini(fullPrompt);
+  // Enum renomeado 17/09: era só "cerebro" (nome antigo do Pro); agora Pro E Cérebro (novo
+  // degrau real, mais premium ainda) usam o modelo melhor — só o Rápido fica no Gemini.
+  const { text: content, model } = (plano === "pro" || plano === "cerebro") ? await generateWithHaiku(fullPrompt) : await generateWithGemini(fullPrompt);
   const parts = content.split("---JSON---");
   const bruto = parts[0];
   let json: Record<string, unknown> = {};
@@ -165,29 +199,69 @@ async function generateProntuario(transcricao: string, pacienteNome: string, pla
   return { texto, json, classificacao };
 }
 
+// ── Config HelenaCRM (cache 5min): token da API + número do canal ──
+let helenaCache: { token: string | null; numero: string | null; at: number } = { token: null, numero: null, at: 0 };
+async function getHelenaConfig() {
+  const now = Date.now();
+  if (helenaCache.at && now - helenaCache.at < 5 * 60 * 1000) return helenaCache;
+  const { data } = await supabase.from("config").select("chave, valor").in("chave", ["helenacrm_api_token", "helenacrm_canal_numero"]);
+  const get = (k: string) => (data?.find((r) => r.chave === k)?.valor as string) ?? null;
+  helenaCache = { token: get("helenacrm_api_token"), numero: get("helenacrm_canal_numero"), at: now };
+  return helenaCache;
+}
+
+async function sendWhatsApp(to: string, text: string) {
+  const { token, numero } = await getHelenaConfig();
+  if (!token) { console.error("HelenaCRM: sem helenacrm_api_token configurado"); return; }
+  await fetch(HELENA_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ to, from: numero ? `+${numero}` : undefined, text }),
+  });
+}
+
 async function deliverViaWhatsApp(consulta: Record<string, unknown>, prontuarioTexto: string) {
   try {
-    const phone = String(consulta.usuario_tel).replace("+", "");
+    const phone = String(consulta.usuario_tel); // já vem com + do banco
     const paciente = consulta.paciente_nome || "Paciente";
     const now = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
-    await fetch(`${EVO_URL}/message/sendText/${INSTANCE}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", apikey: EVO_API_KEY },
-      body: JSON.stringify({ number: phone, text: `📋 *Prontuário — ${paciente}*\n🕒 ${now}\n\n${prontuarioTexto}\n\n_Gerado por MarIA • consulta-ia.vercel.app_` }),
-    });
+    await sendWhatsApp(phone, `📋 *Prontuário — ${paciente}*\n🕒 ${now}\n\n${prontuarioTexto}\n\n_Gerado por MarIA • consulta-ia.vercel.app_`);
     await supabase.from("prontuarios").update({ enviado_wa: true }).eq("consulta_id", consulta.id);
     console.log(`WhatsApp delivered: ${consulta.id}`);
   } catch { console.error(`WhatsApp failed: ${consulta.id}`); }
 }
 
+// Tenta o app instalado primeiro; devolve true se entregou em pelo menos um
+// aparelho. Inscrição expirada (410/404, ex.: o médico desinstalou) é removida
+// na hora — não vale a pena tentar de novo nem contar como "entregue".
+async function deliverViaPush(consulta: Record<string, unknown>, prontuarioTexto: string): Promise<boolean> {
+  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) return false;
+  const { data: subs } = await supabase.from("push_subscriptions").select("endpoint,p256dh,auth_key").eq("usuario_tel", consulta.usuario_tel);
+  if (!subs || !subs.length) return false;
+  const paciente = consulta.paciente_nome || "Paciente";
+  const payload = JSON.stringify({
+    title: `Prontuário — ${paciente}`,
+    body: prontuarioTexto.slice(0, 150),
+    url: "/",
+    tag: `consulta-${consulta.id}`,
+  });
+  let entregou = false;
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } }, payload);
+      entregou = true;
+    } catch (e) {
+      const status = (e as { statusCode?: number })?.statusCode;
+      if (status === 404 || status === 410) await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+      else console.error(`push failed (${status}):`, consulta.id);
+    }
+  }
+  return entregou;
+}
+
 async function sendNotSaudeMessage(consulta: Record<string, unknown>) {
   try {
-    const phone = String(consulta.usuario_tel).replace("+", "");
-    await fetch(`${EVO_URL}/message/sendText/${INSTANCE}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", apikey: EVO_API_KEY },
-      body: JSON.stringify({ number: phone, text: `⁉️ *Essa gravação não parece uma consulta de saúde.*\n\nA MarIA é gratuita apenas para atendimentos clínicos.\n\nPara gravar reuniões, aulas e outros conteúdos, faça um upgrade.\n\nDigite *gravar* pra iniciar uma consulta de saúde.` }),
-    });
+    await sendWhatsApp(String(consulta.usuario_tel), `⁉️ *Essa gravação não parece uma consulta de saúde.*\n\nA MarIA é gratuita apenas para atendimentos clínicos.\n\nPara gravar reuniões, aulas e outros conteúdos, faça um upgrade.\n\nDigite *gravar* pra iniciar uma consulta de saúde.`);
   } catch {}
 }
 
@@ -224,7 +298,7 @@ async function processOne(): Promise<boolean> {
     // Se NAO e saude e plano FREE: bloquear
     if (classificacao === "nao_saude" && plano === "free") {
       // Salvar transcricao (pra referencia) mas sem prontuario
-      await supabase.from("prontuarios").insert({ consulta_id: consulta.id, usuario_tel: consulta.usuario_tel, paciente_nome: consulta.paciente_nome, transcricao, prontuario: json, prontuario_texto: "Conteudo nao classificado como consulta de saude." });
+      await supabase.from("prontuarios").insert({ consulta_id: consulta.id, usuario_tel: consulta.usuario_tel, paciente_nome: consulta.paciente_nome, transcricao, prontuario: json, prontuario_texto: "Conteúdo não classificado como consulta de saúde." });
       await supabase.from("consultas").update({ status: "done" }).eq("id", consulta.id);
       await sendNotSaudeMessage(consulta);
       console.log(`Not health content, blocked: ${consulta.id}`);
@@ -236,7 +310,9 @@ async function processOne(): Promise<boolean> {
     if (insertErr) throw new Error("Insert failed");
     await supabase.from("consultas").update({ status: "done" }).eq("id", consulta.id);
     if (consulta.audio_size_bytes) await supabase.rpc("increment_storage", { tel: consulta.usuario_tel, bytes: consulta.audio_size_bytes });
-    await deliverViaWhatsApp(consulta, texto);
+    // App instalado é o canal principal (grátis); WhatsApp é a garantia de quem não instalou.
+    const entregouPorPush = await deliverViaPush(consulta, texto);
+    if (!entregouPorPush) await deliverViaWhatsApp(consulta, texto);
     console.log(`Done: ${consulta.id}`);
     return true;
   } catch (error) {

@@ -56,6 +56,28 @@ export async function logoutServer() {
   } catch {}
 }
 
+// Push notifications (PWA) — Frente 11 Parte A
+export async function pushSubscribe(subscription) {
+  const token = getSessionToken()
+  const res = await fetch(`${API_URL}?action=push-subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Session-Token': token || '' },
+    body: JSON.stringify(subscription),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || `push-subscribe ${res.status}`)
+  return data
+}
+
+export async function pushUnsubscribe(endpoint) {
+  const token = getSessionToken()
+  await fetch(`${API_URL}?action=push-unsubscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Session-Token': token || '' },
+    body: JSON.stringify({ endpoint }),
+  }).catch(() => {})
+}
+
 export async function getConsulta(id) {
   const data = await apiFetch('consulta', { id })
   return data.consulta

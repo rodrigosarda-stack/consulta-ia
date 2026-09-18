@@ -4,6 +4,10 @@
 // ⚠️ ÚNICA ALTERAÇÃO em relação ao deployado: a EVO_API_KEY estava ESCRITA
 // DIRETO NO CÓDIGO. Trocada por variável de ambiente. A chave original segue
 // ativa em produção — precisa ser rotacionada e cadastrada como secret.
+//
+// 14/09/2026 — Frente 8 (auditoria 2026-09-11, achado 1): endpoint não
+// verificava nada, qualquer um podia forjar messages.upsert. Autenticação
+// adicionada abaixo (token compartilhado, ver checkWebhookAuth).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -15,6 +19,46 @@ const EVO_URL = "https://evo.metodo3amedico.com.br";
 const EVO_API_KEY = Deno.env.get("EVO_API_KEY")!; // era hardcoded — ver nota no topo
 const INSTANCE = "MarIA-Bot";
 const APP_URL = "https://consulta-ia.vercel.app";
+
+// ── Autenticação do webhook (token compartilhado) ──
+// A Evolution API não assina os callbacks (sem HMAC), então usamos o mesmo
+// padrão de token compartilhado que validar-conselho usa com X-Session-Token
+// (ver docs/decisoes/2026-09-11-auditoria-codigo-vs-spec.md, achado 1).
+// O segredo fica em config.whatsapp_webhook_secret (não dá pra cadastrar
+// Function Secret por aqui — ver nota da rotação da EVO_API_KEY). A Evolution
+// precisa ser configurada (painel, instância MarIA-Bot → Webhook → Headers)
+// para mandar `X-Webhook-Token: <esse segredo>` em toda chamada.
+let cachedWebhookSecret: string | null = null;
+let cachedWebhookSecretAt = 0;
+const WEBHOOK_SECRET_TTL_MS = 5 * 60 * 1000;
+
+async function getWebhookSecret(): Promise<string | null> {
+  const now = Date.now();
+  if (cachedWebhookSecret && now - cachedWebhookSecretAt < WEBHOOK_SECRET_TTL_MS) {
+    return cachedWebhookSecret;
+  }
+  const { data } = await supabase.from("config").select("valor").eq("chave", "whatsapp_webhook_secret").single();
+  const secret = typeof data?.valor === "string" ? data.valor : null;
+  if (secret) {
+    cachedWebhookSecret = secret;
+    cachedWebhookSecretAt = now;
+  }
+  return secret;
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function checkWebhookAuth(req: Request): Promise<boolean> {
+  const provided = req.headers.get("X-Webhook-Token") || "";
+  const expected = await getWebhookSecret();
+  if (!expected || !provided) return false;
+  return timingSafeEqual(provided, expected);
+}
 
 // ── Enviar mensagem via Evolution API ──
 async function sendMessage(to: string, text: string) {
@@ -186,6 +230,11 @@ export async function deliverProntuario(consultaId: string) {
 // ── Webhook principal ──
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200 });
+
+  if (!(await checkWebhookAuth(req))) {
+    console.error("Webhook rejeitado: X-Webhook-Token ausente ou invalido");
+    return new Response("unauthorized", { status: 401 });
+  }
 
   try {
     const body = await req.json();

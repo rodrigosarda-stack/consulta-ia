@@ -363,6 +363,7 @@ export default function Recorder({ usuario, telefone, onConsultaCriada, onLogout
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
           {onPainel && <button onClick={onPainel} style={{ fontSize: 11, ...muted, background: '#101e30', border: '1px solid rgba(99,179,237,0.1)', padding: '5px 10px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit' }}>📋 Prontuários</button>}
+          {onPlanos && <button onClick={onPlanos} style={{ fontSize: 11, ...muted, background: '#101e30', border: '1px solid rgba(99,179,237,0.1)', padding: '5px 10px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit' }}>💳 Planos</button>}
           <button onClick={onLogout} style={{ fontSize: 11, ...muted, background: '#101e30', border: '1px solid rgba(99,179,237,0.1)', padding: '5px 10px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', fontFamily: 'inherit' }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
             {telefone.replace('+55', '').replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')}

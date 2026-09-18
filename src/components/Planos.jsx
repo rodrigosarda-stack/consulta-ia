@@ -29,9 +29,9 @@ const PLANOS = [
     ],
   },
   {
-    id: 'maria',
+    id: 'rapido',
     nome: 'MarIA',
-    preco: 'Em breve',
+    preco: 'R$ 27', // bate com PLANO_PRECOS.rapido em supabase/functions/api/index.ts
     periodo: '/mês',
     destaque: true,
     features: [
@@ -49,9 +49,9 @@ const PLANOS = [
     ],
   },
   {
-    id: 'cerebro',
-    nome: 'Cérebro',
-    preco: 'Em breve',
+    id: 'pro',
+    nome: 'Pro',
+    preco: 'R$ 77', // bate com PLANO_PRECOS.pro em supabase/functions/api/index.ts
     periodo: '/mês',
     destaque: false,
     features: [
@@ -60,6 +60,21 @@ const PLANOS = [
       'Busca semântica por IA (RAG)',
       'Perguntas ao histórico via IA',
       '175 GB de áudio (~5 anos)',
+    ],
+    naoInclui: [],
+  },
+  {
+    id: 'cerebro',
+    nome: 'Cérebro',
+    preco: 'R$ 297', // bate com PLANO_PRECOS.cerebro — spec v5.3 trata como recomendação, não preço fechado
+    periodo: '/mês',
+    destaque: false,
+    features: [
+      'Tudo do Pro',
+      'Coach ao vivo durante a consulta',
+      'Análise de oportunidade',
+      'Medidas em formato de exame',
+      'Vídeo do Rodrigo por medida',
     ],
     naoInclui: [],
   },
@@ -98,7 +113,7 @@ export default function Planos({ planoAtual, onBack }) {
 
   return (
     <div style={{ minHeight: '100vh', background: '#060c14', color: '#e2eaf6', fontFamily: "'Outfit',system-ui,sans-serif", padding: '44px 20px 40px' }}>
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1040, margin: '0 auto' }}>
 
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: accent, fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', marginBottom: 16, padding: 0 }}>
           ← Voltar
@@ -112,17 +127,19 @@ export default function Planos({ planoAtual, onBack }) {
           <br />Os planos pagos desbloqueiam o painel de histórico e IA avançada.
         </div>
 
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 16 }}>
         {PLANOS.map(plano => {
           const isAtual = plano.id === planoAtual
           const isDestaque = plano.destaque
 
           return (
             <div key={plano.id} style={{
+              display: 'flex',
+              flexDirection: 'column',
               background: isDestaque ? 'rgba(45,212,191,0.05)' : '#0c1622',
               border: isDestaque ? `2px solid ${accent}44` : '1px solid rgba(99,179,237,0.1)',
               borderRadius: 16,
               padding: '20px 18px',
-              marginBottom: 12,
               position: 'relative',
             }}>
               {isDestaque && (
@@ -145,7 +162,7 @@ export default function Planos({ planoAtual, onBack }) {
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14, flex: 1 }}>
                 {plano.features.map(f => (
                   <div key={f} style={{ fontSize: 13, color: '#a8c0d8', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                     <span style={{ color: '#4ade80', flexShrink: 0 }}>✓</span> {f}
@@ -181,10 +198,11 @@ export default function Planos({ planoAtual, onBack }) {
             </div>
           )
         })}
+        </div>
 
         <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, ...muted, lineHeight: 1.5 }}>
           Cancele quando quiser. Sem multa, sem compromisso.
-          <br />Pagamento via PIX, cartão ou boleto.
+          <br />Pagamento via cartão de crédito, com débito automático.
         </div>
       </div>
     </div>

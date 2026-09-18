@@ -6,6 +6,7 @@ import Recorder from './components/Recorder'
 import Status from './components/Status'
 import Painel from './components/Painel'
 import Planos from './components/Planos'
+import PushOptIn from './components/PushOptIn'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -114,7 +115,7 @@ export default function App() {
   }
 
   if (screen === 'painel') {
-    return <Painel onBack={() => setScreen('recorder')} />
+    return <Painel onBack={() => setScreen('recorder')} onPlanos={() => setScreen('planos')} />
   }
 
   if (screen === 'planos') {
@@ -122,13 +123,16 @@ export default function App() {
   }
 
   return (
-    <Recorder
-      usuario={usuario}
-      telefone={telefone}
-      onConsultaCriada={handleConsultaCriada}
-      onLogout={handleLogout}
-      onPainel={() => setScreen('painel')}
-      onPlanos={() => setScreen('planos')}
-    />
+    <>
+      <PushOptIn />
+      <Recorder
+        usuario={usuario}
+        telefone={telefone}
+        onConsultaCriada={handleConsultaCriada}
+        onLogout={handleLogout}
+        onPainel={() => setScreen('painel')}
+        onPlanos={() => setScreen('planos')}
+      />
+    </>
   )
 }

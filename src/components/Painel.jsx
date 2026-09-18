@@ -22,7 +22,7 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })
 }
 
-export default function Painel({ onBack }) {
+export default function Painel({ onBack, onPlanos }) {
   const [view, setView] = useState('pacientes') // pacientes | historico | timeline | prontuario
   const [pacientes, setPacientes] = useState([])
   const [prontuarios, setProntuarios] = useState([])
@@ -85,9 +85,15 @@ export default function Painel({ onBack }) {
         <div style={{ fontSize: 15, ...muted, marginBottom: 24, textAlign: 'center', maxWidth: 320, lineHeight: 1.6 }}>
           Acesse todos os seus prontuários, busque por paciente e acompanhe a timeline de cada um.
         </div>
-        <div style={{ padding: '14px 28px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, borderRadius: 12, color: 'white', fontWeight: 600, fontSize: 16, marginBottom: 16 }}>
-          Em breve — Plano MarIA
-        </div>
+        {onPlanos ? (
+          <button onClick={onPlanos} style={{ padding: '14px 28px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, border: 'none', borderRadius: 12, color: 'white', fontWeight: 600, fontSize: 16, marginBottom: 16, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Ver planos
+          </button>
+        ) : (
+          <div style={{ padding: '14px 28px', background: `linear-gradient(145deg, ${accent}, #60a5fa)`, borderRadius: 12, color: 'white', fontWeight: 600, fontSize: 16, marginBottom: 16 }}>
+            Em breve — Plano MarIA
+          </div>
+        )}
         <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#6b85a4', fontFamily: 'inherit', fontSize: 14, cursor: 'pointer', padding: 10 }}>
           Voltar ao gravador
         </button>
