@@ -543,8 +543,9 @@ Deno.serve(async (req: Request) => {
     // gente virar responsável pelo dado, PCI), e chargeTypes RECURRENT faz
     // cobrar sozinho nos ciclos seguintes. Não criamos mais customer/subscription
     // na hora — só existem depois que o cliente terminar de pagar lá; o
-    // asaas-webhook (Frente 8) já casa pelo externalReference=telefone
-    // enquanto provider_subscription_id ainda não é conhecido.
+    // asaas-webhook (Frente 8) casa pelo checkout_session_id (ver 19/09 abaixo) —
+    // achado testando pagamento real: externalReference NÃO sobrevive do
+    // Checkout até o payment final, apesar de mandado aqui.
     if(action==="checkout"&&req.method==="POST"){ // chave/URL do Asaas: ver getAsaasConfig() acima
       const plano=url.searchParams.get("plano");
       if(!plano||!PLANO_PRECOS[plano])return json({error:"Plano invalido"},400,req);
@@ -560,22 +561,39 @@ Deno.serve(async (req: Request) => {
       // não coleta hoje. Omitindo o campo inteiro, o cliente preenche isso na própria
       // página do Asaas. nextDueDate é obrigatório pra chargeTypes RECURRENT (não
       // documentado como obrigatório no schema, mas a API rejeita sem ele).
-      const amanha=new Date(Date.now()+86400000).toISOString().slice(0,10);
+      // 19/09/2026, achado testando pagamento real: era "amanhã" antes — o Asaas só
+      // cobra na data de nextDueDate, então cliente pagando hoje só era cobrado (e
+      // ativado) no dia seguinte. Doc confirma: "a primeira cobrança ocorre em
+      // nextDueDate, salvo quando essa data corresponde ao dia atual" — hoje cobra na hora.
+      const hoje=new Date().toISOString().slice(0,10);
 
       const coRes=await fetch(`${ASAAS_API_BASE}/v3/checkouts`,{method:"POST",headers:{"Content-Type":"application/json",access_token:ASAAS_API_KEY},body:JSON.stringify({
         billingTypes:["CREDIT_CARD"],
         chargeTypes:["RECURRENT"],
+        // 19/09/2026: a API EXIGE nextDueDate (testei sem mandar — rejeita), então não dá pra
+        // deixar "indefinido" pro Asaas decidir na hora do pagamento. O risco real é a sessão
+        // durar até 24h (padrão) e o "hoje" calculado na criação ficar velho se o cliente demorar
+        // pra pagar — por isso a sessão expira em 1h aqui: tempo de sobra pra preencher cartão,
+        // curto o bastante pra "hoje" continuar valendo quando o pagamento realmente acontecer.
+        minutesToExpire:60,
         callback:{successUrl:`${ALLOWED_ORIGINS[0]}/?pagamento=sucesso`,cancelUrl:`${ALLOWED_ORIGINS[0]}/?pagamento=cancelado`},
         items:[{name:`Helena - ${plano}`.slice(0,30),description:`Assinatura Helena - Plano ${plano}`,quantity:1,value:valor}],
-        subscription:{cycle:"MONTHLY",nextDueDate:amanha},
+        subscription:{cycle:"MONTHLY",nextDueDate:hoje},
         externalReference:telefone,
       })});
       const coData=await coRes.json();
 
       if(coData.id&&coData.link){
+        // 19/09/2026: achado testando pagamento real — o externalReference do
+        // Checkout NAO se propaga pro payment/subscription criado a partir dele
+        // (confirmado na API: pagamento real veio com externalReference=null).
+        // checkoutSession, esse sim, vem preenchido no payment — é a chave de
+        // correlação que o asaas-webhook usa. Guarda coData.id aqui pra isso funcionar.
         const{data:jaExiste}=await supabase.from("assinaturas").select("id").eq("usuario_tel",telefone).eq("status","pending").limit(1).single();
         if(!jaExiste){
-          await supabase.from("assinaturas").insert({usuario_tel:telefone,plano,provider:"asaas",valor_cents:PLANO_PRECOS[plano],status:"pending"});
+          await supabase.from("assinaturas").insert({usuario_tel:telefone,plano,provider:"asaas",valor_cents:PLANO_PRECOS[plano],status:"pending",checkout_session_id:coData.id});
+        } else {
+          await supabase.from("assinaturas").update({checkout_session_id:coData.id,plano,valor_cents:PLANO_PRECOS[plano]}).eq("id",jaExiste.id);
         }
         return json({success:true,checkout_url:coData.link},200,req);
       }

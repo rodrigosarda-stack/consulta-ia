@@ -96,15 +96,49 @@ Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
     const event = body?.event as string | undefined;
+    if (!event) return new Response("ok", { status: 200 });
+
+    // 19/09/2026: achado testando pagamento real — PAYMENT_CONFIRMED/RECEIVED
+    // dependem do pipeline de liquidação do Asaas, que não é instantâneo mesmo
+    // com vencimento hoje (medido: ficou horas em PENDING). CHECKOUT_PAID é
+    // outro evento, dispara na hora que o cliente conclui o checkout (cartão
+    // autorizado) — é assim que SaaS de verdade libera acesso na hora. Payload
+    // vem em `checkout`, não em `payment`. PAYMENT_CONFIRMED continua chegando
+    // depois só pra registrar o pagamento oficial (idempotente, já ativo).
+    if (event === "CHECKOUT_PAID") {
+      const checkoutId = (body?.checkout?.id as string | undefined) || undefined;
+      if (!checkoutId) return new Response("ok", { status: 200 });
+      const { data: assinaturaCo } = await supabase.from("assinaturas").select("*").eq("checkout_session_id", checkoutId).order("created_at", { ascending: false }).limit(1).single();
+      if (!assinaturaCo) {
+        console.error("asaas-webhook: CHECKOUT_PAID sem assinatura correspondente", checkoutId);
+        return new Response("ok", { status: 200 });
+      }
+      if (assinaturaCo.status !== "active") {
+        await supabase.from("assinaturas").update({ status: "active" }).eq("id", assinaturaCo.id);
+        await supabase.from("usuarios").update({ plano: assinaturaCo.plano }).eq("telefone", assinaturaCo.usuario_tel);
+        console.log(`asaas-webhook: CHECKOUT_PAID ativou ${assinaturaCo.plano} pra ${assinaturaCo.usuario_tel} na hora`);
+      }
+      return new Response("ok", { status: 200 });
+    }
+
     const payment = body?.payment;
-    if (!event || !payment) return new Response("ok", { status: 200 });
+    if (!payment) return new Response("ok", { status: 200 });
 
     const subscriptionId = (payment.subscription as string | null) || null;
     const externalRef = (payment.externalReference as string | null) || null; // telefone
+    const checkoutSessionId = (payment.checkoutSession as string | null) || null;
 
+    // 19/09/2026, achado testando pagamento real: o externalReference do Checkout
+    // NAO se propaga pro payment/subscription criado a partir dele — veio null num
+    // pagamento real, mesmo tendo sido enviado na criação do checkout. checkoutSession
+    // é a chave que sobrevive; é o que api/index.ts grava em checkout_session_id.
     let assinatura: Record<string, unknown> | null = null;
     if (subscriptionId) {
       const { data } = await supabase.from("assinaturas").select("*").eq("provider_subscription_id", subscriptionId).order("created_at", { ascending: false }).limit(1).single();
+      assinatura = data;
+    }
+    if (!assinatura && checkoutSessionId) {
+      const { data } = await supabase.from("assinaturas").select("*").eq("checkout_session_id", checkoutSessionId).order("created_at", { ascending: false }).limit(1).single();
       assinatura = data;
     }
     if (!assinatura && externalRef) {
@@ -112,8 +146,13 @@ Deno.serve(async (req: Request) => {
       assinatura = data;
     }
     if (!assinatura) {
-      console.error("asaas-webhook: assinatura nao encontrada", event, subscriptionId, externalRef);
+      console.error("asaas-webhook: assinatura nao encontrada", event, subscriptionId, checkoutSessionId, externalRef);
       return new Response("ok", { status: 200 }); // sem correspondencia — confirma recebimento, sem acao
+    }
+    // achou por checkoutSession/externalRef mas ainda não tinha o id da assinatura
+    // Asaas guardado — grava agora, pra reconciliação conseguir consultar depois.
+    if (subscriptionId && !assinatura.provider_subscription_id) {
+      await supabase.from("assinaturas").update({ provider_subscription_id: subscriptionId }).eq("id", assinatura.id);
     }
 
     const usuarioTel = assinatura.usuario_tel as string;

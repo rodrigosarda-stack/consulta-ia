@@ -631,3 +631,13 @@ alter type plano_tipo add value 'cerebro'; -- agora sim o degrau real
 
 update config set valor = '{"free": 1073741824, "rapido": 53687091200, "pro": 188978561024, "cerebro": 536870912000}'::jsonb
 where chave = 'storage_limits';
+
+-- ---------------------------------------------------------------------
+-- 15. checkout_session_id — 19/09/2026, achado testando pagamento REAL
+--     O externalReference mandado na criação do Checkout NÃO sobrevive até o
+--     payment/subscription final (confirmado na API: veio null num pagamento
+--     real). checkoutSession, esse sim, vem preenchido no payment — vira a
+--     chave de correlação confiável que o asaas-webhook usa (junto com
+--     provider_subscription_id, quando já existe).
+-- ---------------------------------------------------------------------
+alter table assinaturas add column if not exists checkout_session_id text;
